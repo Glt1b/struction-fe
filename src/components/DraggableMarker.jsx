@@ -40,7 +40,7 @@ export default function DraggableMarker(props) {
   const [photosOpen, setPhotosOpen] = useState(false);
   const [images, setImages] = useState([]);
   const [photos, setPhotos] = useState(props.photos);
-  const [zoom, setZoom] = useState("");
+  
 
   const onChange = (imageList, addUpdateIndex) => {
     // data for submit
@@ -339,23 +339,10 @@ export default function DraggableMarker(props) {
                   &nbsp;
                   {imageList.map((image, index) => (
                     <div key={index}>
-                      <span
-                        onClick={() => {
-                          setZoom(image["data_url"]);
-                          return (
-                            <NewWindow>
-                              <img src={zoom} alt="" />
-                            </NewWindow>
-                          );
-                        }}
-                      >
+                     
                         <img src={image["data_url"]} alt="" />
-                        {zoom !== "" ? (
-                          <NewWindow>
-                            <img src={zoom} alt="" />
-                          </NewWindow>
-                        ) : null}
-                      </span>
+                   
+                      
                       <div className="image-item__btn-wrapper">
                         <button onClick={() => onImageRemove(index)}>
                           Remove

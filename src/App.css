@@ -382,4 +382,5 @@ INPUT[type="checkbox"] {
 .marker-form {
   height: 400px;
   overflow: scroll;
+  z-index: 999;
 }
