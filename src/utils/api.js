@@ -37,6 +37,7 @@ export const patchMarker = (projectName, markerId, obj) => {
   });
 };
 
+// images
 
 export const getImage = (image_id) => {
     return beStructionApi.get(`/image/${image_id}`).then((result) => {
@@ -53,4 +54,16 @@ export const getImage = (image_id) => {
       return(base64String)
     })
     
+}
+
+export const postImage = (image_id, image) => {
+  return beStructionApi.post(`/image/${image_id}`, image).then((result) => {
+    return result
+  })
+}
+
+export const delImageS3 = (image_id) => {
+  return beStructionApi.delete(`/image/${image_id}`).then((result) => {
+    console.log(result)
+  })
 }

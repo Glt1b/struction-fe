@@ -10,6 +10,7 @@ import NewWindow from "react-new-window";
 import marker from "../images/map-marker.svg";
 import marker1 from "../images/map-marker-issue.svg";
 import marker2 from "../images/map-marker-complete.svg";
+import { postImage, delImageS3 } from "../utils/api";
 
 
 
@@ -46,7 +47,20 @@ export default function DraggableMarker(props) {
     // data for submit
     console.log(imageList, addUpdateIndex);
     setImages(imageList);
+    postImage()
   };
+
+  // CORS problem
+
+  const delImage = (index) => {
+    delImageS3(photos[index])
+    const updatedArr = photos.splice(photos.indexOf(index), 1);
+    setPhotos(updatedArr)
+    setTimeout(() => {
+      updateMarker()
+    }, 1000)
+  }
+
 
   useEffect(() => {
     if (photosOpen) {
@@ -61,9 +75,6 @@ export default function DraggableMarker(props) {
     }
   }, [photosOpen]);
 
-  /* When DynamoDB is working correctly we need to add:
-      - upload photo to storage
-      - delete photo from storage */
 
   // drag marker handlers
   const eventHandlers = useMemo(
@@ -112,7 +123,7 @@ export default function DraggableMarker(props) {
         service: serviceUsed,
         completedBy: "",
         comment: comment,
-        photos: [],
+        photos: photos,
         photos_after: [],
       },
     };
@@ -344,7 +355,8 @@ export default function DraggableMarker(props) {
                    
                       
                       <div className="image-item__btn-wrapper">
-                        <button onClick={() => onImageRemove(index)}>
+                        <button onClick={() => {delImage(index)
+                                          onImageRemove(index)}}>
                           Remove
                         </button>
                       </div>
