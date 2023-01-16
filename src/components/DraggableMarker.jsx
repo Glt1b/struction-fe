@@ -41,39 +41,81 @@ export default function DraggableMarker(props) {
   const [photosOpen, setPhotosOpen] = useState(false);
   const [images, setImages] = useState([]);
   const [photos, setPhotos] = useState(props.photos);
+  const [initalUpload, setInitalUpload] = useState(false);
+  const [photosNumber, setPhotosNumber] = useState(props.photos.length);
+  const [delProgress, setDelProgress] = useState(false);
   
 
   const onChange = (imageList, addUpdateIndex) => {
     // data for submit
     console.log(imageList, addUpdateIndex);
     setImages(imageList);
-    postImage()
   };
 
-  // CORS problem
+  // upload image
+
+  useEffect(() => {
+    console.log(images.length, 'images length')
+    console.log(photosNumber)
+    if(initalUpload && images.length !== photosNumber && !delProgress){
+      console.log('start uploading process')
+      console.log(photosNumber, 'photos number')
+      console.log(images.length, 'images length')
+      const startIndex = images.length - photosNumber;
+      for ( let i = startIndex; i < images.length; i++) {
+        const image_id = `${props.id}-${Date.now()}`;
+        postImage(image_id, images[i].data_url);
+        setPhotosNumber(photosNumber + 1);
+        setPhotos([...photos, image_id])
+      }
+    }
+  }, [images, initalUpload])
+
+
+  // delete image
 
   const delImage = (index) => {
+    /*
     delImageS3(photos[index])
-    const updatedArr = photos.splice(photos.indexOf(index), 1);
-    setPhotos(updatedArr)
-    setTimeout(() => {
-      updateMarker()
-    }, 1000)
+    const updatedArr = photos.filter(item => item !== photos[index]);
+    setPhotos(updatedArr);
+   */
   }
+   /*
+  useEffect(() => {
+    console.log(photosNumber)
+    console.log(photos)
+    console.log('updating marker')
+    updateMarker()
+  }, [photos])
+   */
+
+  // get images
 
 
   useEffect(() => {
     if (photosOpen) {
       for (let photo of photos) {
         getImage(photo).then((result) => {
+          console.log('getting', photo)
+          console.log(images, '<-current images')
           if (result) {
-            const obj = { data_url: "data:image/jpeg;base64," + result };
-            setImages([...images, obj]);
+            console.log('setting', photo)
+            //const obj = { data_url: "data:image/jpeg;base64," + result };
+            const obj = { data_url: result };
+            setImages([...images, obj])
           }
         });
+      
       }
     }
   }, [photosOpen]);
+
+  useEffect(() => {
+    if(images.length === photos.length){
+      setInitalUpload(true)
+    }
+  }, [images])
 
 
   // drag marker handlers
@@ -321,8 +363,13 @@ export default function DraggableMarker(props) {
 
           {/* PHOTO GALLERY COMPONENTS */}
 
+          <br />
+          <hr />
+          <br />
+
           {!photosOpen ? (
-            <button onClick={() => setPhotosOpen(true)}>Load gallery</button>
+            <button onClick={() => {setPhotosOpen(true)
+                                     alert('There are no photos for this marker')}}>Load gallery</button>
           ) : (
             <ImageUploading
               multiple
@@ -355,8 +402,9 @@ export default function DraggableMarker(props) {
                    
                       
                       <div className="image-item__btn-wrapper">
-                        <button onClick={() => {delImage(index)
-                                          onImageRemove(index)}}>
+                        <button onClick={() => {setPhotosNumber(photosNumber - 1)
+                                                delImage(index)
+                                                onImageRemove(index)}}>
                           Remove
                         </button>
                       </div>

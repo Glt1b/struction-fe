@@ -42,6 +42,8 @@ export default function App() {
   const [isProjectLoaded, setIsProjectLoaded] = useState(false);
   const [markersFilter, setMarkersFilter] = useState(false);
 
+  const [mapsLoaded, setMapsLoaded] = useState(false);
+
   // proSidebar
   const { collapseSidebar, toggleSidebar, collapsed, toggled, broken, rtl } =
     useProSidebar();
@@ -68,9 +70,13 @@ export default function App() {
           const obj = {};
           obj["name"] = location.name;
           obj["url"] = result;
+          console.log(obj)
           arr.push(obj);
           if (arr.length === locations.length) {
             setLocations(arr);
+            setTimeout(() => {
+              setMapsLoaded(true);
+            },1000)
           }
         });
       }
@@ -125,6 +131,7 @@ export default function App() {
                 return (
                   <MenuItem
                     onClick={() => {
+                      setMapsLoaded(false);
                       setIsProjectLoaded(false);
                       setProjectName(project);
                       setCurrentLocation("");
@@ -169,7 +176,7 @@ export default function App() {
         />
       ) : null}
 
-      {currentLocation !== "" && markersFilter ? (
+      {currentLocation !== "" && markersFilter && mapsLoaded ? (
         <Map
           currentLocation={currentLocation}
           user={user.key}

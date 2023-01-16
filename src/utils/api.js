@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const beStructionApi = axios.create({
-  baseURL: "https://struction-backend.cyclic.app/api",
+  baseURL: "https://struction-backend.cyclic.app/api"
 });
 
 export const getUser = (user) => {
@@ -25,14 +25,14 @@ export const postMarker = (projectName, markerBody) => {
 
 export const deleteMarker = (projectName, markerId) => {
   //: '/api/:project_name/:marker_id'
-  return beStructionApi.delete(`/${projectName}/${markerId}`).then((result) => {
+  return beStructionApi.delete(`/markers/${projectName}/${markerId}`).then((result) => {
     return result
   })
 };
 
 export const patchMarker = (projectName, markerId, obj) => {
   const patchBody = obj;
-  return beStructionApi.patch(`/${projectName}/${markerId}`, patchBody).then((result) => {
+  return beStructionApi.patch(`/markers/${projectName}/${markerId}`, patchBody).then((result) => {
     return result
   });
 };
@@ -40,16 +40,18 @@ export const patchMarker = (projectName, markerId, obj) => {
 // images
 
 export const getImage = (image_id) => {
+  console.log(image_id, 'getting')
     return beStructionApi.get(`/image/${image_id}`).then((result) => {
-      
+      console.log(result.data.image.data)
       const data = result.data.image.data;
-      let TYPED_ARRAY = new Uint8Array(data);
+
+      let TYPED_ARRAY = new Uint8Array(data); //
 
       const STRING_CHAR = TYPED_ARRAY.reduce((data, byte)=> {
         return data + String.fromCharCode(byte);
         }, '');
 
-      let base64String = window.btoa(STRING_CHAR);
+      let base64String = window.btoa(STRING_CHAR); //
 
       return(base64String)
     })
@@ -57,7 +59,27 @@ export const getImage = (image_id) => {
 }
 
 export const postImage = (image_id, image) => {
-  return beStructionApi.post(`/image/${image_id}`, image).then((result) => {
+
+  const axiosConfig = {
+    responseType: "arraybuffer",
+    headers: {'Content-Type': 'application/json'}
+}
+  console.log(image)
+  
+  // const binary_string = window.atob(image);
+  //const len = image.length;
+  //const bytes = new Uint8Array(len);
+  //for (let i = 0; i < len; i++) {
+  //    bytes[i] = image.charCodeAt(i);
+  //}
+  // const buffer = bytes.buffer;
+
+
+  const body = {img: image}
+  console.log('uploading...')
+
+  return beStructionApi.post(`/image/${image_id}`, body, axiosConfig).then((result) => {
+    console.log('uploaded')
     return result
   })
 }
