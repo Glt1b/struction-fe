@@ -88,7 +88,7 @@ export default function Map(props) {
       >
         <ImageOverlay
           className="map-image"
-          url={`data:image/jpeg;base64,${props.image}`}
+          url={`${props.image}`}
           bounds={bounds}
         >
           {markers.map((item) => {

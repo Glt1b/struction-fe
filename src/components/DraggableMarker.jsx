@@ -11,6 +11,7 @@ import marker from "../images/map-marker.svg";
 import marker1 from "../images/map-marker-issue.svg";
 import marker2 from "../images/map-marker-complete.svg";
 import { postImage, delImageS3 } from "../utils/api";
+import Photo from "./Photo.jsx";
 
 
 
@@ -51,16 +52,16 @@ export default function DraggableMarker(props) {
     console.log(imageList, addUpdateIndex);
     setImages(imageList);
   };
+/**/
+  useEffect(() => {
+    if(images.length !== 0)
+    postImage(null, images[0].data_url)
+  }, [images])
 
   // upload image
 
   useEffect(() => {
-    console.log(images.length, 'images length')
-    console.log(photosNumber)
-    if(initalUpload && images.length !== photosNumber && !delProgress){
-      console.log('start uploading process')
-      console.log(photosNumber, 'photos number')
-      console.log(images.length, 'images length')
+    if(initalUpload){
       const startIndex = images.length - photosNumber;
       for ( let i = startIndex; i < images.length; i++) {
         const image_id = `${props.id}-${Date.now()}`;
@@ -397,8 +398,8 @@ export default function DraggableMarker(props) {
                   &nbsp;
                   {imageList.map((image, index) => (
                     <div key={index}>
-                     
-                        <img src={image["data_url"]} alt="" />
+
+                      <Photo url={image["data_url"]}/>
                    
                       
                       <div className="image-item__btn-wrapper">

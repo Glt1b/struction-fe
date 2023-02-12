@@ -5,7 +5,8 @@ const beStructionApi = axios.create({
 });
 
 export const getUser = (user) => {
-  return beStructionApi.get("/users/" + user).then((res) => {
+  return beStructionApi.get("/users/" + user)
+  .then((res) => {
     return res.data.user;
   });
 };
@@ -45,15 +46,15 @@ export const getImage = (image_id) => {
       console.log(result.data.image.data)
       const data = result.data.image.data;
 
-      let TYPED_ARRAY = new Uint8Array(data); //
+      // let TYPED_ARRAY = new Uint8Array(data); //
 
-      const STRING_CHAR = TYPED_ARRAY.reduce((data, byte)=> {
+      const STRING_CHAR = data.reduce((data, byte)=> {
         return data + String.fromCharCode(byte);
         }, '');
 
-      let base64String = window.btoa(STRING_CHAR); //
+      // let base64String = window.btoa(STRING_CHAR); //
 
-      return(base64String)
+      return(STRING_CHAR)
     })
     
 }
@@ -77,11 +78,14 @@ export const postImage = (image_id, image) => {
 
   const body = {img: image}
   console.log('uploading...')
-
+  console.log(body)
+  /*
   return beStructionApi.post(`/image/${image_id}`, body, axiosConfig).then((result) => {
     console.log('uploaded')
-    return result
+    return result 
   })
+  
+  */
 }
 
 export const delImageS3 = (image_id) => {

@@ -6,13 +6,16 @@ import reportWebVitals from "./reportWebVitals";
 import { ProSidebarProvider } from "react-pro-sidebar";
 import { MarkersProvider } from "./contexts/Markers";
 import { ProjectMarkersProvider } from "./contexts/ProjectMarkers";
+import { UserProvider } from "./contexts/User";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <ProjectMarkersProvider>
     <MarkersProvider>
       <ProSidebarProvider>
-        <App />
+        <UserProvider>
+           <App />
+        </UserProvider>
       </ProSidebarProvider>
     </MarkersProvider>
   </ProjectMarkersProvider>

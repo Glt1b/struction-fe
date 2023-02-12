@@ -5,6 +5,7 @@ import { getProjectDetails, getImage } from "./utils/api";
 import { MarkersContext } from "./contexts/Markers.js";
 import { ProjectMarkersContext } from "./contexts/ProjectMarkers";
 import Map from "./components/Map.jsx";
+import LoginPage from "./components/LoginPage";
 import {
   Sidebar,
   Menu,
@@ -16,17 +17,19 @@ import {
 import structionLogo from "./images/structionLogo.svg";
 import structionHeaderLogo from "./images/struction-logo-header.svg";
 
+
 export default function App() {
-  // worker state hardcoded and to be changed later
+  /*  */
   const [user, setUser] = useState({
-    key: "offline_user",
-    props: {
-      mail: "mail@gmail.com",
-      role: "worker",
-      password: "worker123",
-      projects: ["apartments_unit_", "medical_centre_"],
-    },
+    key: 'marcin@gmail.com',
+    props: {"name": "Marcin Palenik",
+    "role": "manager",
+    "password": "worker123",
+    "projects": ["apartments_unit_", "medical_centre_"]}
   });
+
+
+  // const [user, setUser] = useState(false);
 
   // contract states
   const [projectName, setProjectName] = useState(false);
@@ -105,6 +108,7 @@ export default function App() {
   }, [currentLocation]);
 
   return (
+    
     <div className="App">
       <header className="App-header">
         {isProjectLoaded ? (
@@ -123,11 +127,13 @@ export default function App() {
           alt="struction logo"
         />
       </header>
+
+      {!user ? null : (
       <Sidebar>
         <Menu>
           <SubMenu label="Menu">
             <SubMenu label="Projects">
-              {user.props.projects.map((project) => {
+              {!user ? null : user.props.projects.map((project) => {
                 return (
                   <MenuItem
                     onClick={() => {
@@ -144,7 +150,7 @@ export default function App() {
               })}
             </SubMenu>
 
-            {projectName ? (
+            {mapsLoaded ? (
               <SubMenu label="Locations">
                 {locations.map((location) => {
                   return (
@@ -160,15 +166,16 @@ export default function App() {
                   );
                 })}
               </SubMenu>
-            ) : null}
+            ) : (projectName ? (<p className="loading">Loading project...</p>) : null)}
 
             <MenuItem> Manager Dashboard </MenuItem>
             <MenuItem> Offilne mode </MenuItem>
-            <MenuItem> Loguot </MenuItem>
+            {!user ? null : (<MenuItem> Logout</MenuItem>)}
+            
           </SubMenu>
         </Menu>
-      </Sidebar>
-      {!isProjectLoaded ? (
+      </Sidebar>)}
+      {!isProjectLoaded && user ? (
         <img
           className="struction-logo"
           src={structionLogo}
@@ -186,6 +193,11 @@ export default function App() {
           image={currDrawing}
         />
       ) : null}
+
+      { !user ? (<LoginPage
+          use={user}
+          setUser={setUser} />) : null}
+
     </div>
   );
 }
