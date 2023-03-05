@@ -66,25 +66,16 @@ export const postImage = (image_id, image) => {
     headers: {'Content-Type': 'application/json'}
 }
   console.log(image)
-  
-  // const binary_string = window.atob(image);
-  //const len = image.length;
-  //const bytes = new Uint8Array(len);
-  //for (let i = 0; i < len; i++) {
-  //    bytes[i] = image.charCodeAt(i);
-  //}
-  // const buffer = bytes.buffer;
-
 
   const body = {img: image}
   console.log('uploading...')
   console.log(body)
-  /*
+ 
   return beStructionApi.post(`/image/${image_id}`, body, axiosConfig).then((result) => {
-    console.log('uploaded')
+    console.log(result)
     return result 
   })
-  
+   /*
   */
 }
 

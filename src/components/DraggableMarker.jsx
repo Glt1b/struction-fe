@@ -6,7 +6,6 @@ import { ProjectMarkersContext } from "../contexts/ProjectMarkers.js";
 import "leaflet/dist/leaflet.css";
 import { deleteMarker, getImage, patchMarker } from "../utils/api";
 import ImageUploading from "react-images-uploading";
-import NewWindow from "react-new-window";
 import marker from "../images/map-marker.svg";
 import marker1 from "../images/map-marker-issue.svg";
 import marker2 from "../images/map-marker-complete.svg";
@@ -50,27 +49,31 @@ export default function DraggableMarker(props) {
   const onChange = (imageList, addUpdateIndex) => {
     // data for submit
     console.log(imageList, addUpdateIndex);
+    // upload photos
+    if (photosNumber < imageList.length){
+      const photosArr = photos;
+      for (let index of addUpdateIndex){
+        const image_id = `${props.id}-${Date.now()}`;
+        postImage(image_id, imageList[index].data_url).then((result) => {
+          console.log(result.status)
+          if(result.status === 201){
+            photosArr.push(image_id)
+            console.log(photosArr)
+            if(imageList.length === photosArr.length){
+              setPhotos(photosArr);
+              setTimeout(() => {
+                console.log('updating marker details...')
+                updateMarker();
+              }, 2000)
+            }
+          }
+        });
+     }
+    }
+    // delete photo
+    
     setImages(imageList);
   };
-/**/
-  useEffect(() => {
-    if(images.length !== 0)
-    postImage(null, images[0].data_url)
-  }, [images])
-
-  // upload image
-
-  useEffect(() => {
-    if(initalUpload){
-      const startIndex = images.length - photosNumber;
-      for ( let i = startIndex; i < images.length; i++) {
-        const image_id = `${props.id}-${Date.now()}`;
-        postImage(image_id, images[i].data_url);
-        setPhotosNumber(photosNumber + 1);
-        setPhotos([...photos, image_id])
-      }
-    }
-  }, [images, initalUpload])
 
 
   // delete image
@@ -91,8 +94,10 @@ export default function DraggableMarker(props) {
   }, [photos])
    */
 
+
   // get images
 
+  /*
 
   useEffect(() => {
     if (photosOpen) {
@@ -118,6 +123,7 @@ export default function DraggableMarker(props) {
     }
   }, [images])
 
+  */
 
   // drag marker handlers
   const eventHandlers = useMemo(
@@ -166,8 +172,7 @@ export default function DraggableMarker(props) {
         service: serviceUsed,
         completedBy: "",
         comment: comment,
-        photos: photos,
-        photos_after: [],
+        photos: photos
       },
     };
 
