@@ -41,9 +41,8 @@ export default function DraggableMarker(props) {
   const [photosOpen, setPhotosOpen] = useState(false);
   const [images, setImages] = useState([]);
   const [photos, setPhotos] = useState(props.photos);
-  const [initalUpload, setInitalUpload] = useState(false);
   const [photosNumber, setPhotosNumber] = useState(props.photos.length);
-  const [delProgress, setDelProgress] = useState(false);
+
   
 
   const onChange = (imageList, addUpdateIndex) => {
@@ -75,55 +74,43 @@ export default function DraggableMarker(props) {
     setImages(imageList);
   };
 
+  // get photos
+
+  useEffect(() => {
+    if(photosOpen){
+      const imagesArr = [];
+      for(let photo of photos){
+        getImage(photo).then((result) => {
+          const obj = { data_url: result };
+          imagesArr.push(obj);
+          if(imagesArr.length === photos.length){
+            setImages(imagesArr);
+          }
+        })
+      }
+    }
+  }, [photosOpen])
+
 
   // delete image
 
   const delImage = (index) => {
-    /*
-    delImageS3(photos[index])
-    const updatedArr = photos.filter(item => item !== photos[index]);
-    setPhotos(updatedArr);
-   */
-  }
-   /*
-  useEffect(() => {
-    console.log(photosNumber)
-    console.log(photos)
-    console.log('updating marker')
-    updateMarker()
-  }, [photos])
-   */
-
-
-  // get images
-
-  /*
-
-  useEffect(() => {
-    if (photosOpen) {
-      for (let photo of photos) {
-        getImage(photo).then((result) => {
-          console.log('getting', photo)
-          console.log(images, '<-current images')
-          if (result) {
-            console.log('setting', photo)
-            //const obj = { data_url: "data:image/jpeg;base64," + result };
-            const obj = { data_url: result };
-            setImages([...images, obj])
-          }
-        });
-      
+    console.log(index, 'index of deleting photo')
+    delImageS3(photos[index]).then((result) => {
+      if(result.status === 204){
+        const updatedPhotos = photos;
+        console.log(updatedPhotos)
+        updatedPhotos.splice(index, 1);
+        console.log(updatedPhotos)
+        setPhotos(updatedPhotos);
+        setTimeout(() => {
+          console.log('updating marker details...')
+          updateMarker();
+        }, 2000)
       }
-    }
-  }, [photosOpen]);
+    })
+  }
 
-  useEffect(() => {
-    if(images.length === photos.length){
-      setInitalUpload(true)
-    }
-  }, [images])
-
-  */
 
   // drag marker handlers
   const eventHandlers = useMemo(
@@ -375,7 +362,7 @@ export default function DraggableMarker(props) {
 
           {!photosOpen ? (
             <button onClick={() => {setPhotosOpen(true)
-                                     alert('There are no photos for this marker')}}>Load gallery</button>
+                                     alert('Photos loaded')}}>Load gallery</button>
           ) : (
             <ImageUploading
               multiple
@@ -408,9 +395,8 @@ export default function DraggableMarker(props) {
                    
                       
                       <div className="image-item__btn-wrapper">
-                        <button onClick={() => {setPhotosNumber(photosNumber - 1)
-                                                delImage(index)
-                                                onImageRemove(index)}}>
+                        <button onClick={() => {onImageRemove(index)
+                                                delImage(index)}}>
                           Remove
                         </button>
                       </div>

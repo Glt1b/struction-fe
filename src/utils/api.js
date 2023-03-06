@@ -75,12 +75,12 @@ export const postImage = (image_id, image) => {
     console.log(result)
     return result 
   })
-   /*
-  */
+
 }
 
 export const delImageS3 = (image_id) => {
   return beStructionApi.delete(`/image/${image_id}`).then((result) => {
     console.log(result)
+    return result
   })
 }
