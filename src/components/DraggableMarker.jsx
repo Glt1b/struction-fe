@@ -34,15 +34,17 @@ export default function DraggableMarker(props) {
   const [measurements, setMeasurements] = useState(props.measurements);
   const [serviceUsed, setServiceUsed] = useState(props.service);
   const [comment, setComment] = useState(props.comment);
+  const [fR, setFr] = useState(props.fR);
 
   const availableStatus = ["completed", "inProgress", "issue"];
+  const availableFR = ["Acoustic", "30", "60", "120"];
 
   // photo states
   const [photosOpen, setPhotosOpen] = useState(false);
   const [images, setImages] = useState([]);
   const [photos, setPhotos] = useState(props.photos);
   const [photosNumber, setPhotosNumber] = useState(props.photos.length);
-
+  const [uploading, setUploading] = useState(false);
   
 
   const onChange = (imageList, addUpdateIndex) => {
@@ -50,6 +52,7 @@ export default function DraggableMarker(props) {
     console.log(imageList, addUpdateIndex);
     // upload photos
     if (photosNumber < imageList.length){
+      setUploading(true);
       const photosArr = photos;
       for (let index of addUpdateIndex){
         const image_id = `${props.id}-${Date.now()}`;
@@ -61,6 +64,7 @@ export default function DraggableMarker(props) {
             if(imageList.length === photosArr.length){
               setPhotos(photosArr);
               setTimeout(() => {
+                setUploading(false);
                 console.log('updating marker details...')
                 updateMarker();
               }, 2000)
@@ -69,7 +73,6 @@ export default function DraggableMarker(props) {
         });
      }
     }
-    // delete photo
     
     setImages(imageList);
   };
@@ -159,7 +162,8 @@ export default function DraggableMarker(props) {
         service: serviceUsed,
         completedBy: "",
         comment: comment,
-        photos: photos
+        photos: photos,
+        fR: fR
       },
     };
 
@@ -194,6 +198,10 @@ export default function DraggableMarker(props) {
     setStatus(item);
   };
 
+  const handleFR = (item) => {
+    setFr(item);
+  };
+
   return (
     <Marker
       draggable={draggable}
@@ -224,6 +232,27 @@ export default function DraggableMarker(props) {
                     type="checkbox"
                     checked={status.includes(item) ? true : false}
                     onChange={() => handleStatus(item)}
+                  />
+
+                  <label htmlFor={item}>{item}</label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="checkList">
+            <div className="title" id="fr">
+              <b>FR</b>
+            </div>
+            <div className="list-container" id="status-container">
+              {availableFR.map((item, index) => (
+                <div className="checkbox" key={index}>
+                  <input
+                    id={item}
+                    value={item}
+                    type="checkbox"
+                    checked={fR.includes(item) ? true : false}
+                    onChange={() => handleFR(item)}
                   />
 
                   <label htmlFor={item}>{item}</label>
@@ -360,9 +389,10 @@ export default function DraggableMarker(props) {
           <hr />
           <br />
 
+          { uploading ? (<p>Uploading...</p>) : null }
+
           {!photosOpen ? (
-            <button onClick={() => {setPhotosOpen(true)
-                                     alert('Photos loaded')}}>Load gallery</button>
+            <button onClick={() => {setPhotosOpen(true)}}>Load gallery</button>
           ) : (
             <ImageUploading
               multiple

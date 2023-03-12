@@ -280,6 +280,12 @@ INPUT[type="checkbox"] {
   margin-bottom: -15px;
 }
 
+#fr {
+  margin-top: 5px;
+  background-color: #d2deeb;
+  margin-bottom: -15px;
+}
+
 #status-container {
   border-bottom: solid 2px #fff;
   padding-bottom: 20px;
