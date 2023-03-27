@@ -195,7 +195,7 @@ export default function App() {
       ) : null}
 
       { !user ? (<LoginPage
-          use={user}
+          user={user}
           setUser={setUser} />) : null}
 
     </div>

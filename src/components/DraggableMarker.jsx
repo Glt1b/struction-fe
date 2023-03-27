@@ -14,6 +14,7 @@ import Photo from "./Photo.jsx";
 
 
 
+
 const myMarker = new Icon({ iconUrl: marker, iconSize: [45, 45] });
 const myIssueMarker = new Icon({ iconUrl: marker1, iconSize: [45, 45] });
 const myCompletedMarker = new Icon({ iconUrl: marker2, iconSize: [45, 45] });
@@ -36,8 +37,37 @@ export default function DraggableMarker(props) {
   const [comment, setComment] = useState(props.comment);
   const [fR, setFr] = useState(props.fR);
 
+  const [type, setType] = useState(props.type);
+
+  const [doorConfiguration, setDoorConfiguration] = useState(props.doorConfiguration);
+  const [doorFinish, setDoorFinish] = useState(props.doorFinish);
+  const [doorGapHinge, setDoorGapHinge] = useState(props.doorGapHinge);
+  const [doorGapLockSide, setDoorGapLockSide] = useState(props.doorGapLockSide);
+  const [doorGapHead, setDoorGapHead] = useState(props.doorGapHead);
+  const [doorGapBottom, setDoorGapBottom] = useState(props.doorGapHead);
+  const [openingHeight, setOpeningHeight] = useState(props.openingHeight);
+  const [visionPanel, setVisionPanel] = useState(props.visionPanel);
+  const [frameCondition, setFrameCondition] = useState(props.frameCondition);
+  const [frameConditionComment, setFrameConditionComment] = useState(props.frameConditionComment);
+  const [hingeAdjustment, setHingeAdjustment] = useState(props.hingeAdjustment);
+  const [ironmongery, setIronmongery] = useState(props.ironmongery);
+  const [handle, setHandle] = useState(props.handle);
+  const [lock, setLock] = useState(props.lock);
+  const [doorCondition, setDoorCondition] = useState(props.doorCondition);
+
   const availableStatus = ["completed", "inProgress", "issue"];
   const availableFR = ["Acoustic", "30", "60", "120"];
+
+  const handleOptions = ['Poor Handle Condition', 'Good Handle Condition', 'N/A'];
+  const lockConditionOptions = ['Fair Lock Condition', 'Good Lock COndition', 'Poor Lock Condition'];
+  const intumescentStripsOptions = ['Good', 'Not Installed', 'Requires Placement'];
+  const frameConditionOptions = ['Poor Frame Condition', 'Fair Frame Condition'];
+  const doorConditionOptions = ['Poor Door Condition', 'Fair Door Condition'];
+  const hingeAdjustmentOptions = ['Adjust', 'N/A'];
+  const visionPanelOptions = ['Yes', 'No'];
+  const doorConfigurationOptions = ['Single', 'Double', 'Single With Fan Light', 'Double With Fan Light', 'Single (Fan Light and Side Panel'];
+
+
 
   // photo states
   const [photosOpen, setPhotosOpen] = useState(false);
@@ -45,7 +75,6 @@ export default function DraggableMarker(props) {
   const [photos, setPhotos] = useState(props.photos);
   const [photosNumber, setPhotosNumber] = useState(props.photos.length);
   const [uploading, setUploading] = useState(false);
-  
 
   const onChange = (imageList, addUpdateIndex) => {
     // data for submit
@@ -57,8 +86,7 @@ export default function DraggableMarker(props) {
       for (let index of addUpdateIndex){
         const image_id = `${props.id}-${Date.now()}`;
         postImage(image_id, imageList[index].data_url).then((result) => {
-          console.log(result.status)
-          if(result.status === 201){
+          
             photosArr.push(image_id)
             console.log(photosArr)
             if(imageList.length === photosArr.length){
@@ -69,11 +97,10 @@ export default function DraggableMarker(props) {
                 updateMarker();
               }, 2000)
             }
-          }
         });
      }
+     setUploading(false);
     }
-    
     setImages(imageList);
   };
 
@@ -163,7 +190,23 @@ export default function DraggableMarker(props) {
         completedBy: "",
         comment: comment,
         photos: photos,
-        fR: fR
+        fR: fR,
+        doorConfiguration: doorConfiguration,
+        doorFinish: doorFinish,
+        doorGapHinge: doorGapHinge,
+        doorGapLockSide: doorGapLockSide,
+        doorGapHead: doorGapHead,
+        doorGapBottom: doorGapBottom,
+        openingHeight: openingHeight,
+        visionPanel: visionPanel,
+        frameCondition: frameCondition,
+        frameConditionComment: frameConditionComment,
+        hingeAdjustment: hingeAdjustment,
+        ironmongery: ironmongery,
+        type: type,
+        handle: handle,
+        lock: lock,
+        doorCondition: doorCondition
       },
     };
 
@@ -214,11 +257,21 @@ export default function DraggableMarker(props) {
 
         <div className="marker-form">
           <div>
-          
+
+          { type !== '' ? (
           <button onClick={() => toggleDraggable()}>
             {draggable ? "Save Position" : "Move Marker"}
           </button>
+          ) : null}
 
+          { type === '' ? (
+            <div>
+            <button onClick={() => setType('seal')}>Seal</button>
+            <button onClick={() => setType('door')}>Fire Doors</button>
+            </div>
+          ) : null }
+
+          { type !== '' ? (
           <div className="checkList">
             <div className="title" id="status">
               <b>Status</b>
@@ -239,7 +292,9 @@ export default function DraggableMarker(props) {
               ))}
             </div>
           </div>
+          ) : null }
 
+          { type !== '' ? (
           <div className="checkList">
             <div className="title" id="fr">
               <b>FR</b>
@@ -260,7 +315,9 @@ export default function DraggableMarker(props) {
               ))}
             </div>
           </div>
+          ) : null}
 
+          { type !== '' ? (
           <div className="text-input">
             <div className="title">
               <b>Number</b>
@@ -275,7 +332,10 @@ export default function DraggableMarker(props) {
               }}
             ></input>
           </div>
+          ) : null}
 
+
+          {type === 'seal' ? (
           <div className="checkList">
             <div className="title" id="title-checkbox">
               <b>Materials</b>
@@ -295,7 +355,9 @@ export default function DraggableMarker(props) {
               ))}
             </div>
           </div>
+          ) : null}
 
+          { type === 'seal' ? (
           <div className="checkList">
             <div className="title" id="title-checkbox">
               <b>Services</b>
@@ -315,7 +377,9 @@ export default function DraggableMarker(props) {
               ))}
             </div>
           </div>
+          ) : null}
 
+          {type === 'seal' ? (
           <div className="text-input">
             <div className="title">
               <label htmlFor="height">
@@ -346,7 +410,9 @@ export default function DraggableMarker(props) {
               }}
             ></input>
           </div>
+          ) : null}
 
+          { type !== '' ? (
           <div className="text-input" id="comment-container">
             <div className="title">
               <label htmlFor="comment">
@@ -364,6 +430,247 @@ export default function DraggableMarker(props) {
               }}
             ></input>
           </div>
+          ) : null }
+
+          { type === 'door' ? (
+          <div className="checkList">
+            <div className="title" id="status">
+              <b>Door Configuration</b>
+            </div>
+            <div className="list-container" id="status-container">
+              {doorConfigurationOptions.map((item, index) => (
+                <div className="checkbox" key={index}>
+                  <input
+                    id={item}
+                    value={item}
+                    type="checkbox"
+                    checked={doorConfiguration === item ? true : false}
+                    onChange={() => setDoorConfiguration(item)}
+                  />
+
+                  <label htmlFor={item}>{item}</label>
+                </div>
+              ))}
+            </div>
+          </div>
+          ) : null }
+
+          { type === 'door' ? (
+          <div className="checkList">
+            <div className="title" id="status">
+              <b>Vision Panel</b>
+            </div>
+            <div className="list-container" id="status-container">
+              {visionPanelOptions.map((item, index) => (
+                <div className="checkbox" key={index}>
+                  <input
+                    id={item}
+                    value={item}
+                    type="checkbox"
+                    checked={visionPanel.includes(item) ? true : false}
+                    onChange={() => setVisionPanel(item)}
+                  />
+
+                  <label htmlFor={item}>{item}</label>
+                </div>
+              ))}
+            </div>
+          </div>
+          ) : null }
+
+          { type === 'door' ? (
+          <div className="checkList">
+            <div className="title" id="status">
+              <b>Frame Condition</b>
+            </div>
+            <div className="list-container" id="status-container">
+              {frameConditionOptions.map((item, index) => (
+                <div className="checkbox" key={index}>
+                  <input
+                    id={item}
+                    value={item}
+                    type="checkbox"
+                    checked={frameCondition.includes(item) ? true : false}
+                    onChange={() => setFrameCondition(item)}
+                  />
+
+                  <label htmlFor={item}>{item}</label>
+                </div>
+              ))}
+            </div>
+          </div>
+          ) : null }
+
+         { type === 'door' ? (
+          <div className="checkList">
+            <div className="title" id="status">
+              <b>Door Condition</b>
+            </div>
+            <div className="list-container" id="status-container">
+              {doorConditionOptions.map((item, index) => (
+                <div className="checkbox" key={index}>
+                  <input
+                    id={item}
+                    value={item}
+                    type="checkbox"
+                    checked={doorCondition.includes(item) ? true : false}
+                    onChange={() => setDoorCondition(item)}
+                  />
+
+                  <label htmlFor={item}>{item}</label>
+                </div>
+              ))}
+            </div>
+          </div>
+          ) : null }
+
+          { type === 'door' ? (
+          <div className="checkList">
+            <div className="title" id="status">
+              <b>Handle</b>
+            </div>
+            <div className="list-container" id="status-container">
+              {handleOptions.map((item, index) => (
+                <div className="checkbox" key={index}>
+                  <input
+                    id={item}
+                    value={item}
+                    type="checkbox"
+                    checked={handle.includes(item) ? true : false}
+                    onChange={() => setHandle(item)}
+                  />
+
+                  <label htmlFor={item}>{item}</label>
+                </div>
+              ))}
+            </div>
+          </div>
+          ) : null }
+
+          { type === 'door' ? (
+          <div className="checkList">
+            <div className="title" id="status">
+              <b>Lock</b>
+            </div>
+            <div className="list-container" id="status-container">
+              {lockConditionOptions.map((item, index) => (
+                <div className="checkbox" key={index}>
+                  <input
+                    id={item}
+                    value={item}
+                    type="checkbox"
+                    checked={lock.includes(item) ? true : false}
+                    onChange={() => setLock(item)}
+                  />
+
+                  <label htmlFor={item}>{item}</label>
+                </div>
+              ))}
+            </div>
+          </div>
+          ) : null }
+
+          { type === 'door' ? (
+          <div className="text-input" id="comment-container">
+            <div className="title">
+              <label htmlFor="comment">
+                <b>Door Gap Hinge</b>
+              </label>
+            </div>
+
+            <input
+              id="comment"
+              className="input"
+              value={doorGapHinge}
+              type="number"
+              onChange={(e) => {
+                setDoorGapHinge(e.target.value);
+              }}
+            ></input>
+          </div>
+          ) : null }
+
+          { type === 'door' ? (
+          <div className="text-input" id="comment-container">
+            <div className="title">
+              <label htmlFor="comment">
+                <b>Door Gap Lock Side</b>
+              </label>
+            </div>
+
+            <input
+              id="comment"
+              className="input"
+              value={doorGapLockSide}
+              type="number"
+              onChange={(e) => {
+                setDoorGapLockSide(e.target.value);
+              }}
+            ></input>
+          </div>
+          ) : null }
+
+          { type === 'door' ? (
+          <div className="text-input" id="comment-container">
+            <div className="title">
+              <label htmlFor="comment">
+                <b>Door Gap Head</b>
+              </label>
+            </div>
+
+            <input
+              id="comment"
+              className="input"
+              value={doorGapHead}
+              type="number"
+              onChange={(e) => {
+                setDoorGapHead(e.target.value);
+              }}
+            ></input>
+          </div>
+          ) : null }
+
+         { type === 'door' ? (
+          <div className="text-input" id="comment-container">
+            <div className="title">
+              <label htmlFor="comment">
+                <b>Door Gap Bottom</b>
+              </label>
+            </div>
+
+            <input
+              id="comment"
+              className="input"
+              value={doorGapBottom}
+              type="number"
+              onChange={(e) => {
+                setDoorGapBottom(e.target.value);
+              }}
+            ></input>
+          </div>
+          ) : null }
+
+          { type === 'door' ? (
+          <div className="text-input" id="comment-container">
+            <div className="title">
+              <label htmlFor="comment">
+                <b>Opening Height</b>
+              </label>
+            </div>
+
+            <input
+              id="comment"
+              className="input"
+              value={openingHeight}
+              type="number"
+              onChange={(e) => {
+                setOpeningHeight(e.target.value);
+              }}
+            ></input>
+          </div>
+          ) : null }
+
+          {type !== '' ? (
           <button
             onClick={() => {
               updateMarker();
@@ -372,6 +679,7 @@ export default function DraggableMarker(props) {
           >
             Update
           </button>
+          ) : null }
 
           <button
             id="delete-btn"
@@ -393,7 +701,7 @@ export default function DraggableMarker(props) {
 
           {!photosOpen ? (
             <button onClick={() => {setPhotosOpen(true)}}>Load gallery</button>
-          ) : (
+          ) : (type !== '' ? (
             <ImageUploading
               multiple
               value={images}
@@ -435,7 +743,7 @@ export default function DraggableMarker(props) {
                 </div>
               )}
             </ImageUploading>
-          )}
+          ) : null ) }
         </div></div>
       </Popup>
     </Marker>

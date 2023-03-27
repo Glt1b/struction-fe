@@ -63,6 +63,21 @@ export default function Map(props) {
           comment: "",
           photos: [],
           fR: "",
+          doorConfiguration: '',
+          doorGapHinge: '',
+          doorGapLockSide: '',
+          doorGapHead: '',
+          doorGapBottom: '',
+          openingHeight: '',
+          visionPanel: '',
+          frameCondition: '',
+          frameConditionComment: '',
+          hingeAdjustment: '',
+          ironmongery: '',
+          type: '',
+          handle: '',
+          lock: '',
+          doorCondition: ''
         },
       };
 
@@ -100,7 +115,7 @@ export default function Map(props) {
                 number={item.number}
                 status={item.status}
                 location={item.location}
-                locationOnDrawing={item.locationOnDrawing}
+                type={item.type}
                 materialsUsed={item.materialsUsed}
                 measurements={item.measurements}
                 service={item.service}
@@ -113,6 +128,21 @@ export default function Map(props) {
                 user={props.user}
                 materials={props.materials}
                 services={props.services}
+                doorConfiguration={item.doorConfiguration}
+                doorFinish={item.doorFinish}
+                doorGapHinge={item.doorGapHinge}
+                doorGapLockSide={item.doorGapLockSide}
+                doorGapHead={item.doorGapHead}
+                doorGapBottom={item.doorGapBottom}
+                openingHeight={item.openingHeight}
+                visionPanel={item.visionPanel}
+                frameCondition={item.frameCondition}
+                frameConditionComment={item.frameConditionComment}
+                hingeAdjustment={item.hingeAdjustment}
+                ironmongery={item.ironmongery}
+                handle={item.handle}
+                lock={item.lock}
+                doorCondition={item.doorCondition}
               />
             );
           })}
