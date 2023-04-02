@@ -1,6 +1,4 @@
 import axios from "axios";
-import * as base64 from '@juanelas/base64'
-
 
 const beStructionApi = axios.create({
   baseURL: "https://struction-backend.cyclic.app/api"
