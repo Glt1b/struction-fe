@@ -1,12 +1,11 @@
 import "leaflet/dist/leaflet.css";
 import "./App.css";
-import { React, useEffect, useState, useContext, useRef } from "react";
+import { React, useEffect, useState, useContext } from "react";
 import { getProjectDetails, getImage } from "./utils/api";
 import { MarkersContext } from "./contexts/Markers.js";
 import { ProjectMarkersContext } from "./contexts/ProjectMarkers";
 import Map from "./components/Map.jsx";
 import LoginPage from "./components/LoginPage";
-import ReactDOM from "react-dom/client";
 
 import {
   Sidebar,
@@ -23,8 +22,8 @@ import structionHeaderLogo from "./images/struction-logo-header.svg";
 import PDF from './components/PDF'
 import { saveAs } from "file-saver";
 import { pdf } from '@react-pdf/renderer';
-import { MapContainer, ImageOverlay, Marker } from "react-leaflet";
-const L = window["L"];
+import { Icon } from "leaflet";
+import html2canvas from "html2canvas";
  
 
 export default function App() {
@@ -56,13 +55,9 @@ export default function App() {
 
   const [mapsLoaded, setMapsLoaded] = useState(false);
 
-  //PDF state
-  const [pdfMap, setPdfMap] = useState(false);
-  const mapRef = useRef();
+  // pdf reports
+  const [mapPdf, setMapPdf] = useState(false);
 
-  // proSidebar
-  const { collapseSidebar, toggleSidebar, collapsed, toggled, broken, rtl } =
-    useProSidebar();
 
   // request for contract details and assign them to states
   useEffect(() => {
@@ -122,105 +117,64 @@ export default function App() {
 
   // download PDFs
 
-  const downloadPDFs = async () => {
-    for (let i = 0; i < markers.length; i++) {
-   
-      const promises = markers[i].photos.map(photo => getImage(photo));
+  useEffect(() => {
+    if(mapPdf){
+        
+        setTimeout(() => {
+          console.log('saving')
+          savePDF();
+        }, 1500)
+        
+  }
+  }, [mapPdf])
 
-      Promise.all(promises).then(images => {
-      // All images have loaded
-      const pdfName = `${projectName}-${markers[i].number}.pdf`;
-      savePDF(pdfName, images);
+  const downloadPDFs = async (n) => {
+    
+    if ( n > 0 ) {
+
+
+      setTimeout(() => {
+        const promises = markers[n-1].photos.map(photo => getImage(photo));
+        Promise.all(promises).then(images => {
+        // All images have loaded
+        const pdfName = `${projectName}-${markers[n-1].number}.pdf`;
+        setMapPdf([pdfName, images, markers[n-1]]);
+        downloadPDFs(n -1);
     });
-/*
-    const getPinOnMap = async (position, pdfName, images) => {
-
-      console.log('generating map')
-      const bounds = [
-        [-3000, -3000],
-        [3000, 3000],
-      ];
+      }, 3000)
+    } else {
+      setTimeout(() => {
+         setMapPdf(false);
+         alert('no more markers left, PDFs completed')
+      }, 5000)
       
-      const map = (
-        <div id="map-container" style={{display: 'none'}}>
-          <MapContainer
-            crs={L.CRS.Simple}
-            bounds={bounds}
-            center={position} 
-            zoom={13} 
-            scrollWheelZoom={false}
-            ref={mapRef}
-          >
-            <ImageOverlay
-              url={currDrawing}
-              bounds={bounds}
-            >
-              <Marker position={position} />
-            </ImageOverlay>
-          </MapContainer>
-        </div>
-      );
-    
-      // Create a new div element to render the map component
-      const container = document.createElement("div");
-      document.body.appendChild(container);
-
-      // Render the map component to the new div element using createRoot
-       const root = ReactDOM.createRoot(container);
-       root.render(map);
-       
-
-       // Wait for the canvas element to be available
-       const canvasPromise = new Promise((resolve) => {
-         const observer = new MutationObserver(() => {
-           const canvas = mapRef.current?._container?.querySelector("canvas");
-           if (canvas) {
-             observer.disconnect();
-             resolve(canvas);
-           }
-         });
-         observer.observe(mapRef.current?._container, { childList: true });
-       });
-     
-       // Get the canvas element
-       const canvas = await canvasPromise;
-       console.log("Canvas found:", canvas);
-     
-       // Get the base64 representation of the canvas image
-       const base64 = canvas.toDataURL();
-       console.log("Base64:", base64);
-     
-       // Remove the temporary div element
-       ReactDOM.unmountComponentAtNode(container);
-       document.body.removeChild(container);
-
-    
-      savePDF(pdfName, images, base64);
-     
-     
     }
+  }
 
-    */
 
-  const savePDF = async (pdfName, images) => {
+  const savePDF = async () => {
+
+    const input = document.getElementById("map-container");
+    const canvas = await html2canvas(input);
+    console.log(canvas)
+    const imgData = canvas.toDataURL("image/jpg")
+    console.log(imgData)
 
     const doc = (
-      <PDF photos={images} />
+      <PDF photos={mapPdf[1]} map={imgData}/>
     );
 
     const pdfBlob =  await pdf(doc).toBlob();
 
     // Save the PDF blob as file
-    saveAs(pdfBlob, pdfName);
+    saveAs(pdfBlob, mapPdf[0]);
 
-  }
 
-  };
   }
 
   return (
     
-    <div className="App">
+    <div className="App" >
       <header className="App-header">
         {isProjectLoaded ? (
           <p>
@@ -232,6 +186,8 @@ export default function App() {
         ) : (
           <p>Welcome {user.key}, choose your project</p>
         )}
+
+        { mapPdf ? (<p>Exporting to PDFs...</p>) : null }
         <img
           className="struction-logo--header"
           src={structionHeaderLogo}
@@ -240,6 +196,7 @@ export default function App() {
       </header>
 
       {!user ? null : (
+        ( !mapPdf ? (
       <Sidebar>
         <Menu>
           <SubMenu label="Menu">
@@ -282,14 +239,16 @@ export default function App() {
             <MenuItem> Manager Dashboard </MenuItem>
 
             { markers[0] ? (
-            <MenuItem onClick={() => {downloadPDFs()}}> Download PDFs</MenuItem>
+            <MenuItem onClick={() => {downloadPDFs(markers.length)}}> Download PDFs</MenuItem>
            ) : null }
 
             {!user ? null : (<MenuItem> Logout</MenuItem>)}
             
           </SubMenu>
         </Menu>
-      </Sidebar>)}
+      </Sidebar>) : null))}
+
+
       {!isProjectLoaded && user ? (
         <img
           className="struction-logo"
@@ -299,6 +258,7 @@ export default function App() {
       ) : null}
 
       {currentLocation !== "" && markersFilter && mapsLoaded ? (
+        <div >
         <Map
           currentLocation={currentLocation}
           user={user.key}
@@ -306,13 +266,15 @@ export default function App() {
           materials={materials}
           services={services}
           image={currDrawing}
+          mapPdf={mapPdf}
         />
+        </div>
       ) : null}
 
       { !user ? (<LoginPage
           user={user}
           setUser={setUser} />) : null}
-
+      
     </div>
   );
 }

@@ -482,3 +482,8 @@ INPUT[type="checkbox"] {
 .fullImg {
   width: 500px;
 }
+
+#pdf-container {
+  height: 250px;
+  width: 250px;
+}

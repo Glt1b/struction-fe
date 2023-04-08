@@ -12,8 +12,11 @@ export default function PDF(props) {
           <Page key={index+1}>
             <Image src={photo} />
           </Page>
+          
         ))}
-       
+       <Page>
+             <Image src={props.map} />
+        </Page>
       </Document>
   );
 }

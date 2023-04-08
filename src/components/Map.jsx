@@ -1,10 +1,19 @@
 import { React, useState, useContext, useEffect } from "react";
-import { MapContainer, ImageOverlay, ZoomControl } from "react-leaflet";
+import { MapContainer, ImageOverlay, ZoomControl, Marker } from "react-leaflet";
 import { MarkersContext } from "../contexts/Markers.js";
 import { ProjectMarkersContext } from "../contexts/ProjectMarkers.js";
 import { postMarker } from "../utils/api.js";
 import { useMapEvents } from "react-leaflet/hooks";
 import DraggableMarker from "./DraggableMarker";
+
+import marker from "../images/map-marker.svg";
+import marker1 from "../images/map-marker-issue.svg";
+import marker2 from "../images/map-marker-complete.svg";
+import { Icon } from "leaflet";
+
+const myMarker = new Icon({ iconUrl: marker, iconSize: [20, 20] });
+const myIssueMarker = new Icon({ iconUrl: marker1, iconSize: [20, 20] });
+const myCompletedMarker = new Icon({ iconUrl: marker2, iconSize: [20, 20] });
 
 const L = window["L"];
 
@@ -92,6 +101,7 @@ export default function Map(props) {
   return (
     <div className="App">
       <MapContainer
+        id={"map-container"}
         className="map"
         crs={L.CRS.Simple}
         bounds={bounds}
@@ -106,7 +116,7 @@ export default function Map(props) {
           url={`${props.image}`}
           bounds={bounds}
         >
-          {markers.map((item) => {
+          { !props.mapPdf ? markers.map((item) => {
             return (
               <DraggableMarker
                 key={item.id}
@@ -145,15 +155,21 @@ export default function Map(props) {
                 doorCondition={item.doorCondition}
               />
             );
-          })}
+          }) : <Marker
+                position={props.mapPdf[2].locationOnDrawing}
+                icon={props.mapPdf[2].status === 'completed' ? myCompletedMarker : (props.mapPdf[2].status === 'issue' ? myIssueMarker : myMarker) }></Marker>}
+
         </ImageOverlay>
 
         <MarkerLocator />
-        <ZoomControl position="bottomleft" />
+        { !props.mapPdf ? 
+        <ZoomControl position="bottomleft" /> : null } 
 
+         { !props.mapPdf ? 
         <button className="create-btn" onClick={() => setCreationMode(true)}>
           {creationMode ? "Click on Map" : "Create new marker"}
-        </button>
+        </button> : null}
+                      
       </MapContainer>
     </div>
   );
