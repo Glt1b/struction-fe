@@ -57,6 +57,7 @@ export default function App() {
 
   // pdf reports
   const [mapPdf, setMapPdf] = useState(false);
+  const [generatePDF, setGeneratePDF] = useState(false);
 
 
   // request for contract details and assign them to states
@@ -128,11 +129,9 @@ export default function App() {
   }
   }, [mapPdf])
 
-  const downloadPDFs = async (n) => {
+  const downloadPDFs = (n) => {
     
     if ( n > 0 ) {
-
-
       setTimeout(() => {
         const promises = markers[n-1].photos.map(photo => getImage(photo));
         Promise.all(promises).then(images => {
@@ -145,6 +144,7 @@ export default function App() {
     } else {
       setTimeout(() => {
          setMapPdf(false);
+         setGeneratePDF(false);
          alert('no more markers left, PDFs completed')
       }, 5000)
       
@@ -161,7 +161,7 @@ export default function App() {
     console.log(imgData)
 
     const doc = (
-      <PDF photos={mapPdf[1]} map={imgData}/>
+      <PDF photos={mapPdf[1]} map={imgData} details={mapPdf[2]}/>
     );
 
     const pdfBlob =  await pdf(doc).toBlob();
@@ -196,7 +196,7 @@ export default function App() {
       </header>
 
       {!user ? null : (
-        ( !mapPdf ? (
+        ( !generatePDF ? (
       <Sidebar>
         <Menu>
           <SubMenu label="Menu">
@@ -239,7 +239,8 @@ export default function App() {
             <MenuItem> Manager Dashboard </MenuItem>
 
             { markers[0] ? (
-            <MenuItem onClick={() => {downloadPDFs(markers.length)}}> Download PDFs</MenuItem>
+            <MenuItem onClick={() => {downloadPDFs(markers.length)
+                                     setGeneratePDF(true)}}> Download PDFs</MenuItem>
            ) : null }
 
             {!user ? null : (<MenuItem> Logout</MenuItem>)}

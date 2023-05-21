@@ -2,6 +2,7 @@ import { React, useEffect, useState } from "react";
 import { Document, Page, Text, Image } from '@react-pdf/renderer';
 
 export default function PDF(props) {
+  console.log(props.details)
 
   return (
       <Document>
