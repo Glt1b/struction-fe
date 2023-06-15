@@ -6,6 +6,7 @@ import { MarkersContext } from "./contexts/Markers.js";
 import { ProjectMarkersContext } from "./contexts/ProjectMarkers";
 import Map from "./components/Map.jsx";
 import LoginPage from "./components/LoginPage";
+import Users from "./components/Users";
 
 import {
   Sidebar,
@@ -58,6 +59,9 @@ export default function App() {
   // pdf reports
   const [mapPdf, setMapPdf] = useState(false);
   const [generatePDF, setGeneratePDF] = useState(false);
+
+  //current page
+  const [page, setPage] = useState('map');
 
 
   // request for contract details and assign them to states
@@ -226,6 +230,7 @@ export default function App() {
                       value={location.name}
                       key={location.name}
                       onClick={() => {
+                        setPage('map');
                         setCurrentLocation(location.name);
                       }}
                     >
@@ -236,7 +241,7 @@ export default function App() {
               </SubMenu>
             ) : (projectName ? (<p className="loading">Loading project...</p>) : null)}
 
-            <MenuItem> Manager Dashboard </MenuItem>
+            <MenuItem onClick={() => setPage('workers')}> Workers dashboard </MenuItem>
 
             { markers[0] ? (
             <MenuItem onClick={() => {downloadPDFs(markers.length)
@@ -249,6 +254,8 @@ export default function App() {
         </Menu>
       </Sidebar>) : null))}
 
+      {page === 'workers' ? (<Users />) : null}
+
 
       {!isProjectLoaded && user ? (
         <img
@@ -258,7 +265,7 @@ export default function App() {
         />
       ) : null}
 
-      {currentLocation !== "" && markersFilter && mapsLoaded ? (
+      {currentLocation !== "" && markersFilter && mapsLoaded && page === 'map' ? (
         <div >
         <Map
           currentLocation={currentLocation}

@@ -4,10 +4,27 @@ const beStructionApi = axios.create({
   baseURL: "https://struction-backend.cyclic.app/api"
 });
 
+export const getUsersList = () => {
+  return beStructionApi.get("/users")
+  .then((res) => {
+    console.log(res.data.list.props.users)
+    return (res.data.list.props.users)
+  })
+}
+
+export const postUsersList = (obj) => {
+  return beStructionApi.post("/users")
+  .then((res) => {
+    console.log(res)
+  })
+}
+
 export const getUser = (user) => {
+  console.log('getting'+ user)
   return beStructionApi.get("/users/" + user)
   .then((res) => {
-    return res.data.user;
+    console.log(res)
+    return res.data.users;
   });
 };
 export const getProjectDetails = (projectName) => {

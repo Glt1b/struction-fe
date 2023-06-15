@@ -11,9 +11,9 @@ import marker1 from "../images/map-marker-issue.svg";
 import marker2 from "../images/map-marker-complete.svg";
 import { Icon } from "leaflet";
 
-const myMarker = new Icon({ iconUrl: marker, iconSize: [45, 45] });
-const myIssueMarker = new Icon({ iconUrl: marker1, iconSize: [45, 45] });
-const myCompletedMarker = new Icon({ iconUrl: marker2, iconSize: [45, 45] });
+const myMarker = new Icon({ iconUrl: marker, iconSize: [23, 23], iconAnchor: [12, 23] });
+const myIssueMarker = new Icon({ iconUrl: marker1, iconSize: [23, 23], iconAnchor: [12, 23] });
+const myCompletedMarker = new Icon({ iconUrl: marker2, iconSize: [23, 23], iconAnchor: [12, 23] });
 
 const L = window["L"];
 

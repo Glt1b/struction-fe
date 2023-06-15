@@ -6,7 +6,7 @@ import { ProjectMarkersContext } from "../contexts/ProjectMarkers.js";
 import "leaflet/dist/leaflet.css";
 import { deleteMarker, getImage, patchMarker } from "../utils/api";
 import ImageUploading from "react-images-uploading";
-import marker from "../images/vectorpaint.svg";
+import marker from "../images/map-marker.svg";
 import marker1 from "../images/map-marker-issue.svg";
 import marker2 from "../images/map-marker-complete.svg";
 import { postImage, delImageS3 } from "../utils/api";
@@ -15,9 +15,9 @@ import Photo from "./Photo.jsx";
 
 
 
-const myMarker = new Icon({ iconUrl: marker, iconSize: [50, 100] });
-const myIssueMarker = new Icon({ iconUrl: marker1, iconSize: [45, 45] });
-const myCompletedMarker = new Icon({ iconUrl: marker2, iconSize: [45, 45] });
+const myMarker = new Icon({ iconUrl: marker, iconSize: [45, 45], iconAnchor: [22, 45] });
+const myIssueMarker = new Icon({ iconUrl: marker1, iconSize: [45, 45], conAnchor: [22, 45] });
+const myCompletedMarker = new Icon({ iconUrl: marker2, iconSize: [45, 45], conAnchor: [22, 45] });
 
 export default function DraggableMarker(props) {
   const [draggable, setDraggable] = useState(false);
