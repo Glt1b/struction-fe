@@ -16,8 +16,8 @@ import Photo from "./Photo.jsx";
 
 
 const myMarker = new Icon({ iconUrl: marker, iconSize: [45, 45], iconAnchor: [22, 45] });
-const myIssueMarker = new Icon({ iconUrl: marker1, iconSize: [45, 45], conAnchor: [22, 45] });
-const myCompletedMarker = new Icon({ iconUrl: marker2, iconSize: [45, 45], conAnchor: [22, 45] });
+const myIssueMarker = new Icon({ iconUrl: marker1, iconSize: [45, 45], iconAnchor: [22, 45] });
+const myCompletedMarker = new Icon({ iconUrl: marker2, iconSize: [45, 45], iconAnchor: [22, 45] });
 
 export default function DraggableMarker(props) {
   const [draggable, setDraggable] = useState(false);

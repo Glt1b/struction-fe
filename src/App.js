@@ -16,8 +16,8 @@ import {
   SubMenu,
   sidebarClasses,
 } from "react-pro-sidebar";
-import structionLogo from "./images/structionLogo.svg";
-import structionHeaderLogo from "./images/struction-logo-header.svg";
+//import structionLogo from "./images/structionLogo.svg";
+import ampaLogo from "./images/ampa.png";
 
 // imports for PDFs creating
 import PDF from './components/PDF'
@@ -30,11 +30,11 @@ import html2canvas from "html2canvas";
 export default function App() {
   /*  */
   const [user, setUser] = useState({
-    key: 'marcin@gmail.com',
+    key: '',
     props: {"name": "Marcin Palenik",
     "role": "manager",
     "password": "worker123",
-    "projects": ["apartments_unit_", "medical_centre_"]}
+    "projects": ["apartments_unit_", "medical_centre_", "Macclesfield_District_General_Hospital"]}
   });
 
 
@@ -194,7 +194,7 @@ export default function App() {
         { mapPdf ? (<p>Exporting to PDFs...</p>) : null }
         <img
           className="struction-logo--header"
-          src={structionHeaderLogo}
+          src={ampaLogo}
           alt="struction logo"
         />
       </header>
@@ -260,7 +260,7 @@ export default function App() {
       {!isProjectLoaded && user ? (
         <img
           className="struction-logo"
-          src={structionLogo}
+          src={ampaLogo}
           alt="struction logo"
         />
       ) : null}

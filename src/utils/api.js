@@ -4,6 +4,14 @@ const beStructionApi = axios.create({
   baseURL: "https://struction-backend.cyclic.app/api"
 });
 
+export const updateUserDetails = (user, body) => {
+  return beStructionApi.post("/users/" + user, body)
+  .then((res) => {
+    console.log('new users' + res)
+    return res;
+  })
+}
+
 export const getUsersList = () => {
   return beStructionApi.get("/users")
   .then((res) => {
@@ -13,7 +21,17 @@ export const getUsersList = () => {
 }
 
 export const postUsersList = (obj) => {
-  return beStructionApi.post("/users")
+  const list = {
+    "users": obj
+}
+  return beStructionApi.post("/users", list)
+  .then((res) => {
+    console.log("list:" + res)
+  })
+}
+
+export const deleteUser = (username) => {
+  return beStructionApi.delete(`/users/${username}`)
   .then((res) => {
     console.log(res)
   })

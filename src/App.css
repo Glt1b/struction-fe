@@ -148,11 +148,11 @@ h6 {
 }
 
 .create-btn {
-  position: fixed;
+  position: absolute;
   bottom: 5vh;
-  right: 6vw;
+  right: 6vh;
   width: 11em;
-  z-index: 400;
+  z-index: 800;
   border-radius: 25px;
   border: none;
   padding: 3px 7px;
