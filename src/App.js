@@ -241,6 +241,10 @@ export default function App() {
               </SubMenu>
             ) : (projectName ? (<p className="loading">Loading project...</p>) : null)}
 
+            {mapsLoaded ? (
+              <MenuItem>Project details</MenuItem>
+            ) : null}
+
             <MenuItem onClick={() => setPage('workers')}> Workers dashboard </MenuItem>
 
             { markers[0] ? (

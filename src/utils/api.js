@@ -4,6 +4,24 @@ const beStructionApi = axios.create({
   baseURL: "https://struction-backend.cyclic.app/api"
 });
 
+// setup projects
+
+export const getProjectsList = () => {
+  return beStructionApi.get("/projects")
+  .then((result) => {
+    console.log('projects list' + result)
+  })
+}
+
+export const postProjectsList = (body) => {
+  return beStructionApi.post("/projects", body)
+  .then((result) => {
+    console.log('updating list result' + result)
+  })
+}
+
+// users
+
 export const updateUserDetails = (user, body) => {
   return beStructionApi.post("/users/" + user, body)
   .then((res) => {
