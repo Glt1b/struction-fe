@@ -7,7 +7,7 @@ import { ProjectMarkersContext } from "./contexts/ProjectMarkers";
 import Map from "./components/Map.jsx";
 import LoginPage from "./components/LoginPage";
 import Users from "./components/Users";
-
+import Details from "./components/Details";
 import {
   Sidebar,
   Menu,
@@ -242,7 +242,7 @@ export default function App() {
             ) : (projectName ? (<p className="loading">Loading project...</p>) : null)}
 
             {mapsLoaded ? (
-              <MenuItem>Project details</MenuItem>
+              <MenuItem onClick={() => setPage('details')}>Project details</MenuItem>
             ) : null}
 
             <MenuItem onClick={() => setPage('workers')}> Workers dashboard </MenuItem>
@@ -259,6 +259,12 @@ export default function App() {
       </Sidebar>) : null))}
 
       {page === 'workers' ? (<Users />) : null}
+      {page === 'details' ? (<Details
+        projectName={projectName}
+        services={services}
+        materials={materials}
+        setMaterials={setMaterials}
+        setServices={setServices}/>) : null}
 
 
       {!isProjectLoaded && user ? (
