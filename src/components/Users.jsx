@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from "react";
-import { getUsersList, postUsersList, getUser, updateUserDetails } from "../utils/api";
+import { getUsersList, postUsersList, getUser, updateUserDetails, getProjectsList } from "../utils/api";
 import UsersForm from "./UsersForm";
 
 
@@ -12,6 +12,7 @@ export default function Users() {
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
     const [role, setRole] = useState('');
+    const [projectsList, setProjectsList] = useState(false);
 
     const availableRoles = ['Manager', 'Supervisor', 'Operative'];
 
@@ -33,6 +34,15 @@ export default function Users() {
       
       
     }
+
+    useEffect(() => {
+      if(!projectsList){
+        getProjectsList().then((result) => {
+          setProjectsList(result)
+        })
+      }
+
+    }, [projectsList])
 
     useEffect(() => {
         if(!list){
@@ -61,9 +71,7 @@ export default function Users() {
     }, [list])
 
     return(
-      <div style={{
-        overflow: 'scroll', height: '80vh'
-      }}>
+      <div>
             <h1>Users</h1>
             {(users ? users.map((element, index) => {
                 return (<UsersForm 
@@ -72,6 +80,7 @@ export default function Users() {
                 name={element.props.name}
                 role={element.props.role}
                 projects={element.props.projects}
+                projectsList={projectsList}
 
                 list={list}
                 setList={setList}

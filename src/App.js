@@ -41,6 +41,7 @@ export default function App() {
   // const [user, setUser] = useState(false);
 
   // contract states
+  const [locationsNames, setLocationsNames] = useState([]);
   const [projectName, setProjectName] = useState(false);
   const [locations, setLocations] = useState([]);
   const [services, setServices] = useState([]);
@@ -69,6 +70,7 @@ export default function App() {
     if (projectName) {
       getProjectDetails(projectName).then((result) => {
         setProjectMarkers(result.project[1]);
+        setLocationsNames(result.project[0].props.locations);
         setLocations(result.project[0].props.locations);
         setServices(result.project[0].props.services);
         setMaterials(result.project[0].props.materials);
@@ -264,7 +266,9 @@ export default function App() {
         services={services}
         materials={materials}
         setMaterials={setMaterials}
-        setServices={setServices}/>) : null}
+        setServices={setServices}
+        locationsNames={locationsNames}
+        setLocationsNames={setLocationsNames}/>) : null}
 
 
       {!isProjectLoaded && user ? (

@@ -1,12 +1,16 @@
 import { React, useEffect, useState } from "react";
-import { getUsersList, postUsersList, getUser, updateUserDetails } from "../utils/api";
-
+import { postProjectDetails, postImage, delImageS3 } from "../utils/api";
+import ImageUploading from "react-images-uploading";
+import Photo from "./Photo.jsx";
 
 export default function Details (props) {
 
     const [updated, setUpdated] = useState(true);
     const [newMaterial, setNewMaterial] = useState('');
     const [newService, setNewService] = useState('');
+    const [newLocation, setNewLocation] = useState('');
+
+    const [images, setImages] = useState([]);
 
     const addMaterial = () => {
         const arr = props.materials;
@@ -32,10 +36,27 @@ export default function Details (props) {
         props.setServices(arr);
     }
 
+    const onChange = (imageList, addUpdateIndex) => {
+      // data for submit
+      console.log(imageList, addUpdateIndex);
+    }
+
+    const updateDetails = () => {
+      const body = {
+            "materials": props.materials,
+            "services": props.services,
+            "locations": props.locationsNames
+      }
+
+      postProjectDetails(props.projectName, body);
+      setUpdated(true);
+      
+    }
+
 
     return (
         <div>
-        <h1>{props.projectName}</h1>
+        <h2>{props.projectName}</h2>
         <h3>Materials</h3>
         {props.materials.map((item) => {
             return (
@@ -92,7 +113,8 @@ export default function Details (props) {
                                     addService()}}>Submit</button>
         </div>
 
-        { !updated ? (<button>Update</button>) : null}
+
+        { !updated ? (<button onClick={() => updateDetails()}>Update</button>) : null}
 
         </div>
     )

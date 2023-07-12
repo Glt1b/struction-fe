@@ -9,7 +9,7 @@ const beStructionApi = axios.create({
 export const getProjectsList = () => {
   return beStructionApi.get("/projects")
   .then((result) => {
-    console.log('projects list' + result)
+    return result.data.list.props.list;
   })
 }
 
@@ -17,6 +17,13 @@ export const postProjectsList = (body) => {
   return beStructionApi.post("/projects", body)
   .then((result) => {
     console.log('updating list result' + result)
+  })
+}
+
+export const postProjectDetails = (name, body) => {
+  return beStructionApi.post(`/projects/${name}`, body)
+  .then((result) => {
+    console.log(result)
   })
 }
 
