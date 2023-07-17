@@ -1,13 +1,14 @@
 import "leaflet/dist/leaflet.css";
 import "./App.css";
 import { React, useEffect, useState, useContext } from "react";
-import { getProjectDetails, getImage } from "./utils/api";
+import { getProjectDetails, getImage, getProjectsList } from "./utils/api";
 import { MarkersContext } from "./contexts/Markers.js";
 import { ProjectMarkersContext } from "./contexts/ProjectMarkers";
 import Map from "./components/Map.jsx";
 import LoginPage from "./components/LoginPage";
 import Users from "./components/Users";
 import Details from "./components/Details";
+import NewContract from "./components/NewContract";
 import {
   Sidebar,
   Menu,
@@ -40,6 +41,10 @@ export default function App() {
 
   // const [user, setUser] = useState(false);
 
+  // available contracts
+
+  const [availableContracts, setAvailableContracts] = useState(['']);
+
   // contract states
   const [locationsNames, setLocationsNames] = useState([]);
   const [projectName, setProjectName] = useState(false);
@@ -63,6 +68,15 @@ export default function App() {
 
   //current page
   const [page, setPage] = useState('map');
+
+  // get available contracts
+
+  useEffect(() => {
+    if(availableContracts[0] === ''){
+      getProjectsList().then((result) => {
+        setAvailableContracts(result)
+      })}
+  }, [availableContracts]);
 
 
   // request for contract details and assign them to states
@@ -207,7 +221,7 @@ export default function App() {
         <Menu>
           <SubMenu label="Menu">
             <SubMenu label="Projects">
-              {!user ? null : user.props.projects.map((project) => {
+              {!user ? null : availableContracts.map((project) => {
                 return (
                   <MenuItem
                     onClick={() => {
@@ -222,6 +236,9 @@ export default function App() {
                   </MenuItem>
                 );
               })}
+              <MenuItem><NewContract
+              availableContracts={availableContracts}
+              setAvailableContracts={setAvailableContracts}/></MenuItem>
             </SubMenu>
 
             {mapsLoaded ? (
@@ -243,7 +260,7 @@ export default function App() {
               </SubMenu>
             ) : (projectName ? (<p className="loading">Loading project...</p>) : null)}
 
-            {mapsLoaded ? (
+            {projectName ? (
               <MenuItem onClick={() => setPage('details')}>Project details</MenuItem>
             ) : null}
 
@@ -268,7 +285,9 @@ export default function App() {
         setMaterials={setMaterials}
         setServices={setServices}
         locationsNames={locationsNames}
-        setLocationsNames={setLocationsNames}/>) : null}
+        setLocationsNames={setLocationsNames}
+        availableContracts={availableContracts}
+        setAvailableContracts={setAvailableContracts}/>) : null}
 
 
       {!isProjectLoaded && user ? (

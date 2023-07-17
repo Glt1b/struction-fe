@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from "react";
-import { postProjectDetails, postImage, delImageS3 } from "../utils/api";
+import { postProjectDetails, postImage, delImageS3, postProjectsList } from "../utils/api";
 import ImageUploading from "react-images-uploading";
 import Photo from "./Photo.jsx";
 
@@ -36,10 +36,6 @@ export default function Details (props) {
         props.setServices(arr);
     }
 
-    const onChange = (imageList, addUpdateIndex) => {
-      // data for submit
-      console.log(imageList, addUpdateIndex);
-    }
 
     const updateDetails = () => {
       const body = {
@@ -52,6 +48,14 @@ export default function Details (props) {
       setUpdated(true);
       
     }
+
+    const delProject = () => {
+    let updatedList = [...props.availableContracts];
+    updatedList.splice(props.availableContracts.indexOf(props.projectName), 1);
+    props.setAvailableContracts(updatedList);
+    postProjectsList(updatedList);
+  };
+    
 
 
     return (
@@ -116,6 +120,8 @@ export default function Details (props) {
 
         { !updated ? (<button onClick={() => updateDetails()}>Update</button>) : null}
 
+
+        <button style={{color: 'red'}} onClick={() => delProject()}>Delete project</button>
         </div>
     )
 }
