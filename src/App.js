@@ -287,7 +287,9 @@ export default function App() {
         locationsNames={locationsNames}
         setLocationsNames={setLocationsNames}
         availableContracts={availableContracts}
-        setAvailableContracts={setAvailableContracts}/>) : null}
+        setAvailableContracts={setAvailableContracts}
+        locations={locations}
+        setLocations={setLocations}/>) : null}
 
 
       {!isProjectLoaded && user ? (
