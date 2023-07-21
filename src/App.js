@@ -2,6 +2,7 @@ import "leaflet/dist/leaflet.css";
 import "./App.css";
 import { React, useEffect, useState, useContext } from "react";
 import { getProjectDetails, getImage, getProjectsList } from "./utils/api";
+import { checkMode } from "./utils/indexedDB";
 import { MarkersContext } from "./contexts/Markers.js";
 import { ProjectMarkersContext } from "./contexts/ProjectMarkers";
 import Map from "./components/Map.jsx";
@@ -41,6 +42,8 @@ export default function App() {
 
   // const [user, setUser] = useState(false);
 
+  const [mode, setMode] = useState(false);
+
   // available contracts
 
   const [availableContracts, setAvailableContracts] = useState(['']);
@@ -69,19 +72,36 @@ export default function App() {
   //current page
   const [page, setPage] = useState('map');
 
+  // check mode
+
+  useEffect(() => {
+    const result = checkMode();
+    setMode(result);
+    console.log(result)
+  }, [])
+
   // get available contracts
 
   useEffect(() => {
-    if(availableContracts[0] === ''){
+    if(availableContracts[0] === '' && mode === 'online'){
       getProjectsList().then((result) => {
         setAvailableContracts(result)
-      })}
-  }, [availableContracts]);
+        // setting details when offline
+      })} else if ( availableContracts[0] === '' && mode === 'offline'){
+        const struction = JSON.parse(localStorage.getItem('Struction'));
+        console.log(struction)
+        setProjectName(struction.projectName[0])
+        setAvailableContracts(struction.availableContracts)
+        setLocations(struction.locations) // to be replaced by IndexedDB
+        setProjectMarkers(struction.projectMarkers)
+        setMapsLoaded(true)
+      }
+  }, [availableContracts, mode]);
 
 
   // request for contract details and assign them to states
   useEffect(() => {
-    if (projectName) {
+    if (projectName && mode === 'online') {
       getProjectDetails(projectName).then((result) => {
         setProjectMarkers(result.project[1]);
         setLocationsNames(result.project[0].props.locations);
@@ -148,6 +168,26 @@ export default function App() {
         
   }
   }, [mapPdf])
+
+  const switchMode = () => {
+    if(mode === 'online'){
+      setMode('offline');
+      localStorage.setItem('Struction', JSON.stringify({
+        mode: 'offline',
+        availableContracts: [projectName],
+        projectName: projectName,
+        locationsNames: locationsNames,
+        services: services,
+        materials: materials,
+        projectMarkers: projectMarkers,
+        locations: locations})); // to be replaced by IndexedDB
+
+    } else {
+      setMode('online');
+      localStorage.clear();
+      localStorage.setItem('Struction', JSON.stringify({ mode: 'online'}));
+    }
+  };
 
   const downloadPDFs = (n) => {
     
@@ -220,7 +260,15 @@ export default function App() {
       <Sidebar>
         <Menu>
           <SubMenu label="Menu">
-            <SubMenu label="Projects">
+            { mode && mapsLoaded ? (
+          <MenuItem
+             onClick={() => { switchMode()
+             }}>{mode === 'online' ? (
+            <>Switch to offline</>
+          ) : <>Synch with database</>}</MenuItem>) : null}
+           
+           { mode === 'online' ? (
+            <SubMenu label="Projects"> 
               {!user ? null : availableContracts.map((project) => {
                 return (
                   <MenuItem
@@ -236,10 +284,13 @@ export default function App() {
                   </MenuItem>
                 );
               })}
+              { mode === 'online' ? (
               <MenuItem><NewContract
               availableContracts={availableContracts}
-              setAvailableContracts={setAvailableContracts}/></MenuItem>
+              setAvailableContracts={setAvailableContracts}/></MenuItem>) : null }
             </SubMenu>
+           ) : <MenuItem>{projectName}</MenuItem>}
+            
 
             {mapsLoaded ? (
               <SubMenu label="Locations">
@@ -260,13 +311,16 @@ export default function App() {
               </SubMenu>
             ) : (projectName ? (<p className="loading">Loading project...</p>) : null)}
 
-            {projectName ? (
+            {projectName && mode === 'online' ? (
               <MenuItem onClick={() => setPage('details')}>Project details</MenuItem>
             ) : null}
+            
+            {mode === 'online' ? (
+               <MenuItem onClick={() => setPage('workers')}> Workers dashboard </MenuItem>
+            ) : null}
+           
 
-            <MenuItem onClick={() => setPage('workers')}> Workers dashboard </MenuItem>
-
-            { markers[0] ? (
+            { markers[0] && mode === 'online' ? (
             <MenuItem onClick={() => {downloadPDFs(markers.length)
                                      setGeneratePDF(true)}}> Download PDFs</MenuItem>
            ) : null }
@@ -292,7 +346,7 @@ export default function App() {
         setLocations={setLocations}/>) : null}
 
 
-      {!isProjectLoaded && user ? (
+      {!isProjectLoaded && user && page === 'map' ? (
         <img
           className="struction-logo"
           src={ampaLogo}
