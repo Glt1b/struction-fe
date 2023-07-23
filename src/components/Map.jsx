@@ -59,7 +59,7 @@ export default function Map(props) {
       const id = `${props.user}-${Date.now()}`;
 
       const obj = {
-        [id]: {
+        id: {
           id: id,
           number: "0",
           status: "in progress",
@@ -90,10 +90,20 @@ export default function Map(props) {
         },
       };
 
+      if(props.mode === 'online'){
+        console.log('creating marker online')
       postMarker(props.projectName, obj).then((response) => {
         setProjectMarkers(response.data.markers);
         setCreationMode(false);
       });
+        } else {
+      // save to local storage
+      const struction = JSON.parse(localStorage.getItem('Struction'));
+      struction.projectMarkers.push(obj.id);
+      localStorage.setItem('Struction', JSON.stringify(struction));
+      props.setProjectMarkers(struction.projectMarkers)
+
+        }
     } else {
     }
   };
@@ -153,6 +163,9 @@ export default function Map(props) {
                 handle={item.handle}
                 lock={item.lock}
                 doorCondition={item.doorCondition}
+
+                setProjectMarkers={props.setProjectMarkers}
+                mode={props.mode}
               />
             );
           }) : <Marker

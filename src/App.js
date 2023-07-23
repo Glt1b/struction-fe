@@ -90,11 +90,13 @@ export default function App() {
       })} else if ( availableContracts[0] === '' && mode === 'offline'){
         const struction = JSON.parse(localStorage.getItem('Struction'));
         console.log(struction)
-        setProjectName(struction.projectName[0])
+        setProjectName(struction.projectName)
         setAvailableContracts(struction.availableContracts)
         setLocations(struction.locations) // to be replaced by IndexedDB
         setProjectMarkers(struction.projectMarkers)
         setMapsLoaded(true)
+        setMaterials(struction.materials)
+        setServices(struction.services)
       }
   }, [availableContracts, mode]);
 
@@ -364,6 +366,8 @@ export default function App() {
           services={services}
           image={currDrawing}
           mapPdf={mapPdf}
+          mode={mode}
+          setProjectMarkers={setProjectMarkers}
         />
         </div>
       ) : null}

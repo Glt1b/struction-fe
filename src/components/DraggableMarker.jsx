@@ -166,16 +166,25 @@ export default function DraggableMarker(props) {
   // delete Marker
   const delMarker = () => {
 
-    console.log(photos)
-    
-    photos.forEach( element => delImageS3(element));
+    if(props.mode === 'online'){
 
+    console.log(photos)
+    photos.forEach( element => delImageS3(element));
     deleteMarker(props.projectName, props.id).then((result) => {
       const m = markers.filter((item) => item.id !== props.id);
       setMarkers(m);
       const pm = projectMarkers.filter((item) => item.id !== props.id);
       setProjectMarkers(pm);
     });
+    } else {
+      const struction = JSON.parse(localStorage.getItem('Struction'));
+      const pins = struction.projectMarkers;
+      const updatedPins = pins.filter(pin => pin.id !== props.id);
+      struction.projectMarkers = updatedPins;
+      localStorage.setItem('Struction', JSON.stringify(struction));
+      props.setProjectMarkers(struction.projectMarkers)
+    }
+
   };
 
   // save markers details
@@ -183,7 +192,7 @@ export default function DraggableMarker(props) {
     const id = props.id;
 
     const obj = {
-      [id]: {
+      id: {
         id: id,
         number: number,
         status: status,
@@ -214,10 +223,19 @@ export default function DraggableMarker(props) {
         doorCondition: doorCondition
       },
     };
-
+    if(props.mode === 'online'){
     patchMarker(props.projectName, props.id, obj).then((response) => {
       setProjectMarkers(response.data.markers);
     });
+    } else {
+      const struction = JSON.parse(localStorage.getItem('Struction'));
+      const pins = struction.projectMarkers;
+      const updatedPins = pins.filter(pin => pin.id !== id);
+      updatedPins.push(obj.id)
+      struction.projectMarkers = updatedPins;
+      localStorage.setItem('Struction', JSON.stringify(struction));
+      props.setProjectMarkers(struction.projectMarkers)
+    }
   };
 
   // form handlers
@@ -345,7 +363,7 @@ export default function DraggableMarker(props) {
             <div className="title" id="title-checkbox">
               <b>Materials</b>
             </div>
-            <div className="list-container">
+            <div className="list-container" id="services-container">
               {props.materials.map((item, index) => (
                 <div key={index} className="checkbox">
                   <input
