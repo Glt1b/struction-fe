@@ -5,6 +5,7 @@ import { MarkersContext } from "../contexts/Markers.js";
 import { ProjectMarkersContext } from "../contexts/ProjectMarkers.js";
 import "leaflet/dist/leaflet.css";
 import { deleteMarker, getImage, patchMarker } from "../utils/api";
+import { addToIndexedDB, readFromIndexedDB, deleteFromIndexedDB } from "../utils/indexedDB.js";
 import ImageUploading from "react-images-uploading";
 import marker from "../images/map-marker.svg";
 import marker1 from "../images/map-marker-issue.svg";
@@ -76,17 +77,22 @@ export default function DraggableMarker(props) {
   const [photosNumber, setPhotosNumber] = useState(props.photos.length);
   const [uploading, setUploading] = useState(false);
 
+  const [testImage, setTestImage] = useState(false)
+
   const onChange = (imageList, addUpdateIndex) => {
     // data for submit
     console.log(imageList, addUpdateIndex);
     // upload photos
-    if (photosNumber < imageList.length){
+    if(props.mode === 'online'){
+      if (photosNumber < imageList.length){
       setUploading(true);
       const photosArr = photos;
       for (let index of addUpdateIndex){
         const image_id = `${props.id}-${Date.now()}`;
+
         postImage(image_id, imageList[index].data_url).then((result) => {
-          
+            
+            setTestImage(result)
             photosArr.push(image_id)
             console.log(photosArr)
             if(imageList.length === photosArr.length){
@@ -98,8 +104,32 @@ export default function DraggableMarker(props) {
               }, 2000)
             }
         });
-     }
+
+        }
+    }
      setUploading(false);
+
+    } else {
+        console.log('updating photos offline')
+        setUploading(true);
+        const photosArr = photos;
+
+        for (let index of addUpdateIndex){
+          console.log(addUpdateIndex)
+          const image_id = `${props.id}-${Date.now()}`;
+          addToIndexedDB('Struction', props.projectName, image_id, imageList[index]);
+          photosArr.push(image_id);
+          console.log(photosArr)
+          if(imageList.length === photosArr.length - photosNumber){
+            setPhotos(photosArr);
+            setTimeout(() => {
+              setUploading(false);
+              console.log('updating marker details...')
+              updateMarker();
+            }, 2000)
+          
+        }}
+      setUploading(false)
     }
     setImages(imageList);
   };
@@ -107,7 +137,7 @@ export default function DraggableMarker(props) {
   // get photos
 
   useEffect(() => {
-    if(photosOpen){
+    if(photosOpen && props.mode === 'online'){
       const imagesArr = [];
       for(let photo of photos){
         getImage(photo).then((result) => {
@@ -118,6 +148,28 @@ export default function DraggableMarker(props) {
           }
         })
       }
+    } else if(photosOpen){
+      alert('You can not download images in offline mode but still can upload new to local storage, they will be uploaded as soon as you are online')
+      // check for image offline
+      const imagesArr = [];
+      let x = 0;
+      for (let photo of photos){
+        readFromIndexedDB('Struction', props.projectName, photo, function(value) {
+          if (value) {
+            //console.log(value)
+            //const obj = { data_url: value};
+            imagesArr.push(value);
+            if(imagesArr.length + x === photos.length){
+              setImages(imagesArr);
+            }
+          } else {
+            x = x + 1;
+            if(imagesArr.length + x === photos.length){
+              setImages(imagesArr);
+            }
+          }
+        });
+      }
     }
   }, [photosOpen])
 
@@ -125,6 +177,7 @@ export default function DraggableMarker(props) {
   // delete image
 
   const delImage = (index) => {
+    if(props.mode === 'online'){
     console.log(index, 'index of deleting photo')
     delImageS3(photos[index]).then((result) => {
       if(result.status === 204){
@@ -139,6 +192,28 @@ export default function DraggableMarker(props) {
         }, 2000)
       }
     })
+    } else {
+      // delete offline
+      console.log('deleting photo online' + index)
+      deleteFromIndexedDB('Struction', props.projectName, index, function(success) {
+        if (success) {
+          console.log('Data deleted successfully.');
+          const updatedPhotos = photos;
+          console.log(updatedPhotos)
+          updatedPhotos.splice(index, 1);
+          console.log(updatedPhotos)
+          setPhotos(updatedPhotos);
+          setTimeout(() => {
+            console.log('updating marker details...')
+            updateMarker();
+          }, 2000)
+
+        } else {
+          console.log('Failed to delete the data.');
+        }
+      });
+
+    }
   }
 
 
@@ -167,7 +242,6 @@ export default function DraggableMarker(props) {
   const delMarker = () => {
 
     if(props.mode === 'online'){
-
     console.log(photos)
     photos.forEach( element => delImageS3(element));
     deleteMarker(props.projectName, props.id).then((result) => {
@@ -177,7 +251,9 @@ export default function DraggableMarker(props) {
       setProjectMarkers(pm);
     });
     } else {
+      
       const struction = JSON.parse(localStorage.getItem('Struction'));
+      photos.forEach(element => struction.photosToDelete.push(element));
       const pins = struction.projectMarkers;
       const updatedPins = pins.filter(pin => pin.id !== props.id);
       struction.projectMarkers = updatedPins;
@@ -192,7 +268,7 @@ export default function DraggableMarker(props) {
     const id = props.id;
 
     const obj = {
-      id: {
+      [id]: {
         id: id,
         number: number,
         status: status,
@@ -230,8 +306,9 @@ export default function DraggableMarker(props) {
     } else {
       const struction = JSON.parse(localStorage.getItem('Struction'));
       const pins = struction.projectMarkers;
+      console.log(pins)
       const updatedPins = pins.filter(pin => pin.id !== id);
-      updatedPins.push(obj.id)
+      updatedPins.push(obj[Object.keys(obj)[0]])
       struction.projectMarkers = updatedPins;
       localStorage.setItem('Struction', JSON.stringify(struction));
       props.setProjectMarkers(struction.projectMarkers)
@@ -703,7 +780,7 @@ export default function DraggableMarker(props) {
             Update
           </button>
           ) : null }
-
+         
           <button
             id="delete-btn"
             onClick={() => {
@@ -751,16 +828,18 @@ export default function DraggableMarker(props) {
                   &nbsp;
                   {imageList.map((image, index) => (
                     <div key={index}>
-
+                      
                       <Photo url={image["data_url"]}/>
                    
-                      
-                      <div className="image-item__btn-wrapper">
+                      { props.mode === 'online' ? (
+                        <div className="image-item__btn-wrapper">
                         <button onClick={() => {onImageRemove(index)
                                                 delImage(index)}}>
                           Remove
                         </button>
                       </div>
+                      ) : null }
+                      
                     </div>
                   ))}
                 </div>

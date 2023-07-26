@@ -2,6 +2,7 @@ import "leaflet/dist/leaflet.css";
 import "./App.css";
 import { React, useEffect, useState, useContext } from "react";
 import { getProjectDetails, getImage, getProjectsList } from "./utils/api";
+import { addToIndexedDB, readFromIndexedDB, deleteIndexedDB } from "./utils/indexedDB";
 import { checkMode } from "./utils/indexedDB";
 import { MarkersContext } from "./contexts/Markers.js";
 import { ProjectMarkersContext } from "./contexts/ProjectMarkers";
@@ -83,22 +84,36 @@ export default function App() {
   // get available contracts
 
   useEffect(() => {
-    if(availableContracts[0] === '' && mode === 'online'){
+    if( mode === 'online'){
       getProjectsList().then((result) => {
         setAvailableContracts(result)
         // setting details when offline
-      })} else if ( availableContracts[0] === '' && mode === 'offline'){
+      })} else if (  mode === 'offline'){
+
         const struction = JSON.parse(localStorage.getItem('Struction'));
         console.log(struction)
         setProjectName(struction.projectName)
         setAvailableContracts(struction.availableContracts)
-        setLocations(struction.locations) // to be replaced by IndexedDB
+        //setLocations(struction.locations) // to be replaced by IndexedDB
         setProjectMarkers(struction.projectMarkers)
         setMapsLoaded(true)
         setMaterials(struction.materials)
         setServices(struction.services)
       }
-  }, [availableContracts, mode]);
+  }, [mode]);
+
+  // load locations from IDB
+
+  useEffect(() => {
+    if(projectName && mode === 'offline')
+    readFromIndexedDB('Struction', projectName, 'locations', function(value) {
+      if (value) {
+        setLocations(value);
+      } else {
+         console.log('Value not found.');
+      }
+      });
+  }, [projectName, mode])
 
 
   // request for contract details and assign them to states
@@ -151,6 +166,7 @@ export default function App() {
   // extract current markers
   useEffect(() => {
     if (currentLocation !== "") {
+      console.log(projectMarkers)
       const m = projectMarkers.filter(
         (item) => item.location === currentLocation
       );
@@ -182,14 +198,25 @@ export default function App() {
         services: services,
         materials: materials,
         projectMarkers: projectMarkers,
-        locations: locations})); // to be replaced by IndexedDB
+        locations: locations, // to be replaced by IndexedDB
+        photosToDelete: []})); 
+      console.log(projectName)
+      addToIndexedDB('Struction', projectName, 'locations', locations);
 
     } else {
       setMode('online');
       localStorage.clear();
       localStorage.setItem('Struction', JSON.stringify({ mode: 'online'}));
-    }
-  };
+
+      deleteIndexedDB('Struction', function(success) {
+       if (success) {
+         console.log('Database deleted successfully.');
+       } else {
+         console.log('Failed to delete the database.');
+       }
+      });
+     }
+ };
 
   const downloadPDFs = (n) => {
     
@@ -304,6 +331,7 @@ export default function App() {
                       onClick={() => {
                         setPage('map');
                         setCurrentLocation(location.name);
+                        
                       }}
                     >
                       {location.name}

@@ -1,4 +1,5 @@
 import axios from "axios";
+import pica from "pica";
 
 const beStructionApi = axios.create({
   baseURL: "https://struction-backend.cyclic.app/api"
@@ -122,19 +123,16 @@ export const getImage = (image_id) => {
       // let base64String = window.btoa(STRING_CHAR); //
       console.log(STRING_CHAR)
       return(STRING_CHAR)
-    })
-    
+    })  
 }
 
 export const postImage = async (image_id, image) => {
-
   const axiosConfig = {
     headers: {
       'content-type': 'application/x-www-form-urlencoded'
     },
-    responseType: 'arraybuffer'
-  }
-
+    // responseType: 'arraybuffer'
+  };
 
   // Create a new Image object
   const img = new Image();
@@ -144,38 +142,47 @@ export const postImage = async (image_id, image) => {
 
   // Wait for the image to load
   img.onload = () => {
-  // Create a new HTML5 Canvas object
-  const canvas = document.createElement('canvas');
+    // Calculate the original size of the image in bytes
+    const originalSizeInBytes = Math.ceil(image.length);
 
-  // Calculate the new dimensions of the image
-  let newWidth = img.width;
-  let newHeight = img.height;
-  const maxFileSize = 1 * 1024 * 1024; // 1mb in bytes
-  const scaleFactor = Math.min(1, Math.sqrt(maxFileSize / (img.width * img.height * 4)));
-  newWidth = Math.floor(scaleFactor * img.width);
-  newHeight = Math.floor(scaleFactor * img.height);
+    // Calculate the target file size (1MB) in bytes
+    const targetFileSize = 1 * 1024 * 1024;
 
-  // Set the dimensions of the canvas
-  canvas.width = newWidth;
-  canvas.height = newHeight;
+    // Calculate the quality factor for canvas.toDataURL()
+    let quality = 1;
+    if (originalSizeInBytes > targetFileSize) {
+      quality = targetFileSize / originalSizeInBytes;
+    }
 
-  // Draw the image onto the canvas at the new dimensions
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(img, 0, 0, newWidth, newHeight);
+    // Create a new HTML5 Canvas object
+    const canvas = document.createElement('canvas');
 
-  // Convert the canvas to a new base64 string
-  const resizedBase64 = canvas.toDataURL("image/jpg");
-  
-  // Use the resized base64 string as needed
-  console.log(image)
-  console.log(resizedBase64);
+    // Set the dimensions of the canvas to the original image dimensions
+    canvas.width = img.width;
+    canvas.height = img.height;
 
-  return beStructionApi.post(`/image/${image_id}`, { data: resizedBase64 }, axiosConfig).then((result) => {
-    console.log(result)
-    return result 
-  })
+    // Draw the image onto the canvas
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+
+    // Convert the canvas to a new base64 string with JPEG format and adjustable quality
+    const resizedBase64 = canvas.toDataURL('image/jpeg', quality);
+
+    // Use the resized base64 string as needed
+    console.log(image);
+    console.log(resizedBase64);
+
+    // Send the resized image to the server using the Axios request
+    return beStructionApi.post(`/image/${image_id}`, { data: resizedBase64 }, axiosConfig)
+      .then((result) => {
+        console.log(result);
+        return result;
+      });
+  };
 };
-}
+
+
+
 
 export const delImageS3 = (image_id) => {
   return beStructionApi.delete(`/image/${image_id}`).then((result) => {
@@ -183,4 +190,3 @@ export const delImageS3 = (image_id) => {
     return result
   })
 }
-

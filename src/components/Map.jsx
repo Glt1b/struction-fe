@@ -31,6 +31,7 @@ export default function Map(props) {
 
   //update map after marker creation
   useEffect(() => {
+    //console.log(projectMarkers)
     const m = projectMarkers.filter(
       (item) => item.location === props.currentLocation
     );
@@ -59,7 +60,7 @@ export default function Map(props) {
       const id = `${props.user}-${Date.now()}`;
 
       const obj = {
-        id: {
+        [id]: {
           id: id,
           number: "0",
           status: "in progress",
@@ -99,7 +100,8 @@ export default function Map(props) {
         } else {
       // save to local storage
       const struction = JSON.parse(localStorage.getItem('Struction'));
-      struction.projectMarkers.push(obj.id);
+      console.log(obj[Object.keys(obj)[0]].id)
+      struction.projectMarkers.push(obj[Object.keys(obj)[0]]);
       localStorage.setItem('Struction', JSON.stringify(struction));
       props.setProjectMarkers(struction.projectMarkers)
 
