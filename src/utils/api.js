@@ -188,28 +188,28 @@ export const delImageS3 = (image_id) => {
   })
 }
 
-const postMultimarkers = (projectName, markers) => {
-  const m = markers;
-  console.log(m)
-  return
+const postMultimarkers = (projectName, markers, count) => {
+  
+  if(count > 0){
+    patchMarker(projectName, Object.keys(markers)[count - 1][0], markers[count-1])
+    .then((result) => {
+      postMultimarkers(projectName, markers, count - 1)
+    })
+  } else {
+    return 
+  }
 }
 
 
 export const synchDB = async (projectName) => {
   const struction = await JSON.parse(localStorage.getItem('Struction'));
   const photosList = struction.photosToUpload;
-  const markers = struction.projectMarkers;
-  // extract markers to update
+  const markersToUpload = struction.arrToUpload;
 
   console.log(photosList)
 
-  let markersReady = false;
-  let photosReady = false;
-
   // post multiple markers
-  postMultimarkers(projectName, markers).then((result) => {
-    markersReady = true;
-  })
+  postMultimarkers(projectName, markersToUpload, markersToUpload.length);
   
   // post photos
   let count = photosList.length
@@ -222,20 +222,16 @@ export const synchDB = async (projectName) => {
           if(result){
             count = count - 1;
             if(count === 0){
-              photosReady = true;
-              if(markersReady){
-                //return true;
-              }
+              return true
             }
           } else {
-            //return false;
+            return false;
           }
         })
       } else {
-        //return false;
+        return false;
       }
     });
   }
-
-  return 'xxx'
+  // return 'xxx'
 }

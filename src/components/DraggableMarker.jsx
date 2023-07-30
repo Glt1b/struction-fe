@@ -317,7 +317,10 @@ export default function DraggableMarker(props) {
       const updatedPins = pins.filter(pin => pin.id !== id);
       updatedPins.push(obj[Object.keys(obj)[0]])
       struction.projectMarkers = updatedPins;
-      struction.markersToUpload.push(id)
+      if(!struction.markersToUpload.includes(id)){
+        struction.markersToUpload.push(id);
+        struction.arrToUpload.push(obj);
+      }
       localStorage.setItem('Struction', JSON.stringify(struction));
       props.setProjectMarkers(struction.projectMarkers)
     }

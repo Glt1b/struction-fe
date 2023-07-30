@@ -199,15 +199,16 @@ export default function App() {
         materials: materials,
         projectMarkers: projectMarkers,
         markersToUpload: [],
+        arrToUpload: [],
         photosToUpload: []})); 
       console.log(projectName)
       addToIndexedDB('Struction', projectName, 'locations', locations);
 
     } else {
-      setMode('online');
+      
       // sync with DB
-      /*
-      synchDB(projectName).then((result) => {
+      setTimeout(() => {
+        setMode('online');
         deleteIndexedDB('Struction', function(success) {
           if (success) {
             console.log('Database deleted successfully.');
@@ -215,11 +216,14 @@ export default function App() {
             console.log('Failed to delete the database.');
           }
         });
-        // clear storage if fullfiled
-      })*/
-       localStorage.clear();
-       localStorage.setItem('Struction', JSON.stringify({ mode: 'online'}));
-
+        localStorage.clear();
+        localStorage.setItem('Struction', JSON.stringify({ mode: 'online'}));
+      }, 3000)
+      
+      synchDB(projectName).then((result) => {
+        if(result){
+        }
+      })
      }
  };
 
