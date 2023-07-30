@@ -12,6 +12,8 @@ import marker1 from "../images/map-marker-issue.svg";
 import marker2 from "../images/map-marker-complete.svg";
 import { postImage, delImageS3 } from "../utils/api";
 import Photo from "./Photo.jsx";
+import MaterialTile from "./MaterialTile.jsx";
+import NewMaterial from "./NewMaterial.jsx";
 
 
 
@@ -32,7 +34,7 @@ export default function DraggableMarker(props) {
   const [position, setPosition] = useState(props.position);
   const [number, setNumber] = useState(props.number);
   const [status, setStatus] = useState(props.status);
-  const [materialsUsed, setMaterialUsed] = useState(props.materialsUsed);
+  const [materialsUsed, setMaterialsUsed] = useState(props.materialsUsed);
   const [measurements, setMeasurements] = useState(props.measurements);
   const [serviceUsed, setServiceUsed] = useState(props.service);
   const [comment, setComment] = useState(props.comment);
@@ -79,7 +81,9 @@ export default function DraggableMarker(props) {
 
   const [testImage, setTestImage] = useState(false)
 
-  const onChange = (imageList, addUpdateIndex) => {
+  console.log('available materials:' + props.materials)
+
+  const onChange = async (imageList, addUpdateIndex) => {
     // data for submit
     console.log(imageList, addUpdateIndex);
     // upload photos
@@ -113,15 +117,18 @@ export default function DraggableMarker(props) {
         console.log('updating photos offline')
         setUploading(true);
         const photosArr = photos;
+        const  struction = await JSON.parse(localStorage.getItem('Struction'));
 
         for (let index of addUpdateIndex){
           console.log(addUpdateIndex)
           const image_id = `${props.id}-${Date.now()}`;
           addToIndexedDB('Struction', props.projectName, image_id, imageList[index]);
           photosArr.push(image_id);
+          struction.photosToUpload.push(image_id);
           console.log(photosArr)
           if(imageList.length === photosArr.length - photosNumber){
             setPhotos(photosArr);
+            localStorage.setItem('Struction', JSON.stringify(struction));
             setTimeout(() => {
               setUploading(false);
               console.log('updating marker details...')
@@ -310,6 +317,7 @@ export default function DraggableMarker(props) {
       const updatedPins = pins.filter(pin => pin.id !== id);
       updatedPins.push(obj[Object.keys(obj)[0]])
       struction.projectMarkers = updatedPins;
+      struction.markersToUpload.push(id)
       localStorage.setItem('Struction', JSON.stringify(struction));
       props.setProjectMarkers(struction.projectMarkers)
     }
@@ -317,14 +325,33 @@ export default function DraggableMarker(props) {
 
   // form handlers
 
-  const handleMaterials = (item) => {
-    let updatedList = [...materialsUsed];
-    if (!materialsUsed.includes(item)) {
-      updatedList = [...materialsUsed, item];
+  const isEqual = (obj1, obj2) => {
+    const key1 = Object.keys(obj1)[0];
+    const key2 = Object.keys(obj2)[0];
+
+    console.log('keys:' + key1 + key2)
+
+    if(key1 !== key2){
+      return false;
+    } else if (obj1[key1] !== obj2[key2]){
+      return false;
     } else {
-      updatedList.splice(materialsUsed.indexOf(item), 1);
+      return true;
     }
-    setMaterialUsed(updatedList);
+  }
+
+  const deleteMaterial = (item) => {
+
+    let updatedList = [];
+
+    for (let m of materialsUsed){
+      const result = isEqual(m, item);
+      if(!result){
+        updatedList.push(m)
+      }
+    }
+
+    setMaterialsUsed(updatedList);
   };
 
   const handleService = (item) => {
@@ -441,19 +468,20 @@ export default function DraggableMarker(props) {
               <b>Materials</b>
             </div>
             <div className="list-container" id="services-container">
-              {props.materials.map((item, index) => (
-                <div key={index} className="checkbox">
-                  <input
-                    id={item}
-                    value={item}
-                    type="checkbox"
-                    checked={materialsUsed.includes(item) ? true : false}
-                    onChange={() => handleMaterials(item)}
-                  />
-                  <label htmlFor={item}>{item}</label>
-                </div>
+              {materialsUsed.map((item, index) => (
+                <>
+                  <MaterialTile
+                   key={index}
+                   material={item}/>
+                  <button onClick={() => {deleteMaterial(item)}}>Delete</button>
+                </>
               ))}
             </div>
+              <NewMaterial
+              materials={props.materials}
+              materialsUsed={materialsUsed}
+              setMaterialsUsed={setMaterialsUsed}/>
+
           </div>
           ) : null}
 
@@ -479,38 +507,7 @@ export default function DraggableMarker(props) {
           </div>
           ) : null}
 
-          {type === 'seal' ? (
-          <div className="text-input">
-            <div className="title">
-              <label htmlFor="height">
-                <b>Height</b>
-              </label>
-            </div>
-            <input
-              id="height"
-              className="input"
-              value={measurements[1]}
-              type="text"
-              onChange={(e) => {
-                setMeasurements([measurements[0], e.target.value]);
-              }}
-            ></input>
-            <div className="title">
-              <label htmlFor="width">
-                <b>Width</b>
-              </label>
-            </div>
-            <input
-              id="width"
-              className="input"
-              value={measurements[0]}
-              type="text"
-              onChange={(e) => {
-                setMeasurements([e.target.value, measurements[1]]);
-              }}
-            ></input>
-          </div>
-          ) : null}
+
 
           { type !== '' ? (
           <div className="text-input" id="comment-container">

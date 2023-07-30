@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from "react";
-import { postProjectDetails, postImage, postProjectsList, sendBlobData } from "../utils/api";
+import { postProjectDetails, postImage, postProjectsList } from "../utils/api";
 import ImageUploading from "react-images-uploading";
 import Photo from "./Photo.jsx";
 

@@ -1,5 +1,5 @@
 import axios from "axios";
-import pica from "pica";
+import { readFromIndexedDB } from "./indexedDB";
 
 const beStructionApi = axios.create({
   baseURL: "https://struction-backend.cyclic.app/api"
@@ -175,13 +175,10 @@ export const postImage = async (image_id, image) => {
     // Send the resized image to the server using the Axios request
     return beStructionApi.post(`/image/${image_id}`, { data: resizedBase64 }, axiosConfig)
       .then((result) => {
-        console.log(result);
-        return result;
+        return result.data;
       });
   };
 };
-
-
 
 
 export const delImageS3 = (image_id) => {
@@ -189,4 +186,56 @@ export const delImageS3 = (image_id) => {
     console.log(result)
     return result
   })
+}
+
+const postMultimarkers = (projectName, markers) => {
+  const m = markers;
+  console.log(m)
+  return
+}
+
+
+export const synchDB = async (projectName) => {
+  const struction = await JSON.parse(localStorage.getItem('Struction'));
+  const photosList = struction.photosToUpload;
+  const markers = struction.projectMarkers;
+  // extract markers to update
+
+  console.log(photosList)
+
+  let markersReady = false;
+  let photosReady = false;
+
+  // post multiple markers
+  postMultimarkers(projectName, markers).then((result) => {
+    markersReady = true;
+  })
+  
+  // post photos
+  let count = photosList.length
+  for (let photo of photosList){
+    readFromIndexedDB('Struction', projectName, photo, function(value) {
+      if (value) {
+        postImage(photo, value.data_url).then((result) => {
+          console.log('result uploading photo' + result);
+          // count if 'uploaded'
+          if(result){
+            count = count - 1;
+            if(count === 0){
+              photosReady = true;
+              if(markersReady){
+                //return true;
+              }
+            }
+          } else {
+            //return false;
+          }
+        })
+      } else {
+        //return false;
+      }
+    });
+  }
+
+  return 'xxx'
 }

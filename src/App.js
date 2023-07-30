@@ -1,7 +1,7 @@
 import "leaflet/dist/leaflet.css";
 import "./App.css";
 import { React, useEffect, useState, useContext } from "react";
-import { getProjectDetails, getImage, getProjectsList } from "./utils/api";
+import { getProjectDetails, getImage, getProjectsList, synchDB } from "./utils/api";
 import { addToIndexedDB, readFromIndexedDB, deleteIndexedDB } from "./utils/indexedDB";
 import { checkMode } from "./utils/indexedDB";
 import { MarkersContext } from "./contexts/Markers.js";
@@ -198,23 +198,28 @@ export default function App() {
         services: services,
         materials: materials,
         projectMarkers: projectMarkers,
-        locations: locations, // to be replaced by IndexedDB
-        photosToDelete: []})); 
+        markersToUpload: [],
+        photosToUpload: []})); 
       console.log(projectName)
       addToIndexedDB('Struction', projectName, 'locations', locations);
 
     } else {
       setMode('online');
-      localStorage.clear();
-      localStorage.setItem('Struction', JSON.stringify({ mode: 'online'}));
+      // sync with DB
+      /*
+      synchDB(projectName).then((result) => {
+        deleteIndexedDB('Struction', function(success) {
+          if (success) {
+            console.log('Database deleted successfully.');
+          } else {
+            console.log('Failed to delete the database.');
+          }
+        });
+        // clear storage if fullfiled
+      })*/
+       localStorage.clear();
+       localStorage.setItem('Struction', JSON.stringify({ mode: 'online'}));
 
-      deleteIndexedDB('Struction', function(success) {
-       if (success) {
-         console.log('Database deleted successfully.');
-       } else {
-         console.log('Failed to delete the database.');
-       }
-      });
      }
  };
 
