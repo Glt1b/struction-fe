@@ -12,7 +12,6 @@ export default function NewMaterial (props) {
     const [diameter, setDiameter] = useState('0');
     const [quantity, setQuantity] = useState('0');
 
-    console.log('Materialy do wyboru:' + props.materials)
 
     const submit = () => {
         const obj = {

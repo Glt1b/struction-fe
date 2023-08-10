@@ -178,12 +178,7 @@ export default function App() {
 
   useEffect(() => {
     if(mapPdf){
-        
-        setTimeout(() => {
-          console.log('saving')
-          savePDF();
-        }, 1500)
-        
+          savePDF();    
   }
   }, [mapPdf])
 
@@ -228,42 +223,65 @@ export default function App() {
  };
 
   const downloadPDFs = (n) => {
-    
+    console.log('N number: ' + n)
     if ( n > 0 ) {
+      console.log('Creating pdf for marker: ' + markers[n-1].number)
       setTimeout(() => {
-        const promises = markers[n-1].photos.map(photo => getImage(photo));
-        Promise.all(promises).then(images => {
-        // All images have loaded
         const pdfName = `${projectName}-${markers[n-1].number}.pdf`;
-        setMapPdf([pdfName, images, markers[n-1]]);
-        downloadPDFs(n -1);
-    });
-      }, 3000)
+        const arr = [];
+
+        // when no photos
+        if(markers[n-1].photos.length === 0){
+            console.log('No photos found')
+            console.log('Settig details')
+            setMapPdf([pdfName, arr, markers[n-1]]);
+            downloadPDFs(n - 1);
+        }
+        // download photos
+        for(let p of markers[n-1].photos){
+          getImage(p)
+          .then((result) => {
+            arr.push(result);
+            if(arr.length === markers[n-1].photos.length){
+              console.log('Settig details')
+              setMapPdf([pdfName, arr, markers[n-1]]);
+              downloadPDFs(n - 1);
+            }
+          })
+          .catch((err) => {
+            arr.push('error');
+            if(arr.length === markers[n-1].photos.length){
+              console.log('Settig details')
+              setMapPdf([pdfName, arr, markers[n-1]]);
+              downloadPDFs(n - 1);
+            }
+          })
+        }
+      }, 6000)
     } else {
+      console.log('It was last marker')
       setTimeout(() => {
          setMapPdf(false);
          setGeneratePDF(false);
          alert('no more markers left, PDFs completed')
       }, 5000)
-      
     }
   }
 
 
   const savePDF = async () => {
-
+    console.log('Creating map...')
     const input = document.getElementById("map-container");
     const canvas = await html2canvas(input);
     console.log(canvas)
-    const imgData = canvas.toDataURL("image/jpg")
+    const imgData = canvas.toDataURL("image/svg")
     console.log(imgData)
 
     const doc = (
       <PDF photos={mapPdf[1]} map={imgData} details={mapPdf[2]}/>
     );
-
     const pdfBlob =  await pdf(doc).toBlob();
-
+    console.log('Saving PDF')
     // Save the PDF blob as file
     saveAs(pdfBlob, mapPdf[0]);
 

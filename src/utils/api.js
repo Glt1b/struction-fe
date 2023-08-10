@@ -123,7 +123,7 @@ export const getImage = (image_id) => {
       // let base64String = window.btoa(STRING_CHAR); //
       console.log(STRING_CHAR)
       return(STRING_CHAR)
-    })  
+    })
 }
 
 export const postImage = async (image_id, image) => {
