@@ -23,6 +23,9 @@ const myIssueMarker = new Icon({ iconUrl: marker1, iconSize: [45, 45], iconAncho
 const myCompletedMarker = new Icon({ iconUrl: marker2, iconSize: [45, 45], iconAnchor: [22, 45] });
 
 export default function DraggableMarker(props) {
+
+  const [ popupOpen, setPopupOpen ] = useState(false);
+
   const [draggable, setDraggable] = useState(false);
   const { markers, setMarkers } = useContext(MarkersContext);
   const { projectMarkers, setProjectMarkers } = useContext(
@@ -81,7 +84,8 @@ export default function DraggableMarker(props) {
 
   const [testImage, setTestImage] = useState(false)
 
-  console.log('available materials:' + props.materials)
+
+  const marker = markerRef.current
 
   const onChange = async (imageList, addUpdateIndex) => {
     // data for submit
@@ -222,7 +226,22 @@ export default function DraggableMarker(props) {
 
     }
   }
+  
+  // open and close popup
 
+  const closePopup = () => {
+    if (marker) {
+      setPopupOpen(false);
+      updateMarker();
+      alert("marker has been updated");
+      marker.closePopup();
+    }
+  }
+
+  
+	if (marker && popupOpen) {
+		marker.openPopup();
+	}
 
   // drag marker handlers
   const eventHandlers = useMemo(
@@ -233,6 +252,9 @@ export default function DraggableMarker(props) {
           setPosition(marker.getLatLng());
         }
       },
+      click () {
+        setPopupOpen(true);
+      }
     }),
     []
   );
@@ -382,8 +404,15 @@ export default function DraggableMarker(props) {
       position={position}
       ref={markerRef}
       icon={status === 'completed' ? myCompletedMarker : (status === 'issue' ? myIssueMarker : myMarker) }
+      
     >
-      <Popup minWidth={350}>
+      <Popup 
+      minWidth={400}
+      keepInView={true}
+      autoClose={false}
+      closeOnClick={false}
+      closeButton={false}
+      >
 
         <div className="marker-form">
           <div>
@@ -773,8 +802,7 @@ export default function DraggableMarker(props) {
           {type !== '' ? (
           <button
             onClick={() => {
-              updateMarker();
-              alert("marker has been updated");
+              closePopup();
             }}
           >
             Update

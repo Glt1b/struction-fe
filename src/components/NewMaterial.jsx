@@ -25,6 +25,11 @@ export default function NewMaterial (props) {
         props.setMaterialsUsed(arr);
 
         setCreate(false);
+        setDiameter('0');
+        setHeigth('0');
+        setWidth('0');
+        setQuantity('0');
+        setMaterial(false);
     };
 
     return (
