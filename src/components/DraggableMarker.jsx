@@ -62,7 +62,7 @@ export default function DraggableMarker(props) {
   const [doorCondition, setDoorCondition] = useState(props.doorCondition);
 
   const availableStatus = ["completed", "inProgress", "issue"];
-  const availableFR = ["Acoustic", "30", "60", "120"];
+  const availableFR = ["0", "30", "60", "120"];
 
   const handleOptions = ['Poor Handle Condition', 'Good Handle Condition', 'N/A'];
   const lockConditionOptions = ['Fair Lock Condition', 'Good Lock COndition', 'Poor Lock Condition'];
@@ -465,7 +465,7 @@ export default function DraggableMarker(props) {
                     id={item}
                     value={item}
                     type="checkbox"
-                    checked={fR.includes(item) ? true : false}
+                    checked={fR === item ? true : false}
                     onChange={() => handleFR(item)}
                   />
 
