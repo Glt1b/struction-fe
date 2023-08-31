@@ -31,7 +31,7 @@ import html2canvas from "html2canvas";
  
 
 export default function App() {
-  /*  */
+  /* 
   const [user, setUser] = useState({
     key: '',
     props: {"name": "Marcin Palenik",
@@ -39,9 +39,9 @@ export default function App() {
     "password": "worker123",
     "projects": ["apartments_unit_", "medical_centre_", "Macclesfield_District_General_Hospital"]}
   });
+ */
 
-
-  // const [user, setUser] = useState(false);
+  const [user, setUser] = useState(false);
 
   const [mode, setMode] = useState(false);
 
@@ -84,11 +84,16 @@ export default function App() {
   // get available contracts
 
   useEffect(() => {
-    if( mode === 'online'){
-      getProjectsList().then((result) => {
+    if( mode === 'online' && user){
+      if(user.props.role === 'Manager'){
+        getProjectsList().then((result) => {
         setAvailableContracts(result)
-        // setting details when offline
-      })} else if (  mode === 'offline'){
+      })
+      } else {
+        console.log(user.props.projects)
+        setAvailableContracts(user.props.projects)
+      }
+      } else if (  mode === 'offline'){
 
         const struction = JSON.parse(localStorage.getItem('Struction'));
         console.log(struction)
@@ -100,7 +105,7 @@ export default function App() {
         setMaterials(struction.materials)
         setServices(struction.services)
       }
-  }, [mode]);
+  }, [mode, user]);
 
   // load locations from IDB
 
@@ -382,7 +387,7 @@ export default function App() {
                                      setGeneratePDF(true)}}> Download PDFs</MenuItem>
            ) : null }
 
-            {!user ? null : (<MenuItem> Logout</MenuItem>)}
+            {!user ? null : (<MenuItem onClick={() => setUser(false)}>Logout</MenuItem>)}
             
           </SubMenu>
         </Menu>

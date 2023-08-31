@@ -6,23 +6,24 @@ export default function LoginPage(props) {
 
     const [mail, setMail] = useState('');
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
+
 
     function logInFunction () {
-        if(!loading){
-        setLoading(true);
         getUser(mail).then((result) => {
             console.log(result)
             // catch err -> alert not user with this email
-            setLoading(false);
             if(result.props.password === password){
                 setUser(result)
             } else {
                 alert('wrong password');
-                setLoading(false);
             }
         })
-    }}
+            .catch((err) => {
+              alert('user does not exist')
+            })
+    }
+
+    
 
     return(
         <div id="loginform">
