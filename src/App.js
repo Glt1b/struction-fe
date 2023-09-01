@@ -81,6 +81,16 @@ export default function App() {
     console.log(result)
   }, [])
 
+  //check log in
+
+  useEffect(() => {
+    const x = localStorage.getItem('Struction-User')
+    console.log(x)
+    if(x !== null){
+      setUser(JSON.parse(x))
+    }
+  }, [])
+
   // get available contracts
 
   useEffect(() => {
@@ -216,7 +226,7 @@ export default function App() {
             console.log('Failed to delete the database.');
           }
         });
-        localStorage.clear();
+        localStorage.removeItem('Struction');
         localStorage.setItem('Struction', JSON.stringify({ mode: 'online'}));
       }, 3000)
       
@@ -373,21 +383,22 @@ export default function App() {
               </SubMenu>
             ) : (projectName ? (<p className="loading">Loading project...</p>) : null)}
 
-            {projectName && mode === 'online' ? (
+            {projectName && mode === 'online' && user.props.role === 'Manager' ? (
               <MenuItem onClick={() => setPage('details')}>Project details</MenuItem>
             ) : null}
             
-            {mode === 'online' ? (
+            {mode === 'online' && user.props.role === 'Manager' ? (
                <MenuItem onClick={() => setPage('workers')}> Workers dashboard </MenuItem>
             ) : null}
            
 
-            { markers[0] && mode === 'online' ? (
+            { markers[0] && mode === 'online' && user.props.role === 'Manager' ? (
             <MenuItem onClick={() => {downloadPDFs(markers.length)
                                      setGeneratePDF(true)}}> Download PDFs</MenuItem>
            ) : null }
 
-            {!user ? null : (<MenuItem onClick={() => setUser(false)}>Logout</MenuItem>)}
+            {!user ? null : (<MenuItem onClick={() => {setUser(false)
+                                                      localStorage.removeItem('Struction-User')}}>Logout</MenuItem>)}
             
           </SubMenu>
         </Menu>

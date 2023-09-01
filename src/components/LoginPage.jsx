@@ -14,6 +14,7 @@ export default function LoginPage(props) {
             // catch err -> alert not user with this email
             if(result.props.password === password){
                 setUser(result)
+                localStorage.setItem('Struction-User', JSON.stringify(result)); 
             } else {
                 alert('wrong password');
             }
