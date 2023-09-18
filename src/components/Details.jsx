@@ -13,6 +13,10 @@ export default function Details (props) {
 
     const [images, setImages] = useState([]);
     const maxNumber = 1;
+    const [uploading, setUploading] = useState(false);
+
+    const [locations, setLocations] = useState(props.locations);
+    const [locationsNames, setLocationsNames] = useState(props.locationsNames);
 
     const onChange = (imageList, addUpdateIndex) => {
       // data for submit
@@ -21,33 +25,57 @@ export default function Details (props) {
     };
 
     const addLocation = () => {
+      const image_id = `${props.projectName}-${newLocation}`
       // set locations names
-      const arr = [...props.locationsNames];
-      arr.push(newLocation);
+      const arr = [...locationsNames];
+      arr.push({
+        'name': newLocation,
+        'url': image_id
+      });
       props.setLocationsNames(arr);
+      setLocationsNames(arr);
+      console.log(arr)
 
       // upload photo
-      const image_id = `${props.projectName}-${newLocation}`
+      
       
       postImage(image_id, images[0].data_url).then(() => {
-        setImages([]);
+        setTimeout(() => {
+           setImages([]);
+           setNewLocation('');
+           setUploading(false);
+        }, 3000)
+       
       })
+
+      // set new Location locally
+
+      const obj = {
+        'name': newLocation,
+        'url': images[0].data_url
+      };
+
+      setLocations([...locations, obj]);
 
       // update details
 
-      const arr1 = [...props.locationsNames, {
-        "name": newLocation,
-        "url": image_id
-      }]
+      setTimeout(() => {
+        const arr1 = [...locationsNames, {
+          "name": newLocation,
+          "url": image_id
+        }]
 
-      const body = {
-        "materials": props.materials,
-        "services": props.services,
-        "locations": arr1
-      }
+        const body = {
+          "materials": props.materials,
+          "services": props.services,
+          "locations": arr1
+        }
 
-      postProjectDetails(props.projectName, body);
-      setUpdated(true);
+        postProjectDetails(props.projectName, body);
+        setUpdated(true);
+      }, 2000)
+
+  
 
      }
 
@@ -163,8 +191,8 @@ export default function Details (props) {
 
         <h3>Locations</h3>
 
-        { !locationCreate ? (<button onClick={() => setLocationCreate(true)}>New Location</button>) : null}
-
+        { !locationCreate && !uploading ? (<button onClick={() => setLocationCreate(true)}>New Location</button>) : null}
+        { uploading ? (<p>Uploading...</p>) : null}
         {locationCreate ? (
         <div>
         <ImageUploading
@@ -220,15 +248,19 @@ export default function Details (props) {
                     setNewLocation(e.target.value);
               }}
             ></input>
-            <button onClick={() => {setLocationCreate(false)
-                                    addLocation()}}>Submit</button>
+            { images.length === 1 && newLocation !== '' ? 
+            (<button onClick={() => {setLocationCreate(false)
+                                    setUploading(true)
+                                    addLocation()
+                                         }}>Submit</button>) : null}
+            
         </div>
           </div>
         ) : null}
 
         <br></br><hr></hr><br></br>
 
-        {props.locations.map((item, index) => {
+        {locations.map((item, index) => {
           return(
             <div className="text-input">
               <p>{item.name}</p>

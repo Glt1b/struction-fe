@@ -173,6 +173,8 @@ export const postImage = async (image_id, image) => {
     console.log(resizedBase64);
 
     // Send the resized image to the server using the Axios request
+    console.log('sending image')
+    console.log(image_id);
     return beStructionApi.post(`/image/${image_id}`, { data: resizedBase64 }, axiosConfig)
       .then((result) => {
         return result.data;
