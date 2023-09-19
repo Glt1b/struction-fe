@@ -26,39 +26,31 @@ export default function Details (props) {
 
     const addLocation = () => {
       const image_id = `${props.projectName}-${newLocation}`
-      // set locations names
-      const arr = [...locationsNames];
-      arr.push({
-        'name': newLocation,
-        'url': image_id
-      });
-      props.setLocationsNames(arr);
-      setLocationsNames(arr);
-      console.log(arr)
-
+     
       // upload photo
       
-      
-      postImage(image_id, images[0].data_url).then(() => {
-        setTimeout(() => {
-           setImages([]);
-           setNewLocation('');
-           setUploading(false);
-        }, 3000)
-       
-      })
+      postImage(image_id, images[0].data_url)
+      .then(() => {
+        // set locations names
+        const arr = [...locationsNames];
+        arr.push({
+          'name': newLocation,
+          'url': image_id
+        });
+        props.setLocationsNames(arr);
+        setLocationsNames(arr);
+        console.log(arr)
 
       // set new Location locally
-
       const obj = {
         'name': newLocation,
         'url': images[0].data_url
       };
 
       setLocations([...locations, obj]);
+      props.setLocations([...locations, obj]);
 
       // update details
-
       setTimeout(() => {
         const arr1 = [...locationsNames, {
           "name": newLocation,
@@ -70,13 +62,19 @@ export default function Details (props) {
           "services": props.services,
           "locations": arr1
         }
-
         postProjectDetails(props.projectName, body);
         setUpdated(true);
       }, 2000)
 
-  
-
+        setTimeout(() => {
+           setImages([]);
+           setNewLocation('');
+           setUploading(false);
+        }, 3000)
+      })
+      .catch((err) => {
+        alert('error on uploading drawing. Try again')
+      })
      }
 
     const addMaterial = () => {

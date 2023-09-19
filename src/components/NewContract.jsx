@@ -5,9 +5,12 @@ import { postProjectDetails, setupMarkers, postProjectsList, getProjectsList} fr
 export default function NewContract(props){
 
     const [active, setActive] = useState(false);
-    const [newContract, setNewContract] = useState('Contract name');
+    const [newContract, setNewContract] = useState('');
+    const availableContracts = props.availableContracts;
 
     const createContract = () => {
+
+        if(!props.availableContracts.includes(newContract) && newContract !== ''){
         // create details
         const data = {
             "materials": [],
@@ -22,11 +25,15 @@ export default function NewContract(props){
 
         // update contracts list
 
-        const newList = props.availableContracts;
-        newList.push(newContract);
+        const newList = availableContracts;
+        newList.push(newContract.trim());
         postProjectsList(newList);
-        props.setAvailableContracts(newList)
-
+        props.setAvailableContracts([...newList]);
+        setNewContract('')
+        } else {
+            setNewContract('');
+            alert('contract name alrady exists or you forgot to name new contract!')
+        }
     }
 
     return(
@@ -42,6 +49,7 @@ export default function NewContract(props){
                   className="input"
                   value={newContract}
                   type="text"
+                  placeholder="contract name"
                   onChange={(e) => {
                     setNewContract(e.target.value);
                   }}
