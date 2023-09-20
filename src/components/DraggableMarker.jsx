@@ -233,7 +233,6 @@ export default function DraggableMarker(props) {
     if (marker) {
       setPopupOpen(false);
       updateMarker();
-      alert("marker has been updated");
       marker.closePopup();
     }
   }
@@ -329,9 +328,14 @@ export default function DraggableMarker(props) {
       },
     };
     if(props.mode === 'online'){
-    patchMarker(props.projectName, props.id, obj).then((response) => {
-      setProjectMarkers(response.data.markers);
-    });
+    patchMarker(props.projectName, props.id, obj)
+      .then((response) => {
+        setProjectMarkers(response.data.markers);
+    })
+      .catch((err) => {
+        alert('Error occured trying to update marker, open it and try again.')
+    })
+       
     } else {
       const struction = JSON.parse(localStorage.getItem('Struction'));
       const pins = struction.projectMarkers;
@@ -414,14 +418,32 @@ export default function DraggableMarker(props) {
       closeButton={false}
       >
 
-        <div className="marker-form">
-          <div>
+        <div>
 
           { type !== '' ? (
-          <button onClick={() => toggleDraggable()}>
+          <button
+           className="top-button" 
+           onClick={() => toggleDraggable()}>
             {draggable ? "Save Position" : "Move Marker"}
           </button>
           ) : null}
+
+          {type !== '' ? (
+          <button
+            className="top-button"
+            onClick={() => {
+              closePopup();
+            }}
+          >
+            Update
+          </button>
+          ) : null }
+        
+
+        <div className="marker-form">
+          <div>
+
+
 
           { type === '' ? (
             <div>
@@ -549,7 +571,8 @@ export default function DraggableMarker(props) {
               </label>
             </div>
 
-            <input
+            <textarea
+              style={{height:'70px'}}
               id="comment"
               className="input"
               value={comment}
@@ -557,7 +580,7 @@ export default function DraggableMarker(props) {
               onChange={(e) => {
                 setComment(e.target.value);
               }}
-            ></input>
+            ></textarea>
           </div>
           ) : null }
 
@@ -798,26 +821,7 @@ export default function DraggableMarker(props) {
             ></input>
           </div>
           ) : null }
-
-          {type !== '' ? (
-          <button
-            onClick={() => {
-              closePopup();
-            }}
-          >
-            Update
-          </button>
-          ) : null }
          
-          <button
-            id="delete-btn"
-            onClick={() => {
-              delMarker();
-              alert("marker has been deleted");
-            }}
-          >
-            Delete Marker
-          </button>
 
           {/* PHOTO GALLERY COMPONENTS */}
 
@@ -874,7 +878,19 @@ export default function DraggableMarker(props) {
               )}
             </ImageUploading>
           ) : null ) }
-        </div></div>
+          <br />
+          <hr />
+          <br />
+          <button
+            id="delete-btn"
+            onClick={() => {
+              delMarker();
+              alert("marker has been deleted");
+            }}
+          >
+            Delete Marker
+          </button>
+        </div></div></div>
       </Popup>
     </Marker>
   );

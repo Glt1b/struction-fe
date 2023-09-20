@@ -212,6 +212,22 @@ INPUT[type="checkbox"] {
   border: solid 2px #265896;
 }
 
+.top-button {
+  width: 120px;
+  border: solid 2px rgba(38, 88, 150, 0.75);
+  border-radius: 25px;
+  color: rgba(38, 88, 150, 0.75);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.top-button:hover {
+  background-color: #265896;
+  color: #fff;
+  border: solid 2px #265896;
+}
+
 #delete-btn {
   background-color: #f92b2b;
   border: solid 2px #f92b2b;
@@ -262,6 +278,8 @@ INPUT[type="checkbox"] {
   border-radius: 5px;
   border: solid 1px #fff;
   width: 100%;
+  resize: vertical; /* This allows the textarea to be resized vertically */
+  min-height: 20px; /* You can set a minimum height for the textarea */
 }
 
 .title {
