@@ -158,6 +158,12 @@ export default function DraggableMarker(props) {
             setImages(imagesArr);
           }
         })
+        .catch((err) => {
+          imagesArr.push('err');
+          if(imagesArr.length === photos.length){
+            setImages(imagesArr);
+          }
+        })
       }
     } else if(photosOpen){
       alert('You can not download images in offline mode but still can upload new to local storage, they will be uploaded as soon as you are online')
@@ -858,12 +864,13 @@ export default function DraggableMarker(props) {
                     Upload photo
                   </button>
                   &nbsp;
-                  {imageList.map((image, index) => (
+                  {imageList.filter(item => item !== 'err').map((image, index) => (
+                    
                     <div key={index}>
-                      
+                  
                       <Photo url={image["data_url"]}/>
                    
-                      { props.mode === 'online' ? (
+                      { props.mode === 'block' ? (
                         <div className="image-item__btn-wrapper">
                         <button onClick={() => {onImageRemove(index)
                                                 delImage(index)}}>
