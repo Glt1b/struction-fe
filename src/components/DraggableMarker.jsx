@@ -15,9 +15,6 @@ import Photo from "./Photo.jsx";
 import MaterialTile from "./MaterialTile.jsx";
 import NewMaterial from "./NewMaterial.jsx";
 
-
-
-
 const myMarker = new Icon({ iconUrl: marker, iconSize: [45, 45], iconAnchor: [22, 45] });
 const myIssueMarker = new Icon({ iconUrl: marker1, iconSize: [45, 45], iconAnchor: [22, 45] });
 const myCompletedMarker = new Icon({ iconUrl: marker2, iconSize: [45, 45], iconAnchor: [22, 45] });
@@ -92,7 +89,7 @@ export default function DraggableMarker(props) {
     console.log(imageList, addUpdateIndex);
     // upload photos
     if(props.mode === 'online'){
-      if (photosNumber < imageList.length){
+      if (photosNumber < imageList.length && addUpdateIndex !== undefined){
       setUploading(true);
       const photosArr = photos;
       for (let index of addUpdateIndex){
@@ -100,7 +97,7 @@ export default function DraggableMarker(props) {
 
         postImage(image_id, imageList[index].data_url).then((result) => {
             
-            setTestImage(result)
+            //setTestImage(result)
             photosArr.push(image_id)
             console.log(photosArr)
             if(imageList.length === photosArr.length){
@@ -111,11 +108,14 @@ export default function DraggableMarker(props) {
                 updateMarker();
               }, 2000)
             }
-        });
-
-        }
+        })
+          .catch((err) => {
+            alert('error occured when uploading, reload job and check photos')
+            setUploading(false);
+          })
+     }
     }
-     setUploading(false);
+     
 
     } else {
         console.log('updating photos offline')
@@ -148,7 +148,7 @@ export default function DraggableMarker(props) {
   // get photos
 
   useEffect(() => {
-    if(photosOpen && props.mode === 'online'){
+    if(popupOpen && props.mode === 'online'){
       const imagesArr = [];
       for(let photo of photos){
         getImage(photo).then((result) => {
@@ -165,7 +165,7 @@ export default function DraggableMarker(props) {
           }
         })
       }
-    } else if(photosOpen){
+    } else if(popupOpen){
       alert('You can not download images in offline mode but still can upload new to local storage, they will be uploaded as soon as you are online')
       // check for image offline
       const imagesArr = [];
@@ -188,7 +188,7 @@ export default function DraggableMarker(props) {
         });
       }
     }
-  }, [photosOpen])
+  }, [popupOpen])
 
 
   // delete image
@@ -835,11 +835,8 @@ export default function DraggableMarker(props) {
           <hr />
           <br />
 
-          { uploading ? (<p>Uploading...</p>) : null }
+          { uploading ? (<p style={{color: 'red'}}>Uploading...</p>) : null }
 
-          {!photosOpen ? (
-            <button onClick={() => {setPhotosOpen(true)}}>Load gallery</button>
-          ) : (type !== '' ? (
             <ImageUploading
               multiple
               value={images}
@@ -870,7 +867,7 @@ export default function DraggableMarker(props) {
                   
                       <Photo url={image["data_url"]}/>
                    
-                      { props.mode === 'block' ? (
+                      { props.mode === 'online' ? (
                         <div className="image-item__btn-wrapper">
                         <button onClick={() => {onImageRemove(index)
                                                 delImage(index)}}>
@@ -884,7 +881,7 @@ export default function DraggableMarker(props) {
                 </div>
               )}
             </ImageUploading>
-          ) : null ) }
+
           <br />
           <hr />
           <br />

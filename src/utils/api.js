@@ -126,7 +126,7 @@ export const getImage = (image_id) => {
     })
 }
 
-export const postImage = async (image_id, image) => {
+export const postImage = async (image_id, image, type) => {
   const axiosConfig = {
     headers: {
       'content-type': 'application/x-www-form-urlencoded'
@@ -144,9 +144,15 @@ export const postImage = async (image_id, image) => {
   img.onload = () => {
     // Calculate the original size of the image in bytes
     const originalSizeInBytes = Math.ceil(image.length);
-
+     
+    let targetFileSize
+    
     // Calculate the target file size (1MB) in bytes
-    const targetFileSize = 1 * 1024 * 1024;
+    if(type === 'drawing'){
+      targetFileSize = 1 * 1024 * 1024;
+    } else {
+      targetFileSize = 0.3 * 1024 * 1024;
+    }
 
     // Calculate the quality factor for canvas.toDataURL()
     let quality = 1;

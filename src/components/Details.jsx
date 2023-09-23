@@ -29,7 +29,7 @@ export default function Details (props) {
      
       // upload photo
       
-      postImage(image_id, images[0].data_url)
+      postImage(image_id, images[0].data_url, 'drawing')
       .then(() => {
         // set locations names
         const arr = [...locationsNames];
