@@ -145,14 +145,10 @@ export const postImage = async (image_id, image, type) => {
     // Calculate the original size of the image in bytes
     const originalSizeInBytes = Math.ceil(image.length);
      
-    let targetFileSize
     
-    // Calculate the target file size (1MB) in bytes
-    if(type === 'drawing'){
+ 
       targetFileSize = 1 * 1024 * 1024;
-    } else {
-      targetFileSize = 0.3 * 1024 * 1024;
-    }
+ 
 
     // Calculate the quality factor for canvas.toDataURL()
     let quality = 1;
