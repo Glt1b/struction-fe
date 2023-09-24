@@ -117,9 +117,9 @@ export default function Map(props) {
         className="map"
         crs={L.CRS.Simple}
         bounds={bounds}
-        zoom={0}
+        maxZoom={0}
         minZoom={-4}
-        maxZoom={1}
+
         scrollWheelZoom={true}
         zoomControl={false}
       >
@@ -150,6 +150,7 @@ export default function Map(props) {
                 user={props.user}
                 materials={props.materials}
                 services={props.services}
+                commentTemplate={props.commentTemplate}
                 doorConfiguration={item.doorConfiguration}
                 doorFinish={item.doorFinish}
                 doorGapHinge={item.doorGapHinge}
@@ -165,6 +166,7 @@ export default function Map(props) {
                 handle={item.handle}
                 lock={item.lock}
                 doorCondition={item.doorCondition}
+              
 
                 setProjectMarkers={props.setProjectMarkers}
                 mode={props.mode}
@@ -177,6 +179,7 @@ export default function Map(props) {
         </ImageOverlay>
 
         <MarkerLocator />
+
         { !props.mapPdf ? 
         <ZoomControl position="bottomleft" /> : null } 
 

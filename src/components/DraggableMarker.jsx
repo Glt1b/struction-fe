@@ -40,6 +40,9 @@ export default function DraggableMarker(props) {
   const [comment, setComment] = useState(props.comment);
   const [fR, setFr] = useState(props.fR);
 
+  const commentTemplate = props.commentTemplate;
+  const [newComment, setNewComment] = useState(false);
+
   const [type, setType] = useState(props.type);
 
   const [doorConfiguration, setDoorConfiguration] = useState(props.doorConfiguration);
@@ -589,6 +592,19 @@ export default function DraggableMarker(props) {
             ></textarea>
           </div>
           ) : null }
+
+          { newComment ? 
+            commentTemplate.map((item, index) => (
+              <div key={index}>
+              <button 
+                style={{width: '250px'}}
+                onClick={() => {setComment(comment + item + '\n')
+                               setNewComment(false)}}>
+                  <p style={{display: 'block'}}>{item}</p></button></div>
+            ))
+           : null }
+
+          { !newComment ? (<button onClick={()=> setNewComment(true)}>+ Add new comment</button>) : null}
 
           { type === 'door' ? (
           <div className="checkList">

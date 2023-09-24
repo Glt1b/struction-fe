@@ -55,6 +55,7 @@ export default function App() {
   const [locations, setLocations] = useState([]);
   const [services, setServices] = useState([]);
   const [materials, setMaterials] = useState([]);
+  const [commentTemplate, setCommentTemplate] = useState([]);
   const { projectMarkers, setProjectMarkers } = useContext(
     ProjectMarkersContext
   );
@@ -114,6 +115,9 @@ export default function App() {
         setMapsLoaded(true)
         setMaterials(struction.materials)
         setServices(struction.services)
+        if(struction.commentTemplate !== undefined){
+          setCommentTemplate(struction.commentTemplate)
+        }
       }
   }, [mode, user]);
 
@@ -140,6 +144,9 @@ export default function App() {
         setLocations(result.project[0].props.locations);
         setServices(result.project[0].props.services);
         setMaterials(result.project[0].props.materials);
+        if(result.project[0].props.commentTemplate !== undefined){
+          setCommentTemplate(result.project[0].props.commentTemplate)
+        }
         setIsProjectLoaded(true);
       });
     }
@@ -193,7 +200,9 @@ export default function App() {
 
   useEffect(() => {
     if(mapPdf){
-          savePDF();    
+      setTimeout(() => {
+          savePDF();
+      }, 1000)
   }
   }, [mapPdf])
 
@@ -285,6 +294,7 @@ export default function App() {
 
 
   const savePDF = async () => {
+ 
     console.log('Creating map...')
     const input = document.getElementById("map-container");
     const canvas = await html2canvas(input);
@@ -409,8 +419,10 @@ export default function App() {
         projectName={projectName}
         services={services}
         materials={materials}
+        commentTemplate={commentTemplate}
         setMaterials={setMaterials}
         setServices={setServices}
+        setCommentTemplate={setCommentTemplate}
         locationsNames={locationsNames}
         setLocationsNames={setLocationsNames}
         availableContracts={availableContracts}
@@ -435,6 +447,7 @@ export default function App() {
           projectName={projectName}
           materials={materials}
           services={services}
+          commentTemplate={commentTemplate}
           image={currDrawing}
           mapPdf={mapPdf}
           mode={mode}

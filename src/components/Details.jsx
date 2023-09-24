@@ -10,6 +10,7 @@ export default function Details (props) {
     const [newService, setNewService] = useState('');
     const [locationCreate, setLocationCreate] = useState(false)
     const [newLocation, setNewLocation] = useState('');
+    const [newComment, setNewComment] = useState('');
 
     const [images, setImages] = useState([]);
     const maxNumber = 1;
@@ -17,6 +18,9 @@ export default function Details (props) {
 
     const [locations, setLocations] = useState(props.locations);
     const [locationsNames, setLocationsNames] = useState(props.locationsNames);
+
+    const [commentTemplate, setCommentTemplate] = useState(props.commentTemplate);
+
 
     const onChange = (imageList, addUpdateIndex) => {
       // data for submit
@@ -60,7 +64,8 @@ export default function Details (props) {
         const body = {
           "materials": props.materials,
           "services": props.services,
-          "locations": arr1
+          "locations": arr1,
+          'commentTemplate': commentTemplate
         }
         postProjectDetails(props.projectName, body);
         setUpdated(true);
@@ -91,6 +96,14 @@ export default function Details (props) {
         setNewService('');
     }
 
+    const addComment = () => {
+      const arr = props.commentTemplate;
+      arr.push(newComment);
+      props.setCommentTemplate(arr);
+      setNewComment('');
+    }
+
+
     const delMaterial = (material) => {
         const arr = props.materials.filter( m => m !== material)
         props.setMaterials(arr);
@@ -101,12 +114,19 @@ export default function Details (props) {
         props.setServices(arr);
     }
 
+    const delComment = (comment) => {
+      const arr = commentTemplate.filter( s => s !== comment )
+      setCommentTemplate(arr);
+      props.setCommentTemplate(arr);
+    }
+
 
     const updateDetails = () => {
       const body = {
             "materials": props.materials,
             "services": props.services,
-            "locations": props.locationsNames
+            "locations": props.locationsNames,
+            'commentTemplate': commentTemplate
       }
 
       postProjectDetails(props.projectName, body);
@@ -130,8 +150,8 @@ export default function Details (props) {
         {props.materials.map((item) => {
             return (
                 <div key={item}>
-                    <>{item}<button onClick={() => {setUpdated(false)
-                                                     delMaterial(item)}}>x</button></>
+                    <p style={{display: 'block'}}>{item}<button onClick={() => {setUpdated(false)
+                                                     delMaterial(item)}}>x</button></p>
                 </div>
             )
         })}
@@ -158,7 +178,7 @@ export default function Details (props) {
         {props.services.map((item) => {
             return (
                 <div>
-                    <p>{item}<button onClick={() => {setUpdated(false)
+                    <p style={{display: 'block'}}>{item}<button onClick={() => {setUpdated(false)
                                                      delService(item)}}>x</button></p>
                 </div>
             )
@@ -180,6 +200,34 @@ export default function Details (props) {
             ></input>
             <button onClick={() => {setUpdated(false)
                                     addService()}}>Submit</button>
+        </div>
+
+        <h3>Comments</h3>
+        {commentTemplate.map((item) => {
+            return (
+                <div key={item}>
+                    <p style={{display: 'block'}}>{item}<button onClick={() => {setUpdated(false)
+                                                     delComment(item)}}>x</button></p>
+                </div>
+            )
+        })}
+        <div className="text-input">
+            <div className="title">
+              <label htmlFor="new material">
+                <b>New comment</b>
+              </label>
+            </div>
+            <textarea
+              id="height"
+              className="input"
+              value={newComment}
+              type="text"
+              onChange={(e) => {
+                setNewComment(e.target.value);
+              }}
+            ></textarea>
+            <button onClick={() => {setUpdated(false)
+                                    addComment()}}>Submit</button>
         </div>
 
         
