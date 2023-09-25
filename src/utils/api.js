@@ -179,8 +179,10 @@ export const postImage = async (image_id, image, type) => {
     return beStructionApi.post(`/image/${image_id}`, { data: resizedBase64 }, axiosConfig)
       .then((result) => {
         return result.data;
-      });
-  };
+      })
+    .catch((err) => {
+      alert('error occured uploading photo, reload app and check photos')
+    })  };
 };
 
 

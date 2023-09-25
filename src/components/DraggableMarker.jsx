@@ -82,7 +82,7 @@ export default function DraggableMarker(props) {
   const [photosNumber, setPhotosNumber] = useState(props.photos.length);
   const [uploading, setUploading] = useState(false);
 
-  const [testImage, setTestImage] = useState(false)
+  const [downloading, setDownloading] = useState(false);
 
 
   const marker = markerRef.current
@@ -101,6 +101,7 @@ export default function DraggableMarker(props) {
         postImage(image_id, imageList[index].data_url).then((result) => {
             
             //setTestImage(result)
+            console.log(result)
             photosArr.push(image_id)
             console.log(photosArr)
             if(imageList.length === photosArr.length){
@@ -113,7 +114,7 @@ export default function DraggableMarker(props) {
             }
         })
           .catch((err) => {
-            alert('error occured when uploading, reload job and check photos')
+            alert('error occured uploading photo, reload app and check photos')
             setUploading(false);
           })
      }
@@ -152,6 +153,7 @@ export default function DraggableMarker(props) {
 
   useEffect(() => {
     if(popupOpen && props.mode === 'online'){
+      setDownloading(true);
       const imagesArr = [];
       for(let photo of photos){
         getImage(photo).then((result) => {
@@ -168,6 +170,7 @@ export default function DraggableMarker(props) {
           }
         })
       }
+      setDownloading(false);
     } else if(popupOpen){
       alert('You can not download images in offline mode but still can upload new to local storage, they will be uploaded as soon as you are online')
       // check for image offline
@@ -342,7 +345,7 @@ export default function DraggableMarker(props) {
         setProjectMarkers(response.data.markers);
     })
       .catch((err) => {
-        alert('Error occured trying to update marker, open it and try again.')
+        alert('Error occured updating marker, open it and try again. Changes has not beed uploaded to server!!!')
     })
        
     } else {
@@ -852,6 +855,7 @@ export default function DraggableMarker(props) {
           <br />
 
           { uploading ? (<p style={{color: 'red'}}>Uploading...</p>) : null }
+          { downloading ? (<p style={{color: 'green'}}>Downloading...</p>) : null }
 
             <ImageUploading
               multiple

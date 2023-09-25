@@ -217,6 +217,7 @@ export default function App() {
         services: services,
         materials: materials,
         projectMarkers: projectMarkers,
+        commentTemplate: commentTemplate,
         markersToUpload: [],
         arrToUpload: [],
         photosToUpload: []})); 
@@ -226,7 +227,16 @@ export default function App() {
     } else {
       
       // sync with DB
+      
+      synchDB(projectName);
       setTimeout(() => {
+        setMode('online');
+      }, 5000)
+
+     }
+ };
+
+  const delOfflineDB = () => {
         setMode('online');
         deleteIndexedDB('Struction', function(success) {
           if (success) {
@@ -237,14 +247,7 @@ export default function App() {
         });
         localStorage.removeItem('Struction');
         localStorage.setItem('Struction', JSON.stringify({ mode: 'online'}));
-      }, 3000)
-      
-      synchDB(projectName).then((result) => {
-        if(result){
-        }
-      })
-     }
- };
+  }
 
   const downloadPDFs = (n) => {
     console.log('N number: ' + n)
@@ -341,12 +344,6 @@ export default function App() {
       <Sidebar>
         <Menu>
           <SubMenu label="Menu">
-            { mode && mapsLoaded ? (
-          <MenuItem
-             onClick={() => { switchMode()
-             }}>{mode === 'online' ? (
-            <>Switch to offline</>
-          ) : <>Synch with database</>}</MenuItem>) : null}
            
            { mode === 'online' ? (
             <SubMenu label="Projects"> 
@@ -406,6 +403,16 @@ export default function App() {
             <MenuItem onClick={() => {downloadPDFs(markers.length)
                                      setGeneratePDF(true)}}> Download PDFs</MenuItem>
            ) : null }
+
+           { mode && mapsLoaded ? (
+            <MenuItem
+               onClick={() => { switchMode()
+               }}>{mode === 'online' ? (
+                <>Switch to offline</>
+          ) : <>Synch with database</>}</MenuItem>) : null}
+
+          { mode === 'online' ? (<MenuItem onClick={() => {
+                 delOfflineDB()}}>delete offline DB</MenuItem>): null }
 
             {!user ? null : (<MenuItem onClick={() => {setUser(false)
                                                       localStorage.removeItem('Struction-User')}}>Logout</MenuItem>)}
