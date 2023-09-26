@@ -45,6 +45,7 @@ export default function App() {
 
   const [mode, setMode] = useState(false);
 
+
   // available contracts
 
   const [availableContracts, setAvailableContracts] = useState(['']);
@@ -231,13 +232,13 @@ export default function App() {
       synchDB(projectName);
       setTimeout(() => {
         setMode('online');
+        delOfflineDB();
       }, 5000)
 
      }
  };
 
   const delOfflineDB = () => {
-        setMode('online');
         deleteIndexedDB('Struction', function(success) {
           if (success) {
             console.log('Database deleted successfully.');
@@ -411,8 +412,6 @@ export default function App() {
                 <>Switch to offline</>
           ) : <>Synch with database</>}</MenuItem>) : null}
 
-          { mode === 'online' ? (<MenuItem onClick={() => {
-                 delOfflineDB()}}>delete offline DB</MenuItem>): null }
 
             {!user ? null : (<MenuItem onClick={() => {setUser(false)
                                                       localStorage.removeItem('Struction-User')}}>Logout</MenuItem>)}

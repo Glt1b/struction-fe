@@ -153,7 +153,10 @@ export default function DraggableMarker(props) {
 
   useEffect(() => {
     if(popupOpen && props.mode === 'online'){
-      setDownloading(true);
+      if(photos.length > 0){
+        setDownloading(true);
+      }
+      
       const imagesArr = [];
       for(let photo of photos){
         getImage(photo).then((result) => {
@@ -161,6 +164,7 @@ export default function DraggableMarker(props) {
           imagesArr.push(obj);
           if(imagesArr.length === photos.length){
             setImages(imagesArr);
+            setDownloading(false);
           }
         })
         .catch((err) => {
@@ -170,7 +174,6 @@ export default function DraggableMarker(props) {
           }
         })
       }
-      setDownloading(false);
     } else if(popupOpen){
       alert('You can not download images in offline mode but still can upload new to local storage, they will be uploaded as soon as you are online')
       // check for image offline

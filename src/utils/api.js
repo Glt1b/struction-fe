@@ -103,7 +103,10 @@ export const patchMarker = (projectName, markerId, obj) => {
   const patchBody = obj;
   return beStructionApi.patch(`/markers/${projectName}/${markerId}`, patchBody).then((result) => {
     return result
-  });
+  })
+  .catch((err) => {
+    alert('error uploading pins')
+  })
 };
 
 // images
@@ -178,6 +181,10 @@ export const postImage = async (image_id, image, type) => {
     console.log(image_id);
     return beStructionApi.post(`/image/${image_id}`, { data: resizedBase64 }, axiosConfig)
       .then((result) => {
+        console.log(result.data);
+        if(!result.data){
+          alert('error occured uploading photo, reload app and check photos')
+        }
         return result.data;
       })
     .catch((err) => {
@@ -199,6 +206,9 @@ const postMultimarkers = (projectName, markers, count) => {
     patchMarker(projectName, Object.keys(markers)[count - 1][0], markers[count-1])
     .then((result) => {
       postMultimarkers(projectName, markers, count - 1)
+    })
+    .catch((err) => {
+
     })
   } else {
     return 
