@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from "react";
-import { postProjectDetails, postImage, postProjectsList } from "../utils/api";
+import { postProjectDetails, postDrawing, postProjectsList } from "../utils/api";
 import ImageUploading from "react-images-uploading";
 import Photo from "./Photo.jsx";
 
@@ -33,7 +33,7 @@ export default function Details (props) {
      
       // upload photo
       
-      postImage(image_id, images[0].data_url, 'drawing')
+      postDrawing(image_id, images[0].data_url, 'drawing')
       .then(() => {
         // set locations names
         const arr = [...locationsNames];

@@ -129,7 +129,7 @@ export const getImage = (image_id) => {
     })
 }
 
-export const postImage = async (image_id, image, type) => {
+export const postDrawing = async (image_id, image, type) => {
   const axiosConfig = {
     headers: {
       'content-type': 'application/x-www-form-urlencoded'
@@ -191,6 +191,76 @@ export const postImage = async (image_id, image, type) => {
       alert('error occured uploading photo, reload app and check photos')
     })  };
 };
+
+
+
+export const postImage = async (image_id, image, type) => {
+  try {
+    const targetFileSize = type === 'drawing' ? 1 * 1024 * 1024 : 0.3 * 1024 * 1024; // 1MB or 0.3MB in bytes
+
+    // Calculate the original size of the image in bytes
+    const originalSizeInBytes = Math.ceil(image.length);
+
+    // Calculate the scaling factor for the image dimensions
+    let scaleFactor = 1;
+    if (!type && originalSizeInBytes > targetFileSize) {
+      scaleFactor = Math.sqrt(targetFileSize / originalSizeInBytes);
+    }
+
+    // Create a new Image object
+    const img = new Image();
+
+    // Convert the base64 string to an image source
+    img.src = image;
+
+    // Wait for the image to load
+    await new Promise(resolve => {
+      img.onload = resolve;
+    });
+
+    let newWidth, newHeight;
+
+    if (!type) {
+      // Calculate the new dimensions
+      newWidth = Math.floor(img.width * scaleFactor);
+      newHeight = Math.floor(img.height * scaleFactor);
+    } else if (type === 'drawing') {
+      newWidth = img.width;
+      newHeight = img.height;
+    }
+
+    // Create a new HTML5 Canvas object
+    const canvas = document.createElement('canvas');
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+
+    // Draw the image onto the canvas with the new dimensions
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+    // Convert the canvas to a new base64 string with JPEG format and adjustable quality
+    const resizedBase64 = canvas.toDataURL('image/jpeg');
+
+    // Send the resized image to the server using the Axios request
+    const response = await beStructionApi.post(`/image/${image_id}`, { data: resizedBase64 }, {
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded'
+      }
+    });
+
+    console.log(response.data);
+
+    if (!response.data) {
+      alert('An error occurred while uploading the photo. Please reload the app and check your photos.');
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    alert('An error occurred while uploading the photo. Please reload the app and check your photos.');
+  }
+};
+
 
 
 export const delImageS3 = (image_id) => {

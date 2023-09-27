@@ -90,6 +90,8 @@ export default function DraggableMarker(props) {
   const onChange = async (imageList, addUpdateIndex) => {
     // data for submit
     console.log(imageList, addUpdateIndex);
+    console.log(photosNumber)
+    console.log(imageList.length)
     // upload photos
     if(props.mode === 'online'){
       if (photosNumber < imageList.length && addUpdateIndex !== undefined){
