@@ -177,7 +177,6 @@ export default function DraggableMarker(props) {
         })
       }
     } else if(popupOpen){
-      alert('You can not download images in offline mode but still can upload new to local storage, they will be uploaded as soon as you are online')
       // check for image offline
       const imagesArr = [];
       let x = 0;

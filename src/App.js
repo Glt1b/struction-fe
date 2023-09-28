@@ -159,11 +159,12 @@ export default function App() {
       const arr = [];
       for (let location of locations) {
         getImage(location.url).then((result) => {
+          let index = locations.indexOf(location);
           const obj = {};
           obj["name"] = location.name;
           obj["url"] = result;
           console.log(obj)
-          arr.push(obj);
+          arr.splice(index, 0, obj)
           if (arr.length === locations.length) {
             setLocations(arr);
             setTimeout(() => {
@@ -230,10 +231,11 @@ export default function App() {
       // sync with DB
       
       synchDB(projectName);
+      setMode('');
       setTimeout(() => {
         setMode('online');
         delOfflineDB();
-      }, 5000)
+      }, 10000)
 
      }
  };
@@ -342,13 +344,15 @@ export default function App() {
 
       {!user ? null : (
         ( !generatePDF ? (
-      <Sidebar>
-        <Menu>
+      <Sidebar 
+        >
+        <Menu
+          >
           <SubMenu label="Menu">
            
            { mode === 'online' ? (
             <SubMenu label="Projects"> 
-              {!user ? null : availableContracts.map((project) => {
+              {!user ? null : availableContracts.sort().map((project) => {
                 return (
                   <MenuItem
                     onClick={() => {
@@ -389,7 +393,7 @@ export default function App() {
                   );
                 })}
               </SubMenu>
-            ) : (projectName ? (<p className="loading">Loading project...</p>) : null)}
+            ) : (projectName && locationsNames.length > 0 ? (<p className="loading">Loading project...</p>) : null)}
 
             {projectName && mode === 'online' && user.props.role === 'Manager' ? (
               <MenuItem onClick={() => setPage('details')}>Project details</MenuItem>
@@ -410,7 +414,19 @@ export default function App() {
                onClick={() => { switchMode()
                }}>{mode === 'online' ? (
                 <>Switch to offline</>
-          ) : <>Synch with database</>}</MenuItem>) : null}
+          ) : null}</MenuItem>) : null}
+
+         { mode && mapsLoaded ? (
+            <MenuItem
+               onClick={() => { switchMode()
+               }}>{mode === 'offline' ? (
+                <>Synch with database</>
+          ) : null}</MenuItem>) : null}
+
+        
+            {mode === '' ? (
+               <p> Connecting with database...</p>
+          ) : null }
 
 
             {!user ? null : (<MenuItem onClick={() => {setUser(false)
