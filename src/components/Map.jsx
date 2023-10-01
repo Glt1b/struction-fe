@@ -117,8 +117,8 @@ export default function Map(props) {
         className="map"
         crs={L.CRS.Simple}
         bounds={bounds}
-        maxZoom={0}
-        minZoom={-4}
+        maxZoom={props.mapPdf ? 0 : 4}
+        minZoom={props.mapPdf ? 0 : -4}
 
         scrollWheelZoom={true}
         zoomControl={false}
@@ -170,6 +170,7 @@ export default function Map(props) {
 
                 setProjectMarkers={props.setProjectMarkers}
                 mode={props.mode}
+                role={props.role}
               />
             );
           }) : <Marker
@@ -183,11 +184,10 @@ export default function Map(props) {
         { !props.mapPdf ? 
         <ZoomControl position="bottomleft" /> : null } 
 
-         { !props.mapPdf ? (
+         { !props.mapPdf && props.role !== 'Visitor' ? (
         <button className="create-btn" onClick={() => setCreationMode(true)}>
           {creationMode ? "Click on Map" : "Create new marker"}
         </button> ) : null}
-                      
       </MapContainer>
     </div>
   );

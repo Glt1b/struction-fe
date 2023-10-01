@@ -39,6 +39,7 @@ export default function DraggableMarker(props) {
   const [serviceUsed, setServiceUsed] = useState(props.service);
   const [comment, setComment] = useState(props.comment);
   const [fR, setFr] = useState(props.fR);
+  const [completedBy, setCompletedBy] = useState(props.completedBy)
 
   const commentTemplate = props.commentTemplate;
   const [newComment, setNewComment] = useState(false);
@@ -162,8 +163,9 @@ export default function DraggableMarker(props) {
       const imagesArr = [];
       for(let photo of photos){
         getImage(photo).then((result) => {
+          let index = photos.indexOf(photo);
           const obj = { data_url: result };
-          imagesArr.push(obj);
+          imagesArr.splice(index, 0, obj);
           if(imagesArr.length === photos.length){
             setImages(imagesArr);
             setDownloading(false);
@@ -400,21 +402,36 @@ export default function DraggableMarker(props) {
   };
 
   const handleService = (item) => {
-    let updatedList = [...serviceUsed];
+    if(props.role !== 'Visitor'){
+      let updatedList = [...serviceUsed];
     if (!serviceUsed.includes(item)) {
       updatedList = [...serviceUsed, item];
     } else {
       updatedList.splice(serviceUsed.indexOf(item), 1);
     }
     setServiceUsed(updatedList);
-  };
+      }
+     }
+    
+    
 
   const handleStatus = (item) => {
-    setStatus(item);
+    if(props.role !== 'Visitor'){
+    if(item === 'completed'){
+      if(materialsUsed.length > 0 && serviceUsed.length > 0 && fR !== '' && number !== '0' && photos.length > 1){
+        setStatus(item);
+      } else {
+        alert('Before you mark pin as Completed, make sure you have submited at least 1 material and service type, 2 photos, fire rating and pin number.')
+      }
+    } else {
+      setStatus(item);
+    }}
   };
 
   const handleFR = (item) => {
-    setFr(item);
+    if(props.role !== 'Visitor'){
+      setFr(item);
+    }
   };
 
   return (
@@ -436,7 +453,7 @@ export default function DraggableMarker(props) {
 
         <div>
 
-          { type !== '' ? (
+          { type !== '' && props.role !== 'Visitor' ? (
           <button
            className="top-button" 
            onClick={() => toggleDraggable()}>
@@ -451,7 +468,7 @@ export default function DraggableMarker(props) {
               closePopup();
             }}
           >
-            Update
+            Close
           </button>
           ) : null }
         
@@ -519,7 +536,7 @@ export default function DraggableMarker(props) {
             <div className="title">
               <b>Number</b>
             </div>
-
+            { props.role === 'Visitor' ? (<p>{number}</p>) : (
             <input
               className="input"
               value={number}
@@ -527,7 +544,7 @@ export default function DraggableMarker(props) {
               onChange={(e) => {
                 setNumber(e.target.value);
               }}
-            ></input>
+            ></input>)}
           </div>
           ) : null}
 
@@ -543,14 +560,16 @@ export default function DraggableMarker(props) {
                   <MaterialTile
                    key={index}
                    material={item}/>
-                  <button onClick={() => {deleteMaterial(item)}}>Delete</button>
+                   {props.role !== 'Visitor' ? (
+                  <button onClick={() => {deleteMaterial(item)}}>Delete</button>): null}
                 </>
               ))}
             </div>
+              {props.role !== 'Visitor' ? (
               <NewMaterial
               materials={props.materials}
               materialsUsed={materialsUsed}
-              setMaterialsUsed={setMaterialsUsed}/>
+              setMaterialsUsed={setMaterialsUsed}/>) : null}
 
           </div>
           ) : null}
@@ -877,13 +896,14 @@ export default function DraggableMarker(props) {
               }) => (
                 // UI
                 <div className="upload__image-wrapper">
+                  {props.role !== 'Visitor' ? (
                   <button
                     style={isDragging ? { color: "red" } : undefined}
                     onClick={onImageUpload}
                     {...dragProps}
                   >
                     Upload photo
-                  </button>
+                  </button>) : null}
                   &nbsp;
                   {imageList.filter(item => item !== 'err').map((image, index) => (
                     
@@ -891,7 +911,7 @@ export default function DraggableMarker(props) {
                   
                       <Photo url={image["data_url"]}/>
                    
-                      { props.mode === 'online' ? (
+                      { props.mode === 'online'  && props.role !== 'Visitor'? (
                         <div className="image-item__btn-wrapper">
                         <button onClick={() => {onImageRemove(index)
                                                 delImage(index)}}>
@@ -909,6 +929,7 @@ export default function DraggableMarker(props) {
           <br />
           <hr />
           <br />
+          {props.role !== 'Visitor' ? (
           <button
             id="delete-btn"
             onClick={() => {
@@ -917,7 +938,7 @@ export default function DraggableMarker(props) {
             }}
           >
             Delete Marker
-          </button>
+          </button>) : null}
         </div></div></div>
       </Popup>
     </Marker>

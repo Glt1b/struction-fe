@@ -7,30 +7,39 @@ export default function NewMaterial (props) {
     const [create, setCreate] = useState(false);
 
     const [material, setMaterial] = useState(false);
-    const [width, setWidth] = useState('0');
-    const [height, setHeigth] = useState('0');
-    const [diameter, setDiameter] = useState('0');
-    const [quantity, setQuantity] = useState('0');
+    const [width, setWidth] = useState('');
+    const [height, setHeigth] = useState('');
+    const [diameter, setDiameter] = useState('');
+    const [quantity, setQuantity] = useState('');
 
 
     const submit = () => {
-        const obj = {
-            [material]: [
-                width, height, diameter, quantity
-            ]
-        };
 
-        const arr = [...props.materialsUsed];
-        arr.push(obj);
-        props.setMaterialsUsed(arr);
+        if(!material){
+            alert('You need to choose a material before submit.')
+        } else if(quantity === ''){
+            alert('You need to fill quantity before submit')
+        } else if(diameter === '' && (height === '' || width === '')){
+            alert('Fill dimensions before submit.')
+        } else {
+          const obj = {
+              [material]: [
+                  width, height, diameter, quantity
+              ]
+          };
 
-        setCreate(false);
-        setDiameter('0');
-        setHeigth('0');
-        setWidth('0');
-        setQuantity('0');
-        setMaterial(false);
-    };
+          const arr = [...props.materialsUsed];
+          arr.push(obj);
+          props.setMaterialsUsed(arr);
+
+          setCreate(false);
+          setDiameter('');
+          setHeigth('');
+          setWidth('');
+          setQuantity('');
+          setMaterial(false);
+          };
+        }
 
     return (
         <div className="list-container" id="services-container">
@@ -68,7 +77,7 @@ export default function NewMaterial (props) {
                             <input
                                 className="input"
                                 value={height}
-                                type="text"
+                                type="number"
                                 onChange={(e) => {
                                     setHeigth(e.target.value);
                                 } }

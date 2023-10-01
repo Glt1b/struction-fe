@@ -1,7 +1,7 @@
 import "leaflet/dist/leaflet.css";
 import "./App.css";
 import { React, useEffect, useState, useContext } from "react";
-import { getProjectDetails, getImage, getProjectsList, synchDB } from "./utils/api";
+import { getProjectDetails, getImage, getProjectsList, synchDB, getUser } from "./utils/api";
 import { addToIndexedDB, readFromIndexedDB, deleteIndexedDB } from "./utils/indexedDB";
 import { checkMode } from "./utils/indexedDB";
 import { MarkersContext } from "./contexts/Markers.js";
@@ -68,12 +68,13 @@ export default function App() {
 
   const [mapsLoaded, setMapsLoaded] = useState(false);
 
+ //current page
+  const [page, setPage] = useState('map');
+
   // pdf reports
   const [mapPdf, setMapPdf] = useState(false);
   const [generatePDF, setGeneratePDF] = useState(false);
 
-  //current page
-  const [page, setPage] = useState('map');
 
   // check mode
 
@@ -466,6 +467,7 @@ export default function App() {
         <Map
           currentLocation={currentLocation}
           user={user.key}
+          role={user.props.role}
           projectName={projectName}
           materials={materials}
           services={services}

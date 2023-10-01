@@ -16,13 +16,14 @@ export const checkMode = () => {
 
 export const addToIndexedDB = (databaseName, objectStoreName, key, value) => {
   // Check if the browser supports IndexedDB
+  console.log('storing in DB')
   if (!('indexedDB' in window)) {
     console.error('IndexedDB is not supported in this browser.');
     return;
   }
 
   // Open the database or create one if it doesn't exist
-  const request = window.indexedDB.open(databaseName, 1);
+  const request = window.indexedDB.open(databaseName, 2);
 
   // Handle database opening or creation errors
   request.onerror = function(event) {
@@ -31,6 +32,7 @@ export const addToIndexedDB = (databaseName, objectStoreName, key, value) => {
 
   // Create or upgrade the database object store
   request.onupgradeneeded = function(event) {
+    console.log('on upgrade triggered')
     const db = event.target.result;
     if (!db.objectStoreNames.contains(objectStoreName)) {
       db.createObjectStore(objectStoreName, { keyPath: 'id' });

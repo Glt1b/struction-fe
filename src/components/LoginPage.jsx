@@ -24,8 +24,7 @@ export default function LoginPage(props) {
             })
     }
 
-    
-
+  
     return(
         <div id="loginform">
             <FormInput description="Email" placeholder="Enter your email" type="text"  set={setMail}/>
