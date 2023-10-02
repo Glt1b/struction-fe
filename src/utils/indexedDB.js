@@ -14,6 +14,34 @@ export const checkMode = () => {
   }
 };
 
+export const checkIndexedDB = (databaseName, objectStoreName, callback) => {
+  var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+  
+  if (!indexedDB) {
+      console.error("Your browser doesn't support IndexedDB");
+      return;
+  }
+
+  var request = indexedDB.open(databaseName);
+
+  request.onsuccess = function(event) {
+      var db = event.target.result;
+
+      if (db.objectStoreNames.contains(objectStoreName)) {
+          callback(true, true);
+      } else {
+          callback(true, false);
+      }
+
+      db.close();
+  };
+
+  request.onerror = function(event) {
+      console.error("Error:", event.target.errorCode);
+      callback(false, false);
+  };
+}
+
 export const addToIndexedDB = (databaseName, objectStoreName, key, value) => {
   // Check if the browser supports IndexedDB
   console.log('storing in DB')
@@ -80,7 +108,7 @@ export const readFromIndexedDB = (databaseName, objectStoreName, key, callback) 
   }
 
   // Open the database
-  const request = window.indexedDB.open(databaseName, 1);
+  const request = window.indexedDB.open(databaseName, 2);
 
   // Handle database opening errors
   request.onerror = function(event) {

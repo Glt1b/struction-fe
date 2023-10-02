@@ -2,7 +2,7 @@ import "leaflet/dist/leaflet.css";
 import "./App.css";
 import { React, useEffect, useState, useContext } from "react";
 import { getProjectDetails, getImage, getProjectsList, synchDB, getUser } from "./utils/api";
-import { addToIndexedDB, readFromIndexedDB, deleteIndexedDB } from "./utils/indexedDB";
+import { addToIndexedDB, readFromIndexedDB, deleteIndexedDB , checkIndexedDB} from "./utils/indexedDB";
 import { checkMode } from "./utils/indexedDB";
 import { MarkersContext } from "./contexts/Markers.js";
 import { ProjectMarkersContext } from "./contexts/ProjectMarkers";
@@ -156,8 +156,96 @@ export default function App() {
 
   // request drawing images and store them in state when project details are loaded
   useEffect(() => {
+    const arr = [];
+
     if (isProjectLoaded) {
-      const arr = [];
+      checkIndexedDB( projectName, 'drawings', function(databaseExists, objectStoreExists) {
+        if (databaseExists) {
+            if (objectStoreExists) {
+                console.log("Database and object store exist.");
+                // load form DB
+                for ( let location of locations){
+                  readFromIndexedDB(projectName, 'drawings', location.name, function(value){
+                    if(value){
+                      let index = locations.indexOf(location);
+                      const obj = {};
+                      obj["name"] = location.name;
+                      obj["url"] = value;
+                      console.log(obj)
+                      arr.splice(index, 0, obj)
+                      if (arr.length === locations.length) {
+                          setLocations(arr);
+                          setTimeout(() => {
+                              setMapsLoaded(true);
+                          },1000)
+                      }
+                    } else {
+                      getImage(location.url).then((result) => {
+                        let index = locations.indexOf(location);
+                        const obj = {};
+                        obj["name"] = location.name;
+                        obj["url"] = result;
+                        console.log(obj)
+                        arr.splice(index, 0, obj)
+                        if (arr.length === locations.length) {
+                            setLocations(arr);
+                            setTimeout(() => {
+                                setMapsLoaded(true);
+                            },1000)
+                        }
+                        addToIndexedDB( projectName, 'drawings', location.name, result);
+                      })
+                    }
+                    
+                  })
+                }
+            } else {
+                console.log("Database exists, but object store does not.");
+                for ( let location of locations){
+                  getImage(location.url).then((result) => {
+                    let index = locations.indexOf(location);
+                    const obj = {};
+                    obj["name"] = location.name;
+                    obj["url"] = result;
+                    console.log(obj)
+                    arr.splice(index, 0, obj)
+                    if (arr.length === locations.length) {
+                        setLocations(arr);
+                        setTimeout(() => {
+                            setMapsLoaded(true);
+                        },1000)
+                    }
+                    addToIndexedDB( projectName, 'drawings', location.name, result);
+                  })
+                }
+                
+              }
+        } else {
+            console.log("Database does not exist.");
+            for ( let location of locations){
+              getImage(location.url).then((result) => {
+                let index = locations.indexOf(location);
+                const obj = {};
+                obj["name"] = location.name;
+                obj["url"] = result;
+                console.log(obj)
+                arr.splice(index, 0, obj)
+                if (arr.length === locations.length) {
+                    setLocations(arr);
+                    setTimeout(() => {
+                        setMapsLoaded(true);
+                    },1000)
+                }
+                addToIndexedDB(projectName, 'drawings', location.name, result);
+              })
+            }
+        }
+    });
+    }
+  }, [isProjectLoaded]);
+
+  /*
+      
       for (let location of locations) {
         getImage(location.url).then((result) => {
           let index = locations.indexOf(location);
@@ -174,8 +262,7 @@ export default function App() {
           }
         });
       }
-    }
-  }, [isProjectLoaded]);
+  */
 
   //extract current drawing
   useEffect(() => {
