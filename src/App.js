@@ -11,6 +11,7 @@ import LoginPage from "./components/LoginPage";
 import Users from "./components/Users";
 import Details from "./components/Details";
 import NewContract from "./components/NewContract";
+import Synch from "./components/Synch";
 import {
   Sidebar,
   Menu,
@@ -68,7 +69,7 @@ export default function App() {
 
   const [mapsLoaded, setMapsLoaded] = useState(false);
 
- //current page
+  //current page
   const [page, setPage] = useState('map');
 
   // pdf reports
@@ -107,34 +108,48 @@ export default function App() {
         setAvailableContracts(user.props.projects)
       }
       } else if (  mode === 'offline'){
-
         const struction = JSON.parse(localStorage.getItem('Struction'));
         console.log(struction)
         setProjectName(struction.projectName)
-        setAvailableContracts(struction.availableContracts)
-        //setLocations(struction.locations) // to be replaced by IndexedDB
-        setProjectMarkers(struction.projectMarkers)
+
+        const project = JSON.parse(localStorage.getItem(struction.projectName));
+        setAvailableContracts(project.availableContracts)
+        setLocations(project.locations)
         setMapsLoaded(true)
-        setMaterials(struction.materials)
-        setServices(struction.services)
-        if(struction.commentTemplate !== undefined){
-          setCommentTemplate(struction.commentTemplate)
+        setMaterials(project.materials)
+        setServices(project.services)
+        if(project.commentTemplate !== undefined){
+          setCommentTemplate(project.commentTemplate)
         }
+
+        const markersData = JSON.parse(localStorage.getItem(`${struction.projectName}-markers`));
+        setProjectMarkers(markersData.projectMarkers)
+
       }
   }, [mode, user]);
 
   // load locations from IDB
 
   useEffect(() => {
-    if(projectName && mode === 'offline')
-    readFromIndexedDB('Struction', projectName, 'locations', function(value) {
-      if (value) {
-        setLocations(value);
-      } else {
-         console.log('Value not found.');
-      }
-      });
-  }, [projectName, mode])
+    if(projectName && mode === 'offline'){
+      const arr = [];
+      for ( let location of locationsNames){
+      readFromIndexedDB(projectName, 'drawings', location.name, function(value){
+        if(value){
+          let index = locations.indexOf(location);
+          const obj = {};
+          obj["name"] = location.name;
+          obj["url"] = value;
+          console.log(obj)
+          arr.splice(index, 0, obj)
+          if (arr.length === locations.length) {
+              setLocations(arr);
+              setTimeout(() => {
+                  setMapsLoaded(true);
+              },1000)
+          }
+    }})}
+  }}, [projectName])
 
 
   // request for contract details and assign them to states
@@ -244,26 +259,6 @@ export default function App() {
     }
   }, [isProjectLoaded]);
 
-  /*
-      
-      for (let location of locations) {
-        getImage(location.url).then((result) => {
-          let index = locations.indexOf(location);
-          const obj = {};
-          obj["name"] = location.name;
-          obj["url"] = result;
-          console.log(obj)
-          arr.splice(index, 0, obj)
-          if (arr.length === locations.length) {
-            setLocations(arr);
-            setTimeout(() => {
-              setMapsLoaded(true);
-            },1000)
-          }
-        });
-      }
-  */
-
   //extract current drawing
   useEffect(() => {
     if (currentLocation !== "") {
@@ -299,33 +294,26 @@ export default function App() {
   const switchMode = () => {
     if(mode === 'online'){
       setMode('offline');
-      localStorage.setItem('Struction', JSON.stringify({
-        mode: 'offline',
+
+      const struction = { mode: 'offline',
+                          projectName: projectName };
+      localStorage.setItem('Struction', JSON.stringify(struction));
+
+      localStorage.setItem(projectName, JSON.stringify({
         availableContracts: [projectName],
         projectName: projectName,
-        locationsNames: locationsNames,
+        locations: locations,
         services: services,
         materials: materials,
         projectMarkers: projectMarkers,
-        commentTemplate: commentTemplate,
+        commentTemplate: commentTemplate})); 
+
+      localStorage.setItem(`${projectName}-markers`, JSON.stringify({
+        projectMarkers: projectMarkers,
         markersToUpload: [],
-        arrToUpload: [],
         photosToUpload: []})); 
-      console.log(projectName)
-      addToIndexedDB('Struction', projectName, 'locations', locations);
 
-    } else {
-      
-      // sync with DB
-      
-      synchDB(projectName);
-      setMode('');
-      setTimeout(() => {
-        setMode('online');
-        delOfflineDB();
-      }, 10000)
-
-     }
+    } 
  };
 
   const delOfflineDB = () => {
@@ -496,23 +484,23 @@ export default function App() {
             <MenuItem onClick={() => {downloadPDFs(markers.length)
                                      setGeneratePDF(true)}}> Download PDFs</MenuItem>
            ) : null }
-
+           {/* 
            { mode && mapsLoaded ? (
             <MenuItem
                onClick={() => { switchMode()
                }}>{mode === 'online' ? (
                 <>Switch to offline</>
-          ) : null}</MenuItem>) : null}
+          ) : null}</MenuItem>) : null}*/}
 
          { mode && mapsLoaded ? (
             <MenuItem
-               onClick={() => { switchMode()
+               onClick={() => { setPage('synch')
                }}>{mode === 'offline' ? (
                 <>Synch with database</>
           ) : null}</MenuItem>) : null}
 
         
-            {mode === '' ? (
+            {page === 'synch' ? (
                <p> Connecting with database...</p>
           ) : null }
 
@@ -539,6 +527,9 @@ export default function App() {
         setAvailableContracts={setAvailableContracts}
         locations={locations}
         setLocations={setLocations}/>) : null}
+      
+      { page === 'synch' ? (<Synch
+        setPage = {setPage} />) : null }
 
 
       {!isProjectLoaded && user && page === 'map' ? (

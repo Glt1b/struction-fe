@@ -5,7 +5,7 @@ import { MarkersContext } from "../contexts/Markers.js";
 import { ProjectMarkersContext } from "../contexts/ProjectMarkers.js";
 import "leaflet/dist/leaflet.css";
 import { deleteMarker, getImage, patchMarker } from "../utils/api";
-import { addToIndexedDB, readFromIndexedDB, deleteFromIndexedDB } from "../utils/indexedDB.js";
+import { addToIndexedDB, readFromIndexedDB, deleteFromIndexedDB, deleteIndexedDB } from "../utils/indexedDB.js";
 import ImageUploading from "react-images-uploading";
 import marker from "../images/map-marker.svg";
 import marker1 from "../images/map-marker-issue.svg";
@@ -66,11 +66,11 @@ export default function DraggableMarker(props) {
   const availableFR = ["0", "30", "60", "120"];
 
   const handleOptions = ['Poor Handle Condition', 'Good Handle Condition', 'N/A'];
-  const lockConditionOptions = ['Fair Lock Condition', 'Good Lock COndition', 'Poor Lock Condition'];
+  const lockConditionOptions = ['Fair Lock Condition', 'Good Lock Condition', 'Poor Lock Condition'];
   const intumescentStripsOptions = ['Good', 'Not Installed', 'Requires Placement'];
   const frameConditionOptions = ['Poor Frame Condition', 'Fair Frame Condition'];
   const doorConditionOptions = ['Poor Door Condition', 'Fair Door Condition'];
-  const hingeAdjustmentOptions = ['Adjust', 'N/A'];
+  const hingeAdjustmentOptions = ['Adjust', 'N/A '];
   const visionPanelOptions = ['Yes', 'No'];
   const doorConfigurationOptions = ['Single', 'Double', 'Single With Fan Light', 'Double With Fan Light', 'Single (Fan Light and Side Panel'];
 
@@ -128,18 +128,16 @@ export default function DraggableMarker(props) {
         console.log('updating photos offline')
         setUploading(true);
         const photosArr = photos;
-        const  struction = await JSON.parse(localStorage.getItem('Struction'));
-
+        
         for (let index of addUpdateIndex){
           console.log(addUpdateIndex)
           const image_id = `${props.id}-${Date.now()}`;
-          addToIndexedDB('Struction', props.projectName, image_id, imageList[index]);
+          addToIndexedDB(props.projectName, 'photos', image_id, imageList[index]);
+          
           photosArr.push(image_id);
-          struction.photosToUpload.push(image_id);
           console.log(photosArr)
           if(imageList.length === photosArr.length - photosNumber){
             setPhotos(photosArr);
-            localStorage.setItem('Struction', JSON.stringify(struction));
             setTimeout(() => {
               setUploading(false);
               console.log('updating marker details...')
@@ -183,7 +181,7 @@ export default function DraggableMarker(props) {
       const imagesArr = [];
       let x = 0;
       for (let photo of photos){
-        readFromIndexedDB('Struction', props.projectName, photo, function(value) {
+        readFromIndexedDB(props.projectName, 'photos', photo, function(value) {
           if (value) {
             //console.log(value)
             //const obj = { data_url: value};
@@ -224,7 +222,7 @@ export default function DraggableMarker(props) {
     } else {
       // delete offline
       console.log('deleting photo online' + index)
-      deleteFromIndexedDB('Struction', props.projectName, index, function(success) {
+      deleteFromIndexedDB(props.projectName, 'photos', index, function(success) {
         if (success) {
           console.log('Data deleted successfully.');
           const updatedPhotos = photos;
@@ -238,7 +236,7 @@ export default function DraggableMarker(props) {
           }, 2000)
 
         } else {
-          console.log('Failed to delete the data.');
+          console.log('Failed to delete data.');
         }
       });
 
@@ -297,16 +295,29 @@ export default function DraggableMarker(props) {
       setProjectMarkers(pm);
     });
     } else {
-      
-      const struction = JSON.parse(localStorage.getItem('Struction'));
-      photos.forEach(element => struction.photosToDelete.push(element));
-      const pins = struction.projectMarkers;
-      const updatedPins = pins.filter(pin => pin.id !== props.id);
-      struction.projectMarkers = updatedPins;
-      localStorage.setItem('Struction', JSON.stringify(struction));
-      props.setProjectMarkers(struction.projectMarkers)
-    }
 
+      const struction = JSON.parse(localStorage.getItem('Struction'));
+
+      const storage = JSON.parse(localStorage.getItem(`${struction.projectName}-markers`));
+      const markers = storage.projectMarkers;
+      const toUpload = storage.markersToUpload;
+      // check if pin is on device only
+      const checkArr = toUpload.filter(pin => pin.id === props.id);
+      if(checkArr.length === 0){
+        alert('You can not delete marker from server when in offline mode.')
+      } else {
+        // delete photots
+
+        const updatedPins = markers.filter(pin => pin.id !== props.id);
+        storage.projectMarkers = updatedPins;
+
+        const uploadArr = toUpload.filter(pin => pin.id !== props.id);
+        storage.markersToUpload = uploadArr;
+
+        localStorage.setItem(`${struction.projectName}-markers`, JSON.stringify(storage));
+        props.setProjectMarkers(storage.projectMarkers)
+      }
+    }
   };
 
   // save markers details
@@ -356,17 +367,22 @@ export default function DraggableMarker(props) {
        
     } else {
       const struction = JSON.parse(localStorage.getItem('Struction'));
-      const pins = struction.projectMarkers;
-      console.log(pins)
-      const updatedPins = pins.filter(pin => pin.id !== id);
-      updatedPins.push(obj[Object.keys(obj)[0]])
-      struction.projectMarkers = updatedPins;
-      if(!struction.markersToUpload.includes(id)){
-        struction.markersToUpload.push(id);
-        struction.arrToUpload.push(obj);
-      }
-      localStorage.setItem('Struction', JSON.stringify(struction));
-      props.setProjectMarkers(struction.projectMarkers)
+
+      const storage = JSON.parse(localStorage.getItem(`${struction.projectName}-markers`));
+      const markers = storage.projectMarkers;
+      const toUpload = storage.markersToUpload;
+      console.log(markers)
+
+      const updatedPins = markers.filter(pin => pin.id !== props.id);
+      updatedPins.push(obj[Object.keys(obj)[0]]);
+      storage.projectMarkers = updatedPins;
+
+      const uploadArr = toUpload.filter(pin => pin.id !== props.id);
+      uploadArr.push(obj[Object.keys(obj)[0]]);
+      storage.markersToUpload = uploadArr;
+
+      localStorage.setItem(`${struction.projectName}-markers`, JSON.stringify(storage));
+      props.setProjectMarkers(storage.projectMarkers)
     }
   };
 
@@ -420,8 +436,11 @@ export default function DraggableMarker(props) {
     if(item === 'completed'){
       if(materialsUsed.length > 0 && serviceUsed.length > 0 && fR !== '' && number !== '0' && photos.length > 1){
         setStatus(item);
-      } else {
+      } else if(type === 'seal'){
         alert('Before you mark pin as Completed, make sure you have submited at least 1 material and service type, 2 photos, fire rating and pin number.')
+      }
+      if(type === 'door'){
+        setStatus(item);
       }
     } else {
       setStatus(item);
@@ -771,6 +790,31 @@ export default function DraggableMarker(props) {
           ) : null }
 
           { type === 'door' ? (
+          <div className="checkList">
+            <div className="title" id="status">
+              <b>Hinge Adjustment</b>
+            </div>
+            <div className="list-container" id="status-container">
+              {hingeAdjustmentOptions.map((item, index) => (
+                <div className="checkbox" key={index}>
+                  <input
+                    id={item}
+                    value={item}
+                    type="checkbox"
+                    checked={hingeAdjustment.includes(item) ? true : false}
+                    onChange={() => setHingeAdjustment(item)}
+                  />
+
+                  <label htmlFor={item}>{item}</label>
+                </div>
+              ))}
+            </div>
+          </div>
+          ) : null }
+
+
+
+          { type === 'door' ? (
           <div className="text-input" id="comment-container">
             <div className="title">
               <label htmlFor="comment">
@@ -869,6 +913,49 @@ export default function DraggableMarker(props) {
             ></input>
           </div>
           ) : null }
+
+          { type === 'door' ? (
+          <div className="text-input" id="comment-container">
+            <div className="title">
+              <label htmlFor="comment">
+                <b>Ironmongery</b>
+              </label>
+            </div>
+
+            <input
+              id="comment"
+              className="input"
+              value={ironmongery}
+              type="text"
+              onChange={(e) => {
+                setIronmongery(e.target.value);
+              }}
+            ></input>
+          </div>
+          ) : null }
+
+
+          { type === 'door' ? (
+          <div className="text-input" id="comment-container">
+            <div className="title">
+              <label htmlFor="comment">
+                <b>Door finish</b>
+              </label>
+            </div>
+
+            <input
+              id="comment"
+              className="input"
+              value={doorFinish}
+              type="text"
+              onChange={(e) => {
+                setDoorFinish(e.target.value);
+              }}
+            ></input>
+          </div>
+          ) : null }
+
+          
          
 
           {/* PHOTO GALLERY COMPONENTS */}
@@ -934,7 +1021,6 @@ export default function DraggableMarker(props) {
             id="delete-btn"
             onClick={() => {
               delMarker();
-              alert("marker has been deleted");
             }}
           >
             Delete Marker

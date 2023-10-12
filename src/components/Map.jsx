@@ -100,14 +100,24 @@ export default function Map(props) {
         } else {
       // save to local storage
       const struction = JSON.parse(localStorage.getItem('Struction'));
-      console.log(obj[Object.keys(obj)[0]].id)
-      struction.projectMarkers.push(obj[Object.keys(obj)[0]]);
-      localStorage.setItem('Struction', JSON.stringify(struction));
-      props.setProjectMarkers(struction.projectMarkers)
 
-        }
-    } else {
-    }
+      const storage = JSON.parse(localStorage.getItem(`${struction.projectName}-markers`));
+      const markers = storage.projectMarkers;
+      const toUpload = storage.markersToUpload;
+      console.log(markers)
+      console.log(toUpload)
+
+      markers.push(obj[Object.keys(obj)[0]]);
+      storage.projectMarkers = markers;
+
+      toUpload.push(obj[Object.keys(obj)[0]]);
+      storage.markersToUpload = toUpload;
+
+      localStorage.setItem(`${struction.projectName}-markers`, JSON.stringify(storage));
+      props.setProjectMarkers(storage.projectMarkers);
+      setCreationMode(false);
+      }
+    } 
   };
 
   return (
@@ -166,6 +176,7 @@ export default function Map(props) {
                 handle={item.handle}
                 lock={item.lock}
                 doorCondition={item.doorCondition}
+                doorCloser={item.doorCloser}
               
 
                 setProjectMarkers={props.setProjectMarkers}

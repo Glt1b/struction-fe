@@ -51,7 +51,7 @@ export const addToIndexedDB = (databaseName, objectStoreName, key, value) => {
   }
 
   // Open the database or create one if it doesn't exist
-  const request = window.indexedDB.open(databaseName, 2);
+  const request = window.indexedDB.open(databaseName, 5);  //
 
   // Handle database opening or creation errors
   request.onerror = function(event) {
@@ -64,6 +64,7 @@ export const addToIndexedDB = (databaseName, objectStoreName, key, value) => {
     const db = event.target.result;
     if (!db.objectStoreNames.contains(objectStoreName)) {
       db.createObjectStore(objectStoreName, { keyPath: 'id' });
+      db.createObjectStore('photos', { keyPath: 'id' });
     }
   };
 
@@ -108,7 +109,7 @@ export const readFromIndexedDB = (databaseName, objectStoreName, key, callback) 
   }
 
   // Open the database
-  const request = window.indexedDB.open(databaseName, 2);
+  const request = window.indexedDB.open(databaseName); //try delete version
 
   // Handle database opening errors
   request.onerror = function(event) {
@@ -184,7 +185,7 @@ export const  deleteFromIndexedDB = (databaseName, objectStoreName, key, callbac
   }
 
   // Open the database
-  const request = window.indexedDB.open(databaseName, 1);
+  const request = window.indexedDB.open(databaseName, 5);
 
   // Handle database opening errors
   request.onerror = function(event) {
@@ -222,4 +223,46 @@ export const  deleteFromIndexedDB = (databaseName, objectStoreName, key, callbac
     };
   };
 }
+
+export function getValuesInArray(dbName, objectStoreName, callback) {
+  const values = []; // Initialize an empty array
+
+  const request = indexedDB.open(dbName);
+
+  request.onerror = function(event) {
+    console.error('Error opening database:', event.target.errorCode);
+  };
+
+  request.onsuccess = function(event) {
+    const db = event.target.result;
+    const transaction = db.transaction(objectStoreName, 'readonly');
+    const objectStore = transaction.objectStore(objectStoreName);
+
+    const cursorRequest = objectStore.openCursor();
+
+    cursorRequest.onsuccess = function(event) {
+      const cursor = event.target.result;
+      if (cursor) {
+        // Add the value to the array
+        values.push(cursor.value.value); // Assuming the value is stored under 'value' property
+
+        // Move to the next record
+        cursor.continue();
+      } else {
+        // Once all records have been processed, call the callback function with the array of values
+        callback(values);
+      }
+    };
+
+    cursorRequest.onerror = function(event) {
+      console.error('Error opening cursor:', event.target.errorCode);
+    };
+  };
+
+  request.onupgradeneeded = function(event) {
+    const db = event.target.result;
+    db.createObjectStore(objectStoreName);
+  };
+}
+
 
