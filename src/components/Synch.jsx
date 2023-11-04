@@ -26,6 +26,8 @@ export default function Synch() {
           })
 
     }
+
+    // store failed markers and message display
   
     // get photos to upload
 

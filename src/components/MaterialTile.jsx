@@ -12,19 +12,19 @@ export default function MaterialTile (props) {
 
     let str = `${material}: `;
 
-    if(width !== "0"){
+    if(width !== ""){
         str = str + `width: ${width}, `
     };
-    if(height !== "0"){
+    if(height !== ""){
         str = str + `height: ${height}, `
     };
-    if(diameter !== "0"){
+    if(diameter !== ""){
         str = str + `diameter: ${diameter}, `
     };
     if(quantity !== "0"){
         str = str + `quantity: ${quantity}, `
     };
-    if( width !== "0" && height !== "0" && quantity !== "0"){
+    if( width !== "" && height !== "" && quantity !== ""){
         str = str + `(${height*width*quantity/1000000} m2)`
     } 
 

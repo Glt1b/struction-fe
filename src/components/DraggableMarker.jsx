@@ -339,7 +339,7 @@ export default function DraggableMarker(props) {
         photos: photos,
         fR: fR,
         doorConfiguration: doorConfiguration,
-        doorFinish: doorFinish,
+        doorFinish: doorFinish, 
         doorGapHinge: doorGapHinge,
         doorGapLockSide: doorGapLockSide,
         doorGapHead: doorGapHead,
@@ -406,7 +406,7 @@ export default function DraggableMarker(props) {
   const deleteMaterial = (item) => {
 
     let updatedList = [];
-
+    
     for (let m of materialsUsed){
       const result = isEqual(m, item);
       if(!result){
@@ -418,7 +418,7 @@ export default function DraggableMarker(props) {
   };
 
   const handleService = (item) => {
-    if(props.role !== 'Visitor'){
+    if(props.role !== 'Visitor' && status !== 'completed'){
       let updatedList = [...serviceUsed];
     if (!serviceUsed.includes(item)) {
       updatedList = [...serviceUsed, item];
@@ -432,7 +432,7 @@ export default function DraggableMarker(props) {
     
 
   const handleStatus = (item) => {
-    if(props.role !== 'Visitor'){
+    if(props.role !== 'Visitor' || status !== 'completed' ){
     if(item === 'completed'){
       if(materialsUsed.length > 0 && serviceUsed.length > 0 && fR !== '' && number !== '0' && photos.length > 1){
         setStatus(item);
@@ -441,14 +441,18 @@ export default function DraggableMarker(props) {
       }
       if(type === 'door'){
         setStatus(item);
+        setCompletedBy(props.user);
       }
     } else {
       setStatus(item);
-    }}
+      setCompletedBy(props.user);
+    }} else if (status === 'completed' && props.role === 'Manager'){
+      setStatus(item);
+    }
   };
 
   const handleFR = (item) => {
-    if(props.role !== 'Visitor'){
+    if(props.role !== 'Visitor' && status !== 'completed'){
       setFr(item);
     }
   };
@@ -472,7 +476,7 @@ export default function DraggableMarker(props) {
 
         <div>
 
-          { type !== '' && props.role !== 'Visitor' ? (
+          {props.role !== 'Visitor' && status !== 'completed' ? (
           <button
            className="top-button" 
            onClick={() => toggleDraggable()}>
@@ -527,6 +531,12 @@ export default function DraggableMarker(props) {
           </div>
           ) : null }
 
+          { status === 'completed' ? (
+            <div>
+            <p style={{color:'green'}}>Completed by:</p><p>{completedBy}</p>
+            </div>
+          ) : null}
+
           { type !== '' ? (
           <div className="checkList">
             <div className="title" id="fr">
@@ -555,7 +565,7 @@ export default function DraggableMarker(props) {
             <div className="title">
               <b>Number</b>
             </div>
-            { props.role === 'Visitor' ? (<p>{number}</p>) : (
+            { props.role === 'Visitor' || status === 'completed' ? (<p>{number}</p>) : (
             <input
               className="input"
               value={number}
@@ -579,12 +589,12 @@ export default function DraggableMarker(props) {
                   <MaterialTile
                    key={index}
                    material={item}/>
-                   {props.role !== 'Visitor' ? (
+                   {props.role !== 'Visitor' && status !== 'completed' ? (
                   <button onClick={() => {deleteMaterial(item)}}>Delete</button>): null}
                 </>
               ))}
             </div>
-              {props.role !== 'Visitor' ? (
+              {props.role !== 'Visitor' && status !== 'completed' ? (
               <NewMaterial
               materials={props.materials}
               materialsUsed={materialsUsed}
@@ -637,6 +647,10 @@ export default function DraggableMarker(props) {
             ></textarea>
           </div>
           ) : null }
+
+          { newComment ? (
+            <button onClick={() => setNewComment(false)}>Dismiss</button>
+          ) : null}
 
           { newComment ? 
             commentTemplate.map((item, index) => (
@@ -983,7 +997,7 @@ export default function DraggableMarker(props) {
               }) => (
                 // UI
                 <div className="upload__image-wrapper">
-                  {props.role !== 'Visitor' ? (
+                  {props.role !== 'Visitor' && status !== 'completed' ? (
                   <button
                     style={isDragging ? { color: "red" } : undefined}
                     onClick={onImageUpload}
@@ -998,7 +1012,7 @@ export default function DraggableMarker(props) {
                   
                       <Photo url={image["data_url"]}/>
                    
-                      { props.mode === 'online'  && props.role !== 'Visitor'? (
+                      { props.mode === 'online'  &&  props.role !== 'Visitor' && status !== 'completed' ? (
                         <div className="image-item__btn-wrapper">
                         <button onClick={() => {onImageRemove(index)
                                                 delImage(index)}}>
@@ -1016,7 +1030,7 @@ export default function DraggableMarker(props) {
           <br />
           <hr />
           <br />
-          {props.role !== 'Visitor' ? (
+          {props.role !== 'Visitor' && status !== 'completed' ? (
           <button
             id="delete-btn"
             onClick={() => {

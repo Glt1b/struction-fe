@@ -10,7 +10,7 @@ export default function NewMaterial (props) {
     const [width, setWidth] = useState('');
     const [height, setHeigth] = useState('');
     const [diameter, setDiameter] = useState('');
-    const [quantity, setQuantity] = useState('');
+    const [quantity, setQuantity] = useState('1');
 
 
     const submit = () => {
@@ -36,7 +36,7 @@ export default function NewMaterial (props) {
           setDiameter('');
           setHeigth('');
           setWidth('');
-          setQuantity('');
+          setQuantity('1');
           setMaterial(false);
           };
         }
@@ -91,7 +91,7 @@ export default function NewMaterial (props) {
                             <input
                                 className="input"
                                 value={width}
-                                type="text"
+                                type="number"
                                 onChange={(e) => {
                                     setWidth(e.target.value);
                                 } }
@@ -105,7 +105,7 @@ export default function NewMaterial (props) {
                             <input
                                 className="input"
                                 value={diameter}
-                                type="text"
+                                type="number"
                                 onChange={(e) => {
                                     setDiameter(e.target.value);
                                 } }
@@ -119,7 +119,7 @@ export default function NewMaterial (props) {
                             <input
                                 className="input"
                                 value={quantity}
-                                type="text"
+                                type="number"
                                 onChange={(e) => {
                                     setQuantity(e.target.value);
                                 } }

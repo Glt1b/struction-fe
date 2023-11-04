@@ -26,8 +26,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     right: 0,
-    width: 50, // Adjust the width as needed
-    height: 50, // Adjust the height as needed
+    width: 150, // Adjust the width as needed
+    height: 100, // Adjust the height as needed
   },
 });
 
@@ -40,11 +40,11 @@ export default function PDF(props) {
       const key = Object.keys(o)[0];
       const [width, height, diameter, quantity] = o[key];
       const str = `${key}: ` +
-                  (width !== "0" ? `width: ${width}, ` : '') +
-                  (height !== "0" ? `height: ${height}, ` : '') +
-                  (diameter !== "0" ? `diameter: ${diameter}, ` : '') +
-                  (quantity !== "0" ? `quantity: ${quantity}, ` : '') +
-                  ((width !== "0" && height !== "0" && quantity !== "0") ? `(${height * width * quantity / 1000000} m2)` : '');
+                  (width !== "" ? `width: ${width}, ` : '') +
+                  (height !== "" ? `height: ${height}, ` : '') +
+                  (diameter !== "" ? `diameter: ${diameter}, ` : '') +
+                  (quantity !== "" ? `quantity: ${quantity}, ` : '') +
+                  ((width !== "" && height !== "" && quantity !== "0") ? `(${height * width * quantity / 1000000} m2)` : '');
 
       materialsStrings += str + '\n';
     });
