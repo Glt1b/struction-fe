@@ -75,7 +75,7 @@ export default function DraggableMarker(props) {
   const doorConfigurationOptions = ['Single', 'Double', 'Single With Fan Light', 'Double With Fan Light', 'Single (Fan Light and Side Panel'];
 
 
-
+ console.log(completedBy)
   // photo states
   const [photosOpen, setPhotosOpen] = useState(false);
   const [images, setImages] = useState([]);
@@ -442,6 +442,7 @@ export default function DraggableMarker(props) {
       if(type === 'door'){
         setStatus(item);
         setCompletedBy(props.user);
+        console.log(props.user)
       }
     } else {
       setStatus(item);
