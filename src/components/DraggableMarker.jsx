@@ -334,7 +334,7 @@ export default function DraggableMarker(props) {
         materialsUsed: materialsUsed,
         measurements: measurements,
         service: serviceUsed,
-        completedBy: "",
+        completedBy: completedBy,
         comment: comment,
         photos: photos,
         fR: fR,
