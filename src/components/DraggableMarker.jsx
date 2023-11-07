@@ -75,7 +75,7 @@ export default function DraggableMarker(props) {
   const doorConfigurationOptions = ['Single', 'Double', 'Single With Fan Light', 'Double With Fan Light', 'Single (Fan Light and Side Panel'];
 
 
- console.log(completedBy)
+ 
   // photo states
   const [photosOpen, setPhotosOpen] = useState(false);
   const [images, setImages] = useState([]);
@@ -436,6 +436,7 @@ export default function DraggableMarker(props) {
     if(item === 'completed'){
       if(materialsUsed.length > 0 && serviceUsed.length > 0 && fR !== '' && number !== '0' && photos.length > 1){
         setStatus(item);
+        setCompletedBy(props.user);
       } else if(type === 'seal'){
         alert('Before you mark pin as Completed, make sure you have submited at least 1 material and service type, 2 photos, fire rating and pin number.')
       }
@@ -446,7 +447,6 @@ export default function DraggableMarker(props) {
       }
     } else {
       setStatus(item);
-      setCompletedBy(props.user);
     }} else if (status === 'completed' && props.role === 'Manager'){
       setStatus(item);
     }

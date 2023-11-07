@@ -101,6 +101,7 @@ export default function App() {
     if( mode === 'online' && user){
       if(user.props.role === 'Manager'){
         getProjectsList().then((result) => {
+          console.log('list'+result)
         setAvailableContracts(result)
       })
       } else {
