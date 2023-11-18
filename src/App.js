@@ -58,6 +58,13 @@ export default function App() {
   const [services, setServices] = useState([]);
   const [materials, setMaterials] = useState([]);
   const [commentTemplate, setCommentTemplate] = useState([]);
+  const [contractAddress, setContractAddress] = useState('');
+  const [contractPostCode, setContractPostCode] = useState('');
+  const [contractorAddress, setContractorAddress] = useState('');
+  const [contractorPostCode, setContractorPostCode] = useState('');
+  const [note, setNote] = useState('');
+  const [description, setDescription] = useState('');
+
   const { projectMarkers, setProjectMarkers } = useContext(
     ProjectMarkersContext
   );
@@ -106,7 +113,10 @@ export default function App() {
       })
       } else {
         console.log(user.props.projects)
-        setAvailableContracts(user.props.projects)
+        if(user.key !== 'maxim_borys@hottmail.com'){
+          setAvailableContracts(user.props.projects)
+        }
+        
       }
       } else if (  mode === 'offline'){
         const struction = JSON.parse(localStorage.getItem('Struction'));
@@ -164,6 +174,24 @@ export default function App() {
         setMaterials(result.project[0].props.materials);
         if(result.project[0].props.commentTemplate !== undefined){
           setCommentTemplate(result.project[0].props.commentTemplate)
+        }
+        if(result.project[0].props.contractAddress !== undefined){
+          setContractAddress(result.project[0].props.contractAddress)
+        }
+        if(result.project[0].props.contractPostCode !== undefined){
+          setContractPostCode(result.project[0].props.contractPostCode)
+        }
+        if(result.project[0].props.contractorAddress !== undefined){
+          setContractorAddress(result.project[0].props.contractorAddress)
+        }
+        if(result.project[0].props.contractorPostCode !== undefined){
+          setContractorPostCode(result.project[0].props.contractorPostCode)
+        }
+        if(result.project[0].props.note !== undefined){
+          setNote(result.project[0].props.note)
+        }
+        if(result.project[0].props.description !== undefined){
+          setDescription(result.project[0].props.description)
         }
         setIsProjectLoaded(true);
       });
@@ -527,7 +555,13 @@ export default function App() {
         availableContracts={availableContracts}
         setAvailableContracts={setAvailableContracts}
         locations={locations}
-        setLocations={setLocations}/>) : null}
+        setLocations={setLocations}
+        contractAddress={contractAddress}
+        contractPostCode={contractPostCode}
+        contractorAddress={contractorAddress}
+        contractorPostCode={contractorPostCode}
+        note={note}
+        description={description}/>) : null}
       
       { page === 'synch' ? (<Synch
         setPage = {setPage} />) : null }

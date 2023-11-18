@@ -11,6 +11,14 @@ export default function Details (props) {
     const [locationCreate, setLocationCreate] = useState(false)
     const [newLocation, setNewLocation] = useState('');
     const [newComment, setNewComment] = useState('');
+    // pdf details
+    const [contractAddress, setContractAddress] = useState(props.contractAddress);
+    const [contractPostCode, setContractPostCode] = useState(props.contractPostCode);
+    const [contractorAddress, setContractorAddress] = useState(props.contractorAddress);
+    const [contractorPostCode, setContractorPostCode] = useState(props.contractorPostCode);
+    const [note, setNote] = useState(props.note);
+    const [description, setDescription] = useState(props.description);
+
 
     const [images, setImages] = useState([]);
     const maxNumber = 1;
@@ -120,20 +128,30 @@ export default function Details (props) {
       props.setCommentTemplate(arr);
     }
 
+    // details to pdf
+
+
+
 
     const updateDetails = () => {
       const body = {
             "materials": props.materials,
             "services": props.services,
             "locations": props.locationsNames,
-            'commentTemplate': commentTemplate
+            'commentTemplate': commentTemplate,
+            'contractAddress': contractAddress,
+            'contractPostCode': contractPostCode,
+            'contractorAddress': contractorAddress,
+            'contractorPostCode': contractorPostCode,
+            'note': note,
+            'description': description
       }
 
       postProjectDetails(props.projectName, body);
       setUpdated(true);
       
     }
-
+/*
     const delProject = () => {
     let updatedList = [...props.availableContracts];
     updatedList.splice(props.availableContracts.indexOf(props.projectName), 1);
@@ -141,7 +159,7 @@ export default function Details (props) {
     postProjectsList(updatedList);
   };
     
-
+*/
 
     return (
         <div style={{backgroundColor: 'whitesmoke'}}>
@@ -318,8 +336,135 @@ export default function Details (props) {
 
         <br></br><hr></hr><br></br>
 
+        <h1>PDF details</h1>
 
-        <button disabled style={{color: 'red'}} onClick={() => delProject()}>Delete project</button>
+        <div className="text-input" id="comment-container">
+            <div className="title">
+              <label htmlFor="comment">
+                <b>Contract Address</b>
+              </label>
+            </div>
+
+            <textarea
+              style={{height:'70px'}}
+              id="comment"
+              className="input"
+              value={contractAddress}
+              type="text"
+              onChange={(e) => {
+                setContractAddress(e.target.value);
+                setUpdated(false);
+              }}
+            ></textarea>
+          </div>
+
+          <div className="text-input" id="comment-container">
+            <div className="title">
+              <label htmlFor="comment">
+                <b>Contract Post Code</b>
+              </label>
+            </div>
+
+            <textarea
+              style={{height:'70px'}}
+              id="comment"
+              className="input"
+              value={contractPostCode}
+              type="text"
+              onChange={(e) => {
+                setContractPostCode(e.target.value);
+                setUpdated(false);
+              }}
+            ></textarea>
+          </div>
+          
+          <div className="text-input" id="comment-container">
+            <div className="title">
+              <label htmlFor="comment">
+                <b>Contractor Address</b>
+              </label>
+            </div>
+
+            <textarea
+              style={{height:'70px'}}
+              id="comment"
+              className="input"
+              value={contractorAddress}
+              type="text"
+              onChange={(e) => {
+                setContractorAddress(e.target.value);
+                setUpdated(false);
+              }}
+            ></textarea>
+          </div>
+
+          <div className="text-input" id="comment-container">
+            <div className="title">
+              <label htmlFor="comment">
+                <b>Contractor Post Code</b>
+              </label>
+            </div>
+
+            <textarea
+              style={{height:'70px'}}
+              id="comment"
+              className="input"
+              value={contractorPostCode}
+              type="text"
+              onChange={(e) => {
+                setContractorPostCode(e.target.value);
+                setUpdated(false);
+              }}
+            ></textarea>
+          </div>
+
+          <div className="text-input" id="comment-container">
+            <div className="title">
+              <label htmlFor="comment">
+                <b>Note</b>
+              </label>
+            </div>
+
+            <textarea
+              style={{height:'70px'}}
+              id="comment"
+              className="input"
+              value={note}
+              type="text"
+              placeholder="What is this report for"
+              onChange={(e) => {
+                setNote(e.target.value);
+                setUpdated(false);
+              }}
+            ></textarea>
+          </div>
+
+          <div className="text-input" id="comment-container">
+            <div className="title">
+              <label htmlFor="comment">
+                <b>Description</b>
+              </label>
+            </div>
+
+            <textarea
+              style={{height:'70px'}}
+              id="comment"
+              className="input"
+              value={description}
+              type="text"
+              placeholder="Description of work we are gonna do"
+              onChange={(e) => {
+                setDescription(e.target.value);
+                setUpdated(false);
+              }}
+            ></textarea>
+          </div>
+
+          { !updated ? (<button onClick={() => updateDetails()}>Update</button>) : null}
+          
+          
+
+
         </div>
     )
 }

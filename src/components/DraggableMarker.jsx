@@ -40,6 +40,7 @@ export default function DraggableMarker(props) {
   const [comment, setComment] = useState(props.comment);
   const [fR, setFr] = useState(props.fR);
   const [completedBy, setCompletedBy] = useState(props.completedBy)
+  const [cat, setCat] = useState(props.visionPanel)
 
   const commentTemplate = props.commentTemplate;
   const [newComment, setNewComment] = useState(false);
@@ -63,6 +64,7 @@ export default function DraggableMarker(props) {
   const [doorCondition, setDoorCondition] = useState(props.doorCondition);
 
   const availableStatus = ["completed", "inProgress", "issue"];
+  const availableCats = ['cat 1', 'cat 2', 'cat 3', 'cat 4', 'cat 5'];
   const availableFR = ["0", "30", "60", "120"];
 
   const handleOptions = ['Poor Handle Condition', 'Good Handle Condition', 'N/A'];
@@ -339,13 +341,13 @@ export default function DraggableMarker(props) {
         photos: photos,
         fR: fR,
         doorConfiguration: doorConfiguration,
-        doorFinish: doorFinish, 
-        doorGapHinge: doorGapHinge,
+        doorFinish: doorFinish, //completed on
+        doorGapHinge: doorGapHinge, 
         doorGapLockSide: doorGapLockSide,
         doorGapHead: doorGapHead,
         doorGapBottom: doorGapBottom,
         openingHeight: openingHeight,
-        visionPanel: visionPanel,
+        visionPanel: cat,//issue cat
         frameCondition: frameCondition,
         frameConditionComment: frameConditionComment,
         hingeAdjustment: hingeAdjustment,
@@ -428,7 +430,12 @@ export default function DraggableMarker(props) {
     setServiceUsed(updatedList);
       }
      }
-    
+
+  const handleCat = (item) => {
+    if(props.role !== 'Visitor'){
+      setCat(item);
+    }
+  }
     
 
   const handleStatus = (item) => {
@@ -510,6 +517,23 @@ export default function DraggableMarker(props) {
           ) : null }
 
           { type !== '' ? (
+          <div className="text-input">
+            <div className="title">
+              <b>Number</b>
+            </div>
+            { props.role === 'Visitor' || status === 'completed' ? (<p>{number}</p>) : (
+            <p><input
+              className="input"
+              value={number}
+              type="text"
+              onChange={(e) => {
+                setNumber(e.target.value);
+              }}
+            ></input></p>)}
+          </div>
+          ) : null}
+
+          { type !== '' ? (
           <div className="checkList">
             <div className="title" id="status">
               <b>Status</b>
@@ -523,6 +547,29 @@ export default function DraggableMarker(props) {
                     type="checkbox"
                     checked={status.includes(item) ? true : false}
                     onChange={() => handleStatus(item)}
+                  />
+
+                  <label htmlFor={item}>{item}</label>
+                </div>
+              ))}
+            </div>
+          </div>
+          ) : null }
+
+         { type !== '' && status === 'issue' ? (
+          <div className="checkList">
+            <div className="title" id="status">
+              <b>Issue Category</b>
+            </div>
+            <div className="list-container" id="status-container">
+              {availableCats.map((item, index) => (
+                <div className="checkbox" key={index}>
+                  <input
+                    id={item}
+                    value={item}
+                    type="checkbox"
+                    checked={cat === item ? true : false}
+                    onChange={() => handleCat(item)}
                   />
 
                   <label htmlFor={item}>{item}</label>
@@ -561,22 +608,6 @@ export default function DraggableMarker(props) {
           </div>
           ) : null}
 
-          { type !== '' ? (
-          <div className="text-input">
-            <div className="title">
-              <b>Number</b>
-            </div>
-            { props.role === 'Visitor' || status === 'completed' ? (<p>{number}</p>) : (
-            <input
-              className="input"
-              value={number}
-              type="text"
-              onChange={(e) => {
-                setNumber(e.target.value);
-              }}
-            ></input>)}
-          </div>
-          ) : null}
 
 
           {type === 'seal' ? (

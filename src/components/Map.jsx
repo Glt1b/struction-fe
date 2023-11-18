@@ -74,12 +74,13 @@ export default function Map(props) {
           photos: [],
           fR: "",
           doorConfiguration: '',
-          doorGapHinge: '',
+          doorFinish: '', // completed on
+          doorGapHinge: '', 
           doorGapLockSide: '',
           doorGapHead: '',
           doorGapBottom: '',
           openingHeight: '',
-          visionPanel: '',
+          visionPanel: '', //issue cat
           frameCondition: '',
           frameConditionComment: '',
           hingeAdjustment: '',
@@ -162,13 +163,13 @@ export default function Map(props) {
                 services={props.services}
                 commentTemplate={props.commentTemplate}
                 doorConfiguration={item.doorConfiguration}
-                doorFinish={item.doorFinish}
-                doorGapHinge={item.doorGapHinge}
+                doorFinish={item.doorFinish} //completed on
+                doorGapHinge={item.doorGapHinge} 
                 doorGapLockSide={item.doorGapLockSide}
                 doorGapHead={item.doorGapHead}
                 doorGapBottom={item.doorGapBottom}
                 openingHeight={item.openingHeight}
-                visionPanel={item.visionPanel}
+                visionPanel={item.visionPanel}//issue cat
                 frameCondition={item.frameCondition}
                 frameConditionComment={item.frameConditionComment}
                 hingeAdjustment={item.hingeAdjustment}
