@@ -1,5 +1,5 @@
 import { React, useState, useContext, useEffect } from "react";
-import { MapContainer, ImageOverlay, ZoomControl, Marker } from "react-leaflet";
+import { MapContainer, ImageOverlay, ZoomControl, Marker, useMap } from "react-leaflet";
 import { MarkersContext } from "../contexts/Markers.js";
 import { ProjectMarkersContext } from "../contexts/ProjectMarkers.js";
 import { postMarker } from "../utils/api.js";
@@ -12,8 +12,8 @@ import marker2 from "../images/map-marker-complete.svg";
 import { Icon } from "leaflet";
 
 const myMarker = new Icon({ iconUrl: marker, iconSize: [45, 45], iconAnchor: [22, 45] });
-const myIssueMarker = new Icon({ iconUrl: marker1, iconSize: [45, 45], conAnchor: [22, 45] });
-const myCompletedMarker = new Icon({ iconUrl: marker2, iconSize: [45, 45], conAnchor: [22, 45] });
+const myIssueMarker = new Icon({ iconUrl: marker1, iconSize: [45, 45], iconAnchor: [22, 45] });
+const myCompletedMarker = new Icon({ iconUrl: marker2, iconSize: [45, 45], iconAnchor: [22, 45] });
 
 const L = window["L"];
 
@@ -46,6 +46,13 @@ export default function Map(props) {
       setCreationMode(false);
     }
   }, [latlng]);
+
+  const MapFly = () => {
+    const map = useMap();
+    if(props.mapPdf){
+      map.flyTo(props.mapPdf[2].locationOnDrawing, map.getZoom())
+    }
+  }
 
   const MarkerLocator = () => {
     const map = useMapEvents({
@@ -192,6 +199,7 @@ export default function Map(props) {
         </ImageOverlay>
 
         <MarkerLocator />
+        <MapFly />
 
         { !props.mapPdf ? 
         <ZoomControl position="bottomleft" /> : null } 

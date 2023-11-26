@@ -14,6 +14,7 @@ import { postImage, delImageS3 } from "../utils/api";
 import Photo from "./Photo.jsx";
 import MaterialTile from "./MaterialTile.jsx";
 import NewMaterial from "./NewMaterial.jsx";
+import Services from "./Services.jsx";
 
 const myMarker = new Icon({ iconUrl: marker, iconSize: [45, 45], iconAnchor: [22, 45] });
 const myIssueMarker = new Icon({ iconUrl: marker1, iconSize: [45, 45], iconAnchor: [22, 45] });
@@ -30,6 +31,8 @@ export default function DraggableMarker(props) {
   );
   const markerRef = useRef(null);
 
+  const [updateNeeded, setUpdateNeeded] = useState(false);
+
   // markers details states
   const [position, setPosition] = useState(props.position);
   const [number, setNumber] = useState(props.number);
@@ -41,6 +44,7 @@ export default function DraggableMarker(props) {
   const [fR, setFr] = useState(props.fR);
   const [completedBy, setCompletedBy] = useState(props.completedBy)
   const [cat, setCat] = useState(props.visionPanel)
+  const [completedTime, setCompletedTime] = useState(props.doorFinish)
 
   const commentTemplate = props.commentTemplate;
   const [newComment, setNewComment] = useState(false);
@@ -96,12 +100,15 @@ export default function DraggableMarker(props) {
     console.log(photosNumber)
     console.log(imageList.length)
     // upload photos
+    setUpdateNeeded(true);
     if(props.mode === 'online'){
       if (photosNumber < imageList.length && addUpdateIndex !== undefined){
       setUploading(true);
       const photosArr = photos;
+      let count = 0;
       for (let index of addUpdateIndex){
-        const image_id = `${props.id}-${Date.now()}`;
+        const image_id = `${props.id}-${Date.now()}-${count}`;
+        count++;
 
         postImage(image_id, imageList[index].data_url).then((result) => {
             
@@ -130,10 +137,12 @@ export default function DraggableMarker(props) {
         console.log('updating photos offline')
         setUploading(true);
         const photosArr = photos;
-        
+        let count = 0;
+
         for (let index of addUpdateIndex){
+          count++;
           console.log(addUpdateIndex)
-          const image_id = `${props.id}-${Date.now()}`;
+          const image_id = `${props.id}-${Date.now()}-${count}`;
           addToIndexedDB(props.projectName, 'photos', image_id, imageList[index]);
           
           photosArr.push(image_id);
@@ -250,7 +259,11 @@ export default function DraggableMarker(props) {
   const closePopup = () => {
     if (marker) {
       setPopupOpen(false);
-      updateMarker();
+      if(updateNeeded){
+        updateMarker();
+        setUpdateNeeded(false);
+      }
+      
       marker.closePopup();
     }
   }
@@ -324,6 +337,7 @@ export default function DraggableMarker(props) {
 
   // save markers details
   const updateMarker = () => {
+    console.log('updating marker')
     const id = props.id;
 
     const obj = {
@@ -341,7 +355,7 @@ export default function DraggableMarker(props) {
         photos: photos,
         fR: fR,
         doorConfiguration: doorConfiguration,
-        doorFinish: doorFinish, //completed on
+        doorFinish: completedTime, //completed on
         doorGapHinge: doorGapHinge, 
         doorGapLockSide: doorGapLockSide,
         doorGapHead: doorGapHead,
@@ -415,10 +429,10 @@ export default function DraggableMarker(props) {
         updatedList.push(m)
       }
     }
-
+    setUpdateNeeded(true);
     setMaterialsUsed(updatedList);
   };
-
+/*
   const handleService = (item) => {
     if(props.role !== 'Visitor' && status !== 'completed'){
       let updatedList = [...serviceUsed];
@@ -430,37 +444,42 @@ export default function DraggableMarker(props) {
     setServiceUsed(updatedList);
       }
      }
-
+*/
   const handleCat = (item) => {
     if(props.role !== 'Visitor'){
+      setUpdateNeeded(true);
       setCat(item);
     }
   }
     
 
   const handleStatus = (item) => {
-    if(props.role !== 'Visitor' || status !== 'completed' ){
+    if(props.role !== 'Visitor' && status !== 'completed' ){
     if(item === 'completed'){
       if(materialsUsed.length > 0 && serviceUsed.length > 0 && fR !== '' && number !== '0' && photos.length > 1){
+        setUpdateNeeded(true);
         setStatus(item);
         setCompletedBy(props.user);
+        let currentDate = '';
+        currentDate = currentDate + new Date().getDate() + '/';
+        currentDate = currentDate + new Date().getMonth() + '/';
+        currentDate = currentDate + new Date().getFullYear();
+        setCompletedTime(currentDate)
       } else if(type === 'seal'){
         alert('Before you mark pin as Completed, make sure you have submited at least 1 material and service type, 2 photos, fire rating and pin number.')
       }
-      if(type === 'door'){
-        setStatus(item);
-        setCompletedBy(props.user);
-        console.log(props.user)
-      }
     } else {
+      setUpdateNeeded(true);
       setStatus(item);
     }} else if (status === 'completed' && props.role === 'Manager'){
+      setUpdateNeeded(true);
       setStatus(item);
     }
   };
 
   const handleFR = (item) => {
     if(props.role !== 'Visitor' && status !== 'completed'){
+      setUpdateNeeded(true);
       setFr(item);
     }
   };
@@ -527,6 +546,7 @@ export default function DraggableMarker(props) {
               value={number}
               type="text"
               onChange={(e) => {
+                setUpdateNeeded(true);
                 setNumber(e.target.value);
               }}
             ></input></p>)}
@@ -581,7 +601,10 @@ export default function DraggableMarker(props) {
 
           { status === 'completed' ? (
             <div>
-            <p style={{color:'green'}}>Completed by:</p><p>{completedBy}</p>
+            <p style={{color:'green'}}>Completed by:</p>
+            <p>{completedBy}</p>
+            <p>{completedTime}</p>
+
             </div>
           ) : null}
 
@@ -630,32 +653,23 @@ export default function DraggableMarker(props) {
               <NewMaterial
               materials={props.materials}
               materialsUsed={materialsUsed}
-              setMaterialsUsed={setMaterialsUsed}/>) : null}
+              setMaterialsUsed={setMaterialsUsed}
+              setUpdateNeeded={setUpdateNeeded}/>) : null}
 
           </div>
           ) : null}
 
           { type === 'seal' ? (
-          <div className="checkList">
-            <div className="title" id="title-checkbox">
-              <b>Services</b>
-            </div>
-            <div className="list-container" id="services-container">
-              {props.services.map((item, index) => (
-                <div key={index} className="checkbox">
-                  <input
-                    id={item}
-                    value={item}
-                    type="checkbox"
-                    checked={serviceUsed.includes(item) ? true : false}
-                    onChange={() => handleService(item)}
-                  />
-                  <label htmlFor={item}>{item}</label>
-                </div>
-              ))}
-            </div>
-          </div>
+            <Services 
+              serviceUsed={serviceUsed}
+              setServiceUsed={setServiceUsed}
+              servicesAvailable={props.services}
+              status={props.status}
+              setUpdateNeeded={setUpdateNeeded}/>
+        
           ) : null}
+
+          
 
 
 
@@ -674,6 +688,7 @@ export default function DraggableMarker(props) {
               value={comment}
               type="text"
               onChange={(e) => {
+                setUpdateNeeded(true);
                 setComment(e.target.value);
               }}
             ></textarea>
@@ -690,7 +705,8 @@ export default function DraggableMarker(props) {
               <button 
                 style={{width: '250px'}}
                 onClick={() => {setComment(comment + item + '\n')
-                               setNewComment(false)}}>
+                               setNewComment(false)
+                               setUpdateNeeded(true);}}>
                   <p style={{display: 'block'}}>{item}</p></button></div>
             ))
            : null }
@@ -1044,10 +1060,11 @@ export default function DraggableMarker(props) {
                   
                       <Photo url={image["data_url"]}/>
                    
-                      { props.mode === 'online'  &&  props.role !== 'Visitor' && status !== 'completed' ? (
+                      { props.mode === 'online'  &&  props.role !== 'Visitor' && props.role !== 'Operative' && status !== 'completed' ? (
                         <div className="image-item__btn-wrapper">
                         <button onClick={() => {onImageRemove(index)
-                                                delImage(index)}}>
+                                                delImage(index)
+                                                setUpdateNeeded(true);}}>
                           Remove
                         </button>
                       </div>
@@ -1062,7 +1079,7 @@ export default function DraggableMarker(props) {
           <br />
           <hr />
           <br />
-          {props.role !== 'Visitor' && status !== 'completed' ? (
+          {props.role !== 'Visitor' && props.role !== 'Operative' && status !== 'completed' ? (
           <button
             id="delete-btn"
             onClick={() => {

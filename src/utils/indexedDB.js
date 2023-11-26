@@ -224,8 +224,8 @@ export const  deleteFromIndexedDB = (databaseName, objectStoreName, key, callbac
   };
 }
 
-export function getValuesInArray(dbName, objectStoreName, callback) {
-  const values = []; // Initialize an empty array
+export function getKeyValuePairsInArray(dbName, objectStoreName, callback) {
+  const keyValues = []; // Initialize an empty array for key-value pairs
 
   const request = indexedDB.open(dbName);
 
@@ -243,14 +243,14 @@ export function getValuesInArray(dbName, objectStoreName, callback) {
     cursorRequest.onsuccess = function(event) {
       const cursor = event.target.result;
       if (cursor) {
-        // Add the value to the array
-        values.push(cursor.value.value); // Assuming the value is stored under 'value' property
+        // Add key-value pair to the array
+        keyValues.push({ key: cursor.key, value: cursor.value.value }); // Assuming the value is stored under 'value' property
 
         // Move to the next record
         cursor.continue();
       } else {
-        // Once all records have been processed, call the callback function with the array of values
-        callback(values);
+        // Once all records have been processed, call the callback function with the array of key-value pairs
+        callback(keyValues);
       }
     };
 

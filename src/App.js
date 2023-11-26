@@ -2,7 +2,7 @@ import "leaflet/dist/leaflet.css";
 import "./App.css";
 import { React, useEffect, useState, useContext } from "react";
 import { getProjectDetails, getImage, getProjectsList, synchDB, getUser } from "./utils/api";
-import { addToIndexedDB, readFromIndexedDB, deleteIndexedDB , checkIndexedDB} from "./utils/indexedDB";
+import { addToIndexedDB, readFromIndexedDB , checkIndexedDB} from "./utils/indexedDB";
 import { checkMode } from "./utils/indexedDB";
 import { MarkersContext } from "./contexts/Markers.js";
 import { ProjectMarkersContext } from "./contexts/ProjectMarkers";
@@ -24,10 +24,10 @@ import {
 import ampaLogo from "./images/ampa.png";
 
 // imports for PDFs creating
-import PDF from './components/PDF'
+import PDF from './components/PDF';
+import PDF2 from './components/PDF2';
 import { saveAs } from "file-saver";
 import { pdf } from '@react-pdf/renderer';
-import { Icon } from "leaflet";
 import html2canvas from "html2canvas";
  
 
@@ -342,27 +342,16 @@ export default function App() {
         markersToUpload: [],
         photosToUpload: []})); 
 
-    } 
+    }
  };
 
-  const delOfflineDB = () => {
-        deleteIndexedDB('Struction', function(success) {
-          if (success) {
-            console.log('Database deleted successfully.');
-          } else {
-            console.log('Failed to delete the database.');
-          }
-        });
-        localStorage.removeItem('Struction');
-        localStorage.setItem('Struction', JSON.stringify({ mode: 'online'}));
-  }
-
+  
   const downloadPDFs = (n) => {
     console.log('N number: ' + n)
     if ( n > 0 ) {
       console.log('Creating pdf for marker: ' + markers[n-1].number)
       setTimeout(() => {
-        const pdfName = `${projectName}-${markers[n-1].number}.pdf`;
+        const pdfName = `${markers[n-1].status}-${projectName}-${markers[n-1].number}.pdf`;
         const arr = [];
 
         // when no photos
@@ -414,7 +403,7 @@ export default function App() {
     console.log(imgData)
 
     const doc = (
-      <PDF photos={mapPdf[1]} map={imgData} details={mapPdf[2]}/>
+      <PDF2 photos={mapPdf[1]} map={imgData} details={mapPdf[2]}/>
     );
     const pdfBlob =  await pdf(doc).toBlob();
     console.log('Saving PDF')
@@ -472,7 +461,7 @@ export default function App() {
                   </MenuItem>
                 );
               })}
-              { mode === 'online' ? (
+              { mode === 'online' && user.props.role === 'Manager' ? (
               <MenuItem><NewContract
               availableContracts={availableContracts}
               setAvailableContracts={setAvailableContracts}/></MenuItem>) : null }
@@ -513,13 +502,13 @@ export default function App() {
             <MenuItem onClick={() => {downloadPDFs(markers.length)
                                      setGeneratePDF(true)}}> Download PDFs</MenuItem>
            ) : null }
-           {/* 
+            
            { mode && mapsLoaded ? (
             <MenuItem
                onClick={() => { switchMode()
                }}>{mode === 'online' ? (
                 <>Switch to offline</>
-          ) : null}</MenuItem>) : null}*/}
+          ) : null}</MenuItem>) : null}
 
          { mode && mapsLoaded ? (
             <MenuItem
@@ -564,7 +553,11 @@ export default function App() {
         description={description}/>) : null}
       
       { page === 'synch' ? (<Synch
-        setPage = {setPage} />) : null }
+        setPage = {setPage}
+        setMode={setMode}
+        projectName={projectName}
+        setProjectName={setProjectName}
+        page={setPage} />) : null }
 
 
       {!isProjectLoaded && user && page === 'map' ? (

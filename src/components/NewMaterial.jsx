@@ -31,6 +31,7 @@ export default function NewMaterial (props) {
           const arr = [...props.materialsUsed];
           arr.push(obj);
           props.setMaterialsUsed(arr);
+          props.setUpdateNeeded(true);
 
           setCreate(false);
           setDiameter('');

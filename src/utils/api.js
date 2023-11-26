@@ -196,7 +196,7 @@ export const postDrawing = async (image_id, image, type) => {
 
 export const postImage = async (image_id, image, type) => {
   try {
-    const targetFileSize = type === 'drawing' ? 1 * 1024 * 1024 : 0.3 * 1024 * 1024; // 1MB or 0.3MB in bytes
+    const targetFileSize = type === 'drawing' ? 1 * 1024 * 1024 : 0.15 * 1024 * 1024; // 1MB or 0.3MB in bytes
 
     // Calculate the original size of the image in bytes
     const originalSizeInBytes = Math.ceil(image.length);
@@ -253,7 +253,7 @@ export const postImage = async (image_id, image, type) => {
     if (!response.data) {
       alert('An error occurred while uploading the photo. Please reload the app and check your photos.');
     }
-
+    console.log(response.data)
     return response.data;
   } catch (error) {
     console.error(error);
