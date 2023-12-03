@@ -16,9 +16,7 @@ import {
   Sidebar,
   Menu,
   MenuItem,
-  useProSidebar,
-  SubMenu,
-  sidebarClasses,
+  SubMenu
 } from "react-pro-sidebar";
 //import structionLogo from "./images/structionLogo.svg";
 import ampaLogo from "./images/ampa.png";
@@ -45,6 +43,7 @@ export default function App() {
   const [user, setUser] = useState(false);
 
   const [mode, setMode] = useState(false);
+  
 
 
   // available contracts
@@ -435,19 +434,27 @@ export default function App() {
           alt="struction logo"
         />
       </header>
+      
 
       {!user ? null : (
         ( !generatePDF ? (
-      <Sidebar 
-        >
-        <Menu
-          >
-          <SubMenu label="Menu">
-           
+      
+      <Sidebar  style={{overflowY: 'scroll'}}>
+        
+        <Menu>
+        
+          <SubMenu label="Menu" 
+          closeOnClick='true'>
+  
            { mode === 'online' ? (
-            <SubMenu label="Projects"> 
+
+
+            <SubMenu label="Projects"
+            > 
+              
               {!user ? null : availableContracts.sort().map((project) => {
                 return (
+                
                   <MenuItem
                     onClick={() => {
                       setMapsLoaded(false);
@@ -466,11 +473,12 @@ export default function App() {
               availableContracts={availableContracts}
               setAvailableContracts={setAvailableContracts}/></MenuItem>) : null }
             </SubMenu>
+            
            ) : <MenuItem>{projectName}</MenuItem>}
             
 
             {mapsLoaded ? (
-              <SubMenu label="Locations">
+              <SubMenu label="Locations" closeOnClick='true'>
                 {locations.map((location) => {
                   return (
                     <MenuItem
@@ -589,6 +597,8 @@ export default function App() {
       { !user ? (<LoginPage
           user={user}
           setUser={setUser} />) : null}
+
+          
       
     </div>
   );

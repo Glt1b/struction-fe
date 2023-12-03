@@ -168,6 +168,19 @@ h6 {
   border: solid 2px #f9632b;
 }
 
+.menu-button {
+  width: 11em;
+  z-index: 800;
+  border-radius: 25px;
+  border: none;
+  padding: 3px 7px;
+  font-weight: 700;
+  background: #88c3df;
+  color: #fff;
+  cursor: pointer;
+  border: solid 2px #0f0602;
+}
+
 .marker-form {
   display: flex;
   flex-direction: column;
@@ -505,4 +518,11 @@ INPUT[type="checkbox"] {
 #pdf-container {
   height: 250px;
   width: 250px;
+}
+
+.menu{
+  overflow-x: hidden;
+  overflow-y: auto;
+  text-align: center;
+  padding: 20px;
 }

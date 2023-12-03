@@ -121,6 +121,7 @@ export default function NewMaterial (props) {
                                 className="input"
                                 value={quantity}
                                 type="number"
+                                onClick={() => {setQuantity('')}}
                                 onChange={(e) => {
                                     setQuantity(e.target.value);
                                 } }

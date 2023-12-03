@@ -280,6 +280,7 @@ export default function DraggableMarker(props) {
         const marker = markerRef.current;
         if (marker != null) {
           setPosition(marker.getLatLng());
+          setUpdateNeeded(true);
         }
       },
       click () {
