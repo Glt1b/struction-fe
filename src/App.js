@@ -45,6 +45,8 @@ export default function App() {
   const [mode, setMode] = useState(false);
   
 
+  
+
 
   // available contracts
 
@@ -113,7 +115,10 @@ export default function App() {
       } else {
         console.log(user.props.projects)
         if(user.key !== 'maxim_borys@hottmail.com'){
-          setAvailableContracts(user.props.projects)
+          getUser(user.key).then((result) => {
+            setUser(result)
+            setAvailableContracts(user.props.projects)
+          })
         }
         
       }
@@ -136,7 +141,7 @@ export default function App() {
         setProjectMarkers(markersData.projectMarkers)
 
       }
-  }, [mode, user]);
+  }, [mode]); // add user !!!
 
   // load locations from IDB
 

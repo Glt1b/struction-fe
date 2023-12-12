@@ -9,10 +9,10 @@ export default function LoginPage(props) {
 
 
     function logInFunction () {
-        getUser(mail).then((result) => {
+        getUser(mail.toLocaleLowerCase().trim()).then((result) => {
             console.log(result)
             // catch err -> alert not user with this email
-            if(result.props.password === password){
+            if(result.props.password.trim() === password.trim()){
                 setUser(result)
                 localStorage.setItem('Struction-User', JSON.stringify(result)); 
             } else {
