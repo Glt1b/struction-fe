@@ -407,7 +407,7 @@ export default function App() {
     console.log(imgData)
 
     const doc = (
-      <PDF2 photos={mapPdf[1]} map={imgData} details={mapPdf[2]}/>
+      <PDF photos={mapPdf[1]} map={imgData} details={mapPdf[2]}/>
     );
     const pdfBlob =  await pdf(doc).toBlob();
     console.log('Saving PDF')

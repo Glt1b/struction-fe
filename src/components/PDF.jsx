@@ -98,7 +98,6 @@ export default function PDF(props) {
     <Document>
       <Page size="A4">
         <View style={styles.column}>
-          <Image src={props.map} style={styles.logo} />
           <Text style={styles.bold}>ID: {props.details.status === 'inProgress' ? (<Image src={priority} style={styles.priority} />) : null}</Text>
           <Text style={styles.heading}>{props.details.id}</Text>
           <Text style={styles.bold}>Location: </Text>

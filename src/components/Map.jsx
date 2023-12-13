@@ -95,7 +95,7 @@ export default function Map(props) {
           type: '',
           handle: '',
           lock: '',
-          doorCondition: ''
+          doorCondition: '' // ID number 2
         },
       };
 
@@ -183,7 +183,7 @@ export default function Map(props) {
                 ironmongery={item.ironmongery}
                 handle={item.handle}
                 lock={item.lock}
-                doorCondition={item.doorCondition}
+                doorCondition={item.doorCondition} // ID number 2
                 doorCloser={item.doorCloser}
               
 

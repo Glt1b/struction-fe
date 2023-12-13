@@ -370,7 +370,7 @@ export default function DraggableMarker(props) {
         type: type,
         handle: handle,
         lock: lock,
-        doorCondition: doorCondition
+        doorCondition: doorCondition // ID number 2
       },
     };
     if(props.mode === 'online'){
@@ -549,6 +549,24 @@ export default function DraggableMarker(props) {
               onChange={(e) => {
                 setUpdateNeeded(true);
                 setNumber(e.target.value);
+              }}
+            ></input></p>)}
+          </div>
+          ) : null}
+
+         { type !== '' ? (
+          <div className="text-input">
+            <div className="title">
+              <b>Client ID</b>
+            </div>
+            { props.role === 'Visitor' || status === 'completed' ? (<p>{doorCondition}</p>) : (
+            <p><input
+              className="input"
+              value={doorCondition}
+              type="text"
+              onChange={(e) => {
+                setUpdateNeeded(true);
+                setDoorCondition(e.target.value);
               }}
             ></input></p>)}
           </div>
