@@ -12,6 +12,7 @@ import Users from "./components/Users";
 import Details from "./components/Details";
 import NewContract from "./components/NewContract";
 import Synch from "./components/Synch";
+import Spreadsheet from "./components/Spreadsheet.jsx";
 import {
   Sidebar,
   Menu,
@@ -59,6 +60,7 @@ export default function App() {
   const [services, setServices] = useState([]);
   const [materials, setMaterials] = useState([]);
   const [commentTemplate, setCommentTemplate] = useState([]);
+  const [ workScopeTemplate, setWorkScopeTemplate ] = useState([]);
   const [contractAddress, setContractAddress] = useState('');
   const [contractPostCode, setContractPostCode] = useState('');
   const [contractorAddress, setContractorAddress] = useState('');
@@ -137,6 +139,10 @@ export default function App() {
           setCommentTemplate(project.commentTemplate)
         }
 
+        if(project.workScopeTemplate !== undefined){
+          setWorkScopeTemplate(project.workScopeTemplate)
+        }
+
         const markersData = JSON.parse(localStorage.getItem(`${struction.projectName}-markers`));
         setProjectMarkers(markersData.projectMarkers)
 
@@ -178,6 +184,9 @@ export default function App() {
         setMaterials(result.project[0].props.materials);
         if(result.project[0].props.commentTemplate !== undefined){
           setCommentTemplate(result.project[0].props.commentTemplate)
+        }
+        if(result.project[0].props.workScopeTemplate !== undefined){
+          setWorkScopeTemplate(result.project[0].props.workScopeTemplate)
         }
         if(result.project[0].props.contractAddress !== undefined){
           setContractAddress(result.project[0].props.contractAddress)
@@ -355,7 +364,7 @@ export default function App() {
     if ( n > 0 ) {
       console.log('Creating pdf for marker: ' + markers[n-1].number)
       setTimeout(() => {
-        const pdfName = `${markers[n-1].status}-${projectName}-${markers[n-1].number}.pdf`;
+        const pdfName = `${markers[n-1].status}-${markers[n-1].location}-${projectName}-${markers[n-1].number}.pdf`;
         const arr = [];
 
         // when no photos
@@ -444,9 +453,11 @@ export default function App() {
       {!user ? null : (
         ( !generatePDF ? (
       
-      <Sidebar  style={{overflowY: 'scroll'}}>
+      <Sidebar  style={{overflowY: 'scroll'}}
+      >
         
-        <Menu>
+        <Menu
+        >
         
           <SubMenu label="Menu" 
           closeOnClick='true'>
@@ -455,6 +466,7 @@ export default function App() {
 
 
             <SubMenu label="Projects"
+            
             > 
               
               {!user ? null : availableContracts.sort().map((project) => {
@@ -466,6 +478,7 @@ export default function App() {
                       setIsProjectLoaded(false);
                       setProjectName(project);
                       setCurrentLocation("");
+                      setPage('map');
                     }}
                     key={project}
                   >
@@ -506,15 +519,22 @@ export default function App() {
               <MenuItem onClick={() => setPage('details')}>Project details</MenuItem>
             ) : null}
             
-            {mode === 'online' && user.props.role === 'Manager' ? (
-               <MenuItem onClick={() => setPage('workers')}> Workers dashboard </MenuItem>
-            ) : null}
+
+            { projectName && user.props.role === 'Manager' ? (
+            <MenuItem onClick={() => {setPage('spreadsheet')}}>Spreadsheet</MenuItem>
+           ) : null }
            
 
             { markers[0] && mode === 'online' && user.props.role === 'Manager' ? (
             <MenuItem onClick={() => {downloadPDFs(markers.length)
                                      setGeneratePDF(true)}}> Download PDFs</MenuItem>
            ) : null }
+
+
+           {mode === 'online' && user.props.role === 'Manager' ? (
+               <MenuItem onClick={() => setPage('workers')}> Workers dashboard </MenuItem>
+            ) : null}
+
             
            { mode && mapsLoaded ? (
             <MenuItem
@@ -549,9 +569,11 @@ export default function App() {
         services={services}
         materials={materials}
         commentTemplate={commentTemplate}
+        workScopeTemplate={workScopeTemplate}
         setMaterials={setMaterials}
         setServices={setServices}
         setCommentTemplate={setCommentTemplate}
+        setWorkScopeTemplate={setWorkScopeTemplate}
         locationsNames={locationsNames}
         setLocationsNames={setLocationsNames}
         availableContracts={availableContracts}
@@ -591,6 +613,7 @@ export default function App() {
           materials={materials}
           services={services}
           commentTemplate={commentTemplate}
+          workScopeTemplates={workScopeTemplate}
           image={currDrawing}
           mapPdf={mapPdf}
           mode={mode}
@@ -602,6 +625,10 @@ export default function App() {
       { !user ? (<LoginPage
           user={user}
           setUser={setUser} />) : null}
+
+      { page === 'spreadsheet' ? (
+        <Spreadsheet />
+      ) : null}
 
           
       

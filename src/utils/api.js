@@ -1,6 +1,8 @@
 import axios from "axios";
 import { readFromIndexedDB } from "./indexedDB";
 
+// setup Node mailer
+
 const beStructionApi = axios.create({
   baseURL: "https://struction-backend.cyclic.app/api"
 });
@@ -36,6 +38,8 @@ export const postProjectDetails = (name, body) => {
 }
 
 // users
+
+// send code function
 
 export const updateUserDetails = (user, body) => {
   return beStructionApi.post("/users/" + user, body)

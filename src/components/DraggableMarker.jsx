@@ -41,6 +41,7 @@ export default function DraggableMarker(props) {
   const [measurements, setMeasurements] = useState(props.measurements);
   const [serviceUsed, setServiceUsed] = useState(props.service);
   const [comment, setComment] = useState(props.comment);
+  const [ workScope, setWorkScope ] = useState(props.frameCondition);
   const [fR, setFr] = useState(props.fR);
   const [completedBy, setCompletedBy] = useState(props.completedBy)
   const [cat, setCat] = useState(props.visionPanel)
@@ -48,6 +49,10 @@ export default function DraggableMarker(props) {
 
   const commentTemplate = props.commentTemplate;
   const [newComment, setNewComment] = useState(false);
+
+  const workScopeTemplates = props.workScopeTemplates;
+  const [newScope, setNewScope] = useState(false);
+
 
   const [type, setType] = useState(props.type);
 
@@ -363,7 +368,7 @@ export default function DraggableMarker(props) {
         doorGapBottom: doorGapBottom,
         openingHeight: openingHeight,
         visionPanel: cat,//issue cat
-        frameCondition: frameCondition,
+        frameCondition: workScope,
         frameConditionComment: frameConditionComment,
         hingeAdjustment: hingeAdjustment,
         ironmongery: ironmongery,
@@ -495,6 +500,7 @@ export default function DraggableMarker(props) {
       
     >
       <Popup 
+      
       minWidth={400}
       keepInView={true}
       autoClose={false}
@@ -626,6 +632,47 @@ export default function DraggableMarker(props) {
 
             </div>
           ) : null}
+
+{ type === 'seal' && props.role === 'Manager' ? (
+          <div className="text-input" id="comment-container">
+            <div className="title">
+              <label htmlFor="comment">
+                <b>Scope of Work</b>
+              </label>
+            </div>
+
+            <textarea
+              style={{height:'70px'}}
+              id="comment"
+              className="input"
+              value={workScope}
+              type="text"
+              onChange={(e) => {
+                setUpdateNeeded(true);
+                setWorkScope(e.target.value);
+              }}
+            ></textarea>
+          </div>
+          ) : (<p>{workScope}</p>) }
+
+          { newScope && props.role === 'Manager'? (
+            <button onClick={() => setNewScope(false)}>Dismiss</button>
+          ) : null}
+
+          { newScope && props.role === 'Manager'? 
+            workScopeTemplates.map((item, index) => (
+              <div key={index}>
+              <button 
+                style={{width: '250px'}}
+                onClick={() => {setWorkScope(workScope + item + '\n')
+                               setNewScope(false)
+                               setUpdateNeeded(true);}}>
+                  <p style={{display: 'block'}}>{item}</p></button></div>
+            ))
+           : null }
+
+          { !newScope && props.role === 'Manager' ? (<button onClick={()=> setNewScope(true)}>+ Add new scope of Work</button>) : null}
+
 
           { type !== '' ? (
           <div className="checkList">

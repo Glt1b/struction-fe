@@ -89,7 +89,7 @@ export default function Map(props) {
           openingHeight: '',
           visionPanel: '', //issue cat
           frameCondition: '',
-          frameConditionComment: '',
+          frameConditionComment: '', // survey note
           hingeAdjustment: '',
           ironmongery: '',
           type: '',
@@ -169,6 +169,9 @@ export default function Map(props) {
                 materials={props.materials}
                 services={props.services}
                 commentTemplate={props.commentTemplate}
+                workScopeTemplates={props.workScopeTemplates}
+
+
                 doorConfiguration={item.doorConfiguration}
                 doorFinish={item.doorFinish} //completed on
                 doorGapHinge={item.doorGapHinge} 
@@ -177,7 +180,7 @@ export default function Map(props) {
                 doorGapBottom={item.doorGapBottom}
                 openingHeight={item.openingHeight}
                 visionPanel={item.visionPanel}//issue cat
-                frameCondition={item.frameCondition}
+                frameCondition={item.frameCondition} // survey note
                 frameConditionComment={item.frameConditionComment}
                 hingeAdjustment={item.hingeAdjustment}
                 ironmongery={item.ironmongery}

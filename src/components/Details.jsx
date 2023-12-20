@@ -11,6 +11,7 @@ export default function Details (props) {
     const [locationCreate, setLocationCreate] = useState(false)
     const [newLocation, setNewLocation] = useState('');
     const [newComment, setNewComment] = useState('');
+    const [newScope, setNewScope] = useState('');
     // pdf details
     const [contractAddress, setContractAddress] = useState(props.contractAddress);
     const [contractPostCode, setContractPostCode] = useState(props.contractPostCode);
@@ -28,6 +29,7 @@ export default function Details (props) {
     const [locationsNames, setLocationsNames] = useState(props.locationsNames);
 
     const [commentTemplate, setCommentTemplate] = useState(props.commentTemplate);
+    const [scopeTemplete, setScopeTemplate] = useState(props.workScopeTemplate);
 
 
     const onChange = (imageList, addUpdateIndex) => {
@@ -111,6 +113,13 @@ export default function Details (props) {
       setNewComment('');
     }
 
+    const addScope = () => {
+      const arr = props.workScopeTemplate;
+      arr.push(newScope);
+      props.setWorkScopeTemplate(arr);
+      setNewScope('');
+    }
+
 
     const delMaterial = (material) => {
         const arr = props.materials.filter( m => m !== material)
@@ -128,6 +137,12 @@ export default function Details (props) {
       props.setCommentTemplate(arr);
     }
 
+    const delScope = (scope) => {
+      const arr = scopeTemplete.filter( s => s !== scope )
+      setScopeTemplate(arr);
+      props.setWorkScopeTemplate(arr);
+    }
+
     // details to pdf
 
 
@@ -139,6 +154,7 @@ export default function Details (props) {
             "services": props.services,
             "locations": props.locationsNames,
             'commentTemplate': commentTemplate,
+            'workScopeTemplate': scopeTemplete,
             'contractAddress': contractAddress,
             'contractPostCode': contractPostCode,
             'contractorAddress': contractorAddress,
@@ -247,6 +263,35 @@ export default function Details (props) {
             <button onClick={() => {setUpdated(false)
                                     addComment()}}>Submit</button>
         </div>
+
+        <h3>Scope of Work</h3>
+        {scopeTemplete.map((item) => {
+            return (
+                <div key={item}>
+                    <p style={{display: 'block'}}>{item}<button onClick={() => {setUpdated(false)
+                                                     delScope(item)}}>x</button></p>
+                </div>
+            )
+        })}
+        <div className="text-input">
+            <div className="title">
+              <label htmlFor="new material">
+                <b>New scope</b>
+              </label>
+            </div>
+            <textarea
+              id="height"
+              className="input"
+              value={newScope}
+              type="text"
+              onChange={(e) => {
+                setNewScope(e.target.value);
+              }}
+            ></textarea>
+            <button onClick={() => {setUpdated(false)
+                                    addScope()}}>Submit</button>
+        </div>
+
 
         
         { !updated ? (<button onClick={() => updateDetails()}>Update</button>) : null}

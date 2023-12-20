@@ -29,7 +29,8 @@ export default function UsersForm(props) {
       for (let i = 0; i < list.length; i++){
           if(list[i] !== mailID){
               updatedList.push(list[i]);
-          };}
+          };
+        }
 
       updatedList.push(mail);
 
