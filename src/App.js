@@ -177,7 +177,8 @@ export default function App() {
   useEffect(() => {
     if (projectName && mode === 'online') {
       getProjectDetails(projectName).then((result) => {
-        setProjectMarkers(result.project[1]);
+        console.log(result.project[1])
+        setProjectMarkers(result.project[1]);    //??
         setLocationsNames(result.project[0].props.locations);
         setLocations(result.project[0].props.locations);
         setServices(result.project[0].props.services);

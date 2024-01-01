@@ -67,7 +67,7 @@ export default function Map(props) {
       const id = `${props.user}-${Date.now()}`;
 
       const obj = {
-        [id]: {
+        
           id: id,
           number: "0",
           status: "in progress",
@@ -92,16 +92,17 @@ export default function Map(props) {
           frameConditionComment: '', // survey note
           hingeAdjustment: '',
           ironmongery: '',
-          type: '',
+          type: 'seal',
           handle: '',
           lock: '',
           doorCondition: '' // ID number 2
-        },
+        
       };
 
       if(props.mode === 'online'){
         console.log('creating marker online')
       postMarker(props.projectName, obj).then((response) => {
+        console.log(response)
         setProjectMarkers(response.data.markers);
         setCreationMode(false);
       });

@@ -9,12 +9,6 @@ const beStructionApi = axios.create({
 
 // setup projects
 
-export const setupMarkers = (project_name) => {
-  return beStructionApi.post(`/markersSetup/${project_name}`)
-  .then((result) => {
-    console.log(result)
-  })
-}
 
 export const getProjectsList = () => {
   return beStructionApi.get("/projects")

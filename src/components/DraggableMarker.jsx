@@ -347,7 +347,7 @@ export default function DraggableMarker(props) {
     const id = props.id;
 
     const obj = {
-      [id]: {
+     
         id: id,
         number: number,
         status: status,
@@ -376,7 +376,7 @@ export default function DraggableMarker(props) {
         handle: handle,
         lock: lock,
         doorCondition: doorCondition // ID number 2
-      },
+      
     };
     if(props.mode === 'online'){
     patchMarker(props.projectName, props.id, obj)
@@ -468,7 +468,9 @@ export default function DraggableMarker(props) {
         setCompletedBy(props.user);
         let currentDate = '';
         currentDate = currentDate + new Date().getDate() + '/';
-        currentDate = currentDate + new Date().getMonth() + '/';
+        const month = parseInt(new Date().getMonth())+1
+        console.log(month)
+        currentDate = currentDate + month.toString() + '/';
         currentDate = currentDate + new Date().getFullYear();
         setCompletedTime(currentDate)
       } else if(type === 'seal'){

@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from "react";
-import { postProjectDetails, setupMarkers, postProjectsList, getProjectsList} from "../utils/api";
+import { postProjectDetails, postProjectsList, getProjectsList} from "../utils/api";
 
 
 export default function NewContract(props){
@@ -21,7 +21,7 @@ export default function NewContract(props){
 
         // create markers
 
-        setupMarkers(newContract);
+        //setupMarkers(newContract);
 
         // update contracts list
 
