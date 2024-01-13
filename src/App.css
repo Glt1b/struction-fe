@@ -123,9 +123,6 @@ h6 {
   width: 7rem;
 }
 
-.dropdown {
-  background: rgba(92, 135, 179, 0.1);
-}
 
 .map {
   background: rgb(255, 255, 255);
@@ -167,6 +164,45 @@ h6 {
   color: #f9632b;
   border: solid 2px #f9632b;
 }
+
+.filter {
+  position: absolute;
+  top: 5vh;
+  right: 6vh;
+  width: 11em;
+  z-index: 800;
+  border-radius: 25px;
+  border: none;
+  padding: 3px 7px;
+  font-weight: 700;
+  background: #f9632b;
+  color: #140303;
+  cursor: pointer;
+  border: solid 2px #f9632b;
+}
+
+.filter2 {
+  position: absolute;
+  top: 8vh;
+  right: 6vh;
+  width: 11em;
+  z-index: 800;
+  border-radius: 25px;
+  border: none;
+  padding: 3px 7px;
+  font-weight: 700;
+  background: #f9632b;
+  color: #140303;
+  cursor: pointer;
+  border: solid 2px #f9632b;
+}
+
+::placeholder {
+  font-weight: bold;
+  opacity: 0.5;
+  color: rgb(78, 78, 175);
+}
+
 
 .menu-button {
   width: 11em;
@@ -526,4 +562,57 @@ INPUT[type="checkbox"] {
   overflow-y: auto;
   text-align: center;
   padding: 20px;
+}
+
+.dropdown {
+  width: 11em;
+  max-height: 70vh; /* Set max height to 80% of the viewport height */
+  overflow-y: auto; /* Enable vertical scrolling if content exceeds max height */
+  overscroll-behavior: scroll;
+  z-index: 9999;
+  background: #f6f7f8;
+  position: fixed;
+  top: 15vh;
+  left: 0vh;
+
+}
+
+
+.dropdown-btn {
+  position: fixed;
+  top: 10vh;
+  left: 0vh;
+  width: 11em;
+  z-index: 999;
+  border-radius: 25px;
+  border: 25px;
+  padding: 3px 7px;
+  font-weight: 700;
+  background: #f9632b;
+  color: #fff;
+  cursor: pointer;
+  border: solid 2px #f9632b;
+}
+
+.drpdown-btn:hover {
+  background: #fff;
+  color: #f9632b;
+  border: solid 2px #f9632b;
+}
+
+.dr-btn {
+  z-index: 999;
+  border-radius: 25px;
+  border: none;
+  padding: 3px 7px;
+  font-weight: 700;
+  background: #f8f8f8;
+  color: #131212;
+  cursor: pointer;
+}
+
+.dr-btn:hover {
+  background: #fff;
+  color: #0e0d0d;
+  border: solid 2px #f9632b;
 }

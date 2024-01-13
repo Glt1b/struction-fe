@@ -10,16 +10,9 @@ import Map from "./components/Map.jsx";
 import LoginPage from "./components/LoginPage";
 import Users from "./components/Users";
 import Details from "./components/Details";
-import NewContract from "./components/NewContract";
 import Synch from "./components/Synch";
 import Spreadsheet from "./components/Spreadsheet.jsx";
-import {
-  Sidebar,
-  Menu,
-  MenuItem,
-  SubMenu
-} from "react-pro-sidebar";
-//import structionLogo from "./images/structionLogo.svg";
+import DropdownMenu from "./components/Dropdown.jsx";
 import ampaLogo from "./images/ampa.png";
 
 // imports for PDFs creating
@@ -44,9 +37,6 @@ export default function App() {
   const [user, setUser] = useState(false);
 
   const [mode, setMode] = useState(false);
-  
-
-  
 
 
   // available contracts
@@ -61,12 +51,8 @@ export default function App() {
   const [materials, setMaterials] = useState([]);
   const [commentTemplate, setCommentTemplate] = useState([]);
   const [ workScopeTemplate, setWorkScopeTemplate ] = useState([]);
-  const [contractAddress, setContractAddress] = useState('');
-  const [contractPostCode, setContractPostCode] = useState('');
-  const [contractorAddress, setContractorAddress] = useState('');
-  const [contractorPostCode, setContractorPostCode] = useState('');
-  const [note, setNote] = useState('');
-  const [description, setDescription] = useState('');
+  const [commission, setCommission] = useState('');
+  const [prices, setPrices] = useState({});
 
   const { projectMarkers, setProjectMarkers } = useContext(
     ProjectMarkersContext
@@ -99,7 +85,7 @@ export default function App() {
 
   useEffect(() => {
     const x = localStorage.getItem('Struction-User')
-    console.log(x)
+    //console.log(x)
     if(x !== null){
       setUser(JSON.parse(x))
     }
@@ -111,7 +97,7 @@ export default function App() {
     if( mode === 'online' && user){
       if(user.props.role === 'Manager'){
         getProjectsList().then((result) => {
-          console.log('list'+result)
+         // console.log('list'+result)
         setAvailableContracts(result)
       })
       } else {
@@ -178,6 +164,7 @@ export default function App() {
     if (projectName && mode === 'online') {
       getProjectDetails(projectName).then((result) => {
         console.log(result.project[1])
+        console.log(result.project[0])
         setProjectMarkers(result.project[1]);    //??
         setLocationsNames(result.project[0].props.locations);
         setLocations(result.project[0].props.locations);
@@ -189,24 +176,13 @@ export default function App() {
         if(result.project[0].props.workScopeTemplate !== undefined){
           setWorkScopeTemplate(result.project[0].props.workScopeTemplate)
         }
-        if(result.project[0].props.contractAddress !== undefined){
-          setContractAddress(result.project[0].props.contractAddress)
+        if(result.project[0].props.commission !== undefined){
+          setCommission(result.project[0].props.commission)
         }
-        if(result.project[0].props.contractPostCode !== undefined){
-          setContractPostCode(result.project[0].props.contractPostCode)
+        if(result.project[0].props.prices !== undefined){
+          setPrices(result.project[0].props.prices)
         }
-        if(result.project[0].props.contractorAddress !== undefined){
-          setContractorAddress(result.project[0].props.contractorAddress)
-        }
-        if(result.project[0].props.contractorPostCode !== undefined){
-          setContractorPostCode(result.project[0].props.contractorPostCode)
-        }
-        if(result.project[0].props.note !== undefined){
-          setNote(result.project[0].props.note)
-        }
-        if(result.project[0].props.description !== undefined){
-          setDescription(result.project[0].props.description)
-        }
+
         setIsProjectLoaded(true);
       });
     }
@@ -417,7 +393,7 @@ export default function App() {
     console.log(imgData)
 
     const doc = (
-      <PDF photos={mapPdf[1]} map={imgData} details={mapPdf[2]}/>
+      <PDF2 photos={mapPdf[1]} map={imgData} details={mapPdf[2]}/>
     );
     const pdfBlob =  await pdf(doc).toBlob();
     console.log('Saving PDF')
@@ -433,11 +409,10 @@ export default function App() {
       <header className="App-header">
         {isProjectLoaded ? (
           <p>
-            Welcome {user.key}, you are on{" "}
-            <strong>
+          {user.key}
               {projectName}/{currentLocation}
-            </strong>
-          </p>
+            </p>
+          
         ) : (
           <p>Welcome {user.key}, choose your project</p>
         )}
@@ -449,122 +424,29 @@ export default function App() {
           alt="struction logo"
         />
       </header>
-      
 
-      {!user ? null : (
-        ( !generatePDF ? (
-      
-      <Sidebar  style={{overflowY: 'scroll'}}
-      >
-        
-        <Menu
-        >
-        
-          <SubMenu label="Menu" 
-          closeOnClick='true'>
-  
-           { mode === 'online' ? (
-
-
-            <SubMenu label="Projects"
-            
-            > 
-              
-              {!user ? null : availableContracts.sort().map((project) => {
-                return (
-                
-                  <MenuItem
-                    onClick={() => {
-                      setMapsLoaded(false);
-                      setIsProjectLoaded(false);
-                      setProjectName(project);
-                      setCurrentLocation("");
-                      setPage('map');
-                    }}
-                    key={project}
-                  >
-                    {project}
-                  </MenuItem>
-                );
-              })}
-              { mode === 'online' && user.props.role === 'Manager' ? (
-              <MenuItem><NewContract
-              availableContracts={availableContracts}
-              setAvailableContracts={setAvailableContracts}/></MenuItem>) : null }
-            </SubMenu>
-            
-           ) : <MenuItem>{projectName}</MenuItem>}
-            
-
-            {mapsLoaded ? (
-              <SubMenu label="Locations" closeOnClick='true'>
-                {locations.map((location) => {
-                  return (
-                    <MenuItem
-                      value={location.name}
-                      key={location.name}
-                      onClick={() => {
-                        setPage('map');
-                        setCurrentLocation(location.name);
-                        
-                      }}
-                    >
-                      {location.name}
-                    </MenuItem>
-                  );
-                })}
-              </SubMenu>
-            ) : (projectName && locationsNames.length > 0 ? (<p className="loading">Loading project...</p>) : null)}
-
-            {projectName && mode === 'online' && user.props.role === 'Manager' ? (
-              <MenuItem onClick={() => setPage('details')}>Project details</MenuItem>
-            ) : null}
-            
-
-            { projectName && user.props.role === 'Manager' ? (
-            <MenuItem onClick={() => {setPage('spreadsheet')}}>Spreadsheet</MenuItem>
-           ) : null }
-           
-
-            { markers[0] && mode === 'online' && user.props.role === 'Manager' ? (
-            <MenuItem onClick={() => {downloadPDFs(markers.length)
-                                     setGeneratePDF(true)}}> Download PDFs</MenuItem>
-           ) : null }
-
-
-           {mode === 'online' && user.props.role === 'Manager' ? (
-               <MenuItem onClick={() => setPage('workers')}> Workers dashboard </MenuItem>
-            ) : null}
-
-            
-           { mode && mapsLoaded ? (
-            <MenuItem
-               onClick={() => { switchMode()
-               }}>{mode === 'online' ? (
-                <>Switch to offline</>
-          ) : null}</MenuItem>) : null}
-
-         { mode && mapsLoaded ? (
-            <MenuItem
-               onClick={() => { setPage('synch')
-               }}>{mode === 'offline' ? (
-                <>Synch with database</>
-          ) : null}</MenuItem>) : null}
-
-        
-            {page === 'synch' ? (
-               <p> Connecting with database...</p>
-          ) : null }
-
-
-            {!user ? null : (<MenuItem onClick={() => {setUser(false)
-                                                      localStorage.removeItem('Struction-User')}}>Logout</MenuItem>)}
-            
-          </SubMenu>
-        </Menu>
-      </Sidebar>) : null))}
+      <DropdownMenu
+        user={user}
+        availableContracts={availableContracts}
+        setAvailableContracts={setAvailableContracts}
+        setMapsLoaded={setMapsLoaded}
+        setIsProjectLoaded={setIsProjectLoaded}
+        projectName={projectName}
+        setProjectName={setProjectName}
+        setCurrentLocation={setCurrentLocation}
+        setPage={setPage}
+        locations={locations}
+        mapsLoaded={mapsLoaded}
+        mode={mode}
+        markers={markers}
+        downloadPDFs={downloadPDFs}
+        setGeneratePDF={setGeneratePDF}
+        switchMode={switchMode}
+        page={page}
+        setUser={setUser} />
 
       {page === 'workers' ? (<Users />) : null}
+
       {page === 'details' ? (<Details
         projectName={projectName}
         services={services}
@@ -581,12 +463,10 @@ export default function App() {
         setAvailableContracts={setAvailableContracts}
         locations={locations}
         setLocations={setLocations}
-        contractAddress={contractAddress}
-        contractPostCode={contractPostCode}
-        contractorAddress={contractorAddress}
-        contractorPostCode={contractorPostCode}
-        note={note}
-        description={description}/>) : null}
+        commission={commission}
+        setCommission={setCommission}
+        prices={prices}
+        setPrices={setPrices}/>) : null}
       
       { page === 'synch' ? (<Synch
         setPage = {setPage}
@@ -628,7 +508,9 @@ export default function App() {
           setUser={setUser} />) : null}
 
       { page === 'spreadsheet' ? (
-        <Spreadsheet />
+        <Spreadsheet
+          prices={prices}
+          commission={commission} />
       ) : null}
 
           

@@ -12,14 +12,9 @@ export default function Details (props) {
     const [newLocation, setNewLocation] = useState('');
     const [newComment, setNewComment] = useState('');
     const [newScope, setNewScope] = useState('');
-    // pdf details
-    const [contractAddress, setContractAddress] = useState(props.contractAddress);
-    const [contractPostCode, setContractPostCode] = useState(props.contractPostCode);
-    const [contractorAddress, setContractorAddress] = useState(props.contractorAddress);
-    const [contractorPostCode, setContractorPostCode] = useState(props.contractorPostCode);
-    const [note, setNote] = useState(props.note);
-    const [description, setDescription] = useState(props.description);
-
+    const [commission, setCommission] = useState(props.commission);
+    const [prices, setPrices] = useState(props.prices);
+  
 
     const [images, setImages] = useState([]);
     const maxNumber = 1;
@@ -30,6 +25,8 @@ export default function Details (props) {
 
     const [commentTemplate, setCommentTemplate] = useState(props.commentTemplate);
     const [scopeTemplete, setScopeTemplate] = useState(props.workScopeTemplate);
+
+    console.log(prices)
 
 
     const onChange = (imageList, addUpdateIndex) => {
@@ -92,11 +89,19 @@ export default function Details (props) {
       })
      }
 
+    // handlers
+
     const addMaterial = () => {
         const arr = props.materials;
         arr.push(newMaterial);
         props.setMaterials(arr);
         setNewMaterial('');
+
+        // add price of material
+
+        const obj = {...prices, newMaterial: 0};
+        props.setPrices(obj);
+        setPrices(obj);
     }
 
     const addService = () => {
@@ -124,6 +129,13 @@ export default function Details (props) {
     const delMaterial = (material) => {
         const arr = props.materials.filter( m => m !== material)
         props.setMaterials(arr);
+
+        // del price of material
+
+        const obj = prices;
+        delete obj[material];
+        props.setPrices(obj);
+        setPrices(obj);
     }
 
     const delService = (service) => {
@@ -143,9 +155,7 @@ export default function Details (props) {
       props.setWorkScopeTemplate(arr);
     }
 
-    // details to pdf
-
-
+    // update details
 
 
     const updateDetails = () => {
@@ -155,14 +165,11 @@ export default function Details (props) {
             "locations": props.locationsNames,
             'commentTemplate': commentTemplate,
             'workScopeTemplate': scopeTemplete,
-            'contractAddress': contractAddress,
-            'contractPostCode': contractPostCode,
-            'contractorAddress': contractorAddress,
-            'contractorPostCode': contractorPostCode,
-            'note': note,
-            'description': description
+            'commission': commission,
+            'prices': prices
       }
 
+      props.setCommission(commission);
       postProjectDetails(props.projectName, body);
       setUpdated(true);
       
@@ -180,15 +187,47 @@ export default function Details (props) {
     return (
         <div style={{backgroundColor: 'whitesmoke'}}>
         <h2>{props.projectName}</h2>
+
+        <div className="text-input">
+            <div className="title">
+              <b>Commission</b>
+            </div>
+            
+            <p><input
+              className="input"
+              value={commission}
+              type="number"
+              onChange={(e) => {
+                setUpdated(false);
+                setCommission(e.target.value);
+              }}
+            ></input></p>
+          </div>
+
         <h3>Materials</h3>
         {props.materials.map((item) => {
             return (
                 <div key={item}>
-                    <p style={{display: 'block'}}>{item}<button onClick={() => {setUpdated(false)
-                                                     delMaterial(item)}}>x</button></p>
+                    <p style={{display: 'block'}}>{item}
+                    <button onClick={() => {setUpdated(false)
+                                            delMaterial(item)}}>x</button>
+            <div className="text-input">
+            <div className="title">
+              <b>Price:</b>
+            </div>
+            <input
+              className="input"
+              value={prices[item]}
+              type="number"
+              onChange={(e) => {
+                setUpdated(false);
+                setPrices({...prices, [item]: e.target.value});
+              }}
+            ></input></div></p>
                 </div>
             )
         })}
+
         <div className="text-input">
             <div className="title">
               <label htmlFor="new material">
@@ -235,6 +274,8 @@ export default function Details (props) {
             <button onClick={() => {setUpdated(false)
                                     addService()}}>Submit</button>
         </div>
+
+       
 
         <h3>Comments</h3>
         {commentTemplate.map((item) => {
@@ -379,131 +420,6 @@ export default function Details (props) {
           )
         })}
 
-        <br></br><hr></hr><br></br>
-
-        <h1>PDF details</h1>
-
-        <div className="text-input" id="comment-container">
-            <div className="title">
-              <label htmlFor="comment">
-                <b>Contract Address</b>
-              </label>
-            </div>
-
-            <textarea
-              style={{height:'70px'}}
-              id="comment"
-              className="input"
-              value={contractAddress}
-              type="text"
-              onChange={(e) => {
-                setContractAddress(e.target.value);
-                setUpdated(false);
-              }}
-            ></textarea>
-          </div>
-
-          <div className="text-input" id="comment-container">
-            <div className="title">
-              <label htmlFor="comment">
-                <b>Contract Post Code</b>
-              </label>
-            </div>
-
-            <textarea
-              style={{height:'70px'}}
-              id="comment"
-              className="input"
-              value={contractPostCode}
-              type="text"
-              onChange={(e) => {
-                setContractPostCode(e.target.value);
-                setUpdated(false);
-              }}
-            ></textarea>
-          </div>
-          
-          <div className="text-input" id="comment-container">
-            <div className="title">
-              <label htmlFor="comment">
-                <b>Contractor Address</b>
-              </label>
-            </div>
-
-            <textarea
-              style={{height:'70px'}}
-              id="comment"
-              className="input"
-              value={contractorAddress}
-              type="text"
-              onChange={(e) => {
-                setContractorAddress(e.target.value);
-                setUpdated(false);
-              }}
-            ></textarea>
-          </div>
-
-          <div className="text-input" id="comment-container">
-            <div className="title">
-              <label htmlFor="comment">
-                <b>Contractor Post Code</b>
-              </label>
-            </div>
-
-            <textarea
-              style={{height:'70px'}}
-              id="comment"
-              className="input"
-              value={contractorPostCode}
-              type="text"
-              onChange={(e) => {
-                setContractorPostCode(e.target.value);
-                setUpdated(false);
-              }}
-            ></textarea>
-          </div>
-
-          <div className="text-input" id="comment-container">
-            <div className="title">
-              <label htmlFor="comment">
-                <b>Note</b>
-              </label>
-            </div>
-
-            <textarea
-              style={{height:'70px'}}
-              id="comment"
-              className="input"
-              value={note}
-              type="text"
-              placeholder="What is this report for"
-              onChange={(e) => {
-                setNote(e.target.value);
-                setUpdated(false);
-              }}
-            ></textarea>
-          </div>
-
-          <div className="text-input" id="comment-container">
-            <div className="title">
-              <label htmlFor="comment">
-                <b>Description</b>
-              </label>
-            </div>
-
-            <textarea
-              style={{height:'70px'}}
-              id="comment"
-              className="input"
-              value={description}
-              type="text"
-              placeholder="Description of work we are gonna do"
-              onChange={(e) => {
-                setDescription(e.target.value);
-                setUpdated(false);
-              }}
-            ></textarea>
-          </div>
 
           { !updated ? (<button onClick={() => updateDetails()}>Update</button>) : null}
           

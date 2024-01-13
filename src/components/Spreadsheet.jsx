@@ -9,14 +9,17 @@ import { Box, Button } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 import { ProjectMarkersContext } from "../contexts/ProjectMarkers";
+import { MarkersContext } from "../contexts/Markers"
 
 import { saveAs } from 'file-saver';
 import ExcelJS from 'exceljs';
 
 
-export default function Spreadsheet ()  {
+
+export default function Spreadsheet (props)  {
 
 const { projectMarkers, setProjectMarkers } = useContext(ProjectMarkersContext);
+const { markers, setMarkers } = useContext(MarkersContext);
 const [ data, setData ] = useState([]);
 const [ initialLoad, setInitialLoad ] = useState(true);
 const [ loaded, setLoaded ] = useState(false);
@@ -25,6 +28,7 @@ const [pagination, setPagination] = useState({
   pageIndex: 0,
   pageSize: 5, 
 });
+
 
 
 const handleExportRows = async (rows) => {
@@ -102,14 +106,6 @@ const handleExportRows = async (rows) => {
 };
 
 
-const handleDownloadPhotos = (rows) => {
-  console.log(rows)
-
-}
-
-
-
-
 
   useEffect(() => {
     if(1 === 1){ // condition to be deleted
@@ -122,19 +118,19 @@ const handleDownloadPhotos = (rows) => {
     let d = [];
 
     Promise.all(
-      projectMarkers.map(async (m) => {
+      markers.map(async (m) => {
         let photoBefore;
         let photoAfter;
 
         // Use Promise.all to wait for both getImage promises to resolve
         await Promise.all([
-          getImage(m.photos[m.photos.length - 1]).then((result) => {
+          getImage(m.photos[0]).then((result) => {
             photoBefore = result;
           })
           .catch(() => {
             photoBefore = ''
           }),
-          getImage(m.photos[0]).then((result) => {
+          getImage(m.photos[m.photos.length - 1]).then((result) => {
             photoAfter = result;
           })
           .catch(() => {
@@ -179,6 +175,82 @@ const handleDownloadPhotos = (rows) => {
           servicesString += ele + ': ' + tempCounter[ele].toString() + ', \n ';
         })
 
+        // calculate price
+
+        let price = 'No enough data to calculate the price'
+
+        function checkKeysRepresentation(materialsUsed, prices) {
+          // Gather all keys from materialsUsed arrays objects
+          let allKeys = new Set();
+      
+          materialsUsed.forEach(material => {
+              Object.keys(material).forEach(key => {
+                  allKeys.add(key);
+              });
+          });
+      
+          // Check if all keys have representation in prices object
+          for (let key of allKeys) {
+              if (!prices.hasOwnProperty(key)) {
+                  return ;
+              }
+          }
+          price = ''
+      }
+
+      checkKeysRepresentation(m.materialsUsed, props.prices);
+
+      let ar;
+      function calculateAreas(materialsUsed) {
+        let areas = {};
+    
+        materialsUsed.forEach(material => {
+            let key = Object.keys(material)[0];
+            let dimensions = material[key];
+    
+            let area;
+    
+            if (dimensions[2] !== '') {  // If diameter is different than 0, calculate circle area
+                let radius = dimensions[2] / 2;
+                area = Math.PI * Math.pow(radius, 2);
+            } else {  // If diameter is 0, calculate rectangle area
+                area = dimensions[0] * dimensions[1];
+            }
+    
+            // Multiply result by quantity and convert from mm^2 to m^2
+            areas[key] = area * dimensions[3] / 1000000;
+        });
+    
+        ar = areas;
+    }
+
+    calculateAreas(m.materialsUsed);
+
+    let summaryMaterial = 0;
+
+    console.log(ar)
+
+    const areasKeys = Object.keys(ar);
+
+    for(let a of areasKeys){
+      console.log(ar[a])
+      console.log(isNaN(ar[a]))
+      console.log(isNaN(props.prices[a]))
+      summaryMaterial += ar[a] * props.prices[a];
+    }
+
+    summaryMaterial = summaryMaterial * 1.2;
+    console.log(summaryMaterial)
+    
+    const labour = m.lock * 0.42 * 1.2;
+    const costs = labour + summaryMaterial;
+    const p = props.commission / 100;
+    const commission = p * costs;
+    price = commission + costs;
+
+
+      
+
         // Create object
         let obj = {
           number: m.number,
@@ -194,19 +266,23 @@ const handleDownloadPhotos = (rows) => {
           completedBy: m.completedBy,
           completedOn: m.doorFinish,
           comment: m.comment,
+          price: price,
+          labour: labour,
+          summaryMaterial: summaryMaterial,
+          commission: commission
         };
 
         d.push(obj);
 
         // set data if extracting completed
-        if (d.length === projectMarkers.length) {
+        if (d.length === markers.length) {
           setData(d);
           setLoaded(true);
         }
       })
     );
   }
-}, [pagination.pageIndex, pagination.pageSize, projectMarkers, initialLoad]);
+}, [pagination.pageIndex, pagination.pageSize, markers, initialLoad]);
 
 
   //should be memoized or stable
@@ -317,6 +393,34 @@ const handleDownloadPhotos = (rows) => {
         enableColumnPinning: false,
         size: 200,
       },
+      {
+        accessorKey: 'price', 
+        header: 'Price',
+        filterFn: 'between',
+        enableColumnPinning: false,
+        size: 200,
+      },
+      {
+        accessorKey: 'labour', 
+        header: 'Labour',
+        filterFn: 'between',
+        enableColumnPinning: false,
+        size: 200,
+      },
+      {
+        accessorKey: 'summaryMaterial', 
+        header: 'Material Price',
+        filterFn: 'between',
+        enableColumnPinning: false,
+        size: 200,
+      },
+      {
+        accessorKey: 'commission', 
+        header: 'Commission',
+        filterFn: 'between',
+        enableColumnPinning: false,
+        size: 200,
+      },
      
     ],
     [],
@@ -373,13 +477,6 @@ const handleDownloadPhotos = (rows) => {
           startIcon={<FileDownloadIcon />}
         >
           Export Selected Rows
-        </Button>
-        <Button
-          disabled={!table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()}
-          onClick={() => handleDownloadPhotos(table.getSelectedRowModel().rows)}
-          startIcon={<FileDownloadIcon />}
-        >
-          Download Selected Photos
         </Button>
       </Box>
     ),

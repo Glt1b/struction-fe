@@ -1,6 +1,15 @@
 import React from "react";
 import ampaLogo from '../images/ampa.png';
 import { Document, Page, Text, Image, View, StyleSheet } from '@react-pdf/renderer';
+import { Font } from '@react-pdf/renderer';
+
+Font.register({
+  family: 'Roboto',
+  fonts: [
+    { src: 'https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Mu4mxP.ttf' }, // Normal font
+    { src: 'https://fonts.gstatic.com/s/roboto/v20/KFOlCnqEu92Fr1MmWUlfBBc9.ttf', fontWeight: 'bold' } // Bold font
+  ]
+})
 
 const styles = StyleSheet.create({
   container: {
@@ -11,13 +20,15 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 12,
     marginBottom: 5,
+    fontFamily: 'Roboto',
     fontWeight: 'bold',
   },
   content: {
     fontSize: 10,
     marginBottom: 5,
+    fontFamily: 'Roboto',
   },
-  image: {
+  drawing: {
     width: '100%',
     height: 'auto',
     marginBottom: 10,
@@ -29,77 +40,112 @@ const styles = StyleSheet.create({
     width: 150, // Adjust the width as needed
     height: 100, // Adjust the height as needed
   },
+  imageGallery: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    margin: 5,
+  },
+  image: {
+    width: '35%', // Adjust as needed
+    height: 'auto',
+    marginBottom: 10,
+  },
 });
 
 export default function PDF(props) {
   const photos = props.photos.filter(item => item !== 'error');
+
+
   let materialsStrings = '';
+  let servicesString = '';
 
   if (props.details.type === 'seal') {
+
     props.details.materialsUsed.forEach(o => {
       const key = Object.keys(o)[0];
       const [width, height, diameter, quantity] = o[key];
       const str = `${key}: ` +
-                  (width !== "" ? `width: ${width}, ` : '') +
-                  (height !== "" ? `height: ${height}, ` : '') +
-                  (diameter !== "" ? `diameter: ${diameter}, ` : '') +
-                  (quantity !== "" ? `quantity: ${quantity}, ` : '') +
-                  ((width !== "" && height !== "" && quantity !== "0") ? `(${height * width * quantity / 1000000} m2)` : '');
+        (width !== "" ? `width: ${width}, ` : '') +
+        (height !== "" ? `height: ${height}, ` : '') +
+        (diameter !== "" ? `diameter: ${diameter}, ` : '') +
+        (quantity !== "" ? `quantity: ${quantity}, ` : '') +
+        ((width !== "" && height !== "" && quantity !== "0") ? `(${height * width * quantity / 1000000} m2)` : '');
 
       materialsStrings += str + '\n';
     });
-  } 
+
+    let tempCounter = {};
+
+    props.details.service.forEach(ele => {
+          if (tempCounter[ele]) {
+              tempCounter[ele] += 1;
+          } else {
+              tempCounter[ele] = 1;
+          }
+      });
+
+    const keys = Object.keys(tempCounter);
+    console.log(keys)
+
+    keys.forEach(ele => {
+      servicesString += ele + ': ' + tempCounter[ele].toString() + ', ';
+    })
+  }
 
   return (
     <Document>
       <Page size="A4">
         <View style={styles.container}>
           <Image src={ampaLogo} style={styles.logo} />
-          <Text style={styles.heading}>ID: {props.details.id}</Text>
-          <Text style={styles.heading}>Number: {props.details.number}</Text>
-          <Text style={styles.heading}>Status: {props.details.status}</Text>
-          <Text style={styles.heading}>Type: {props.details.type}</Text>
-          <Text style={styles.heading}>Fire rating: {props.details.fR}</Text>
-          <Text style={styles.heading}>Location: {props.details.location}</Text>
+          <Text style={styles.heading}>Number: </Text>
+          <Text style={styles.content}>{props.details.number}</Text>  
+          <Text style={styles.heading}>---------------</Text>
+          <Text style={styles.heading}>ID:</Text>
+          <Text style={styles.content}>{props.details.doorCondition}</Text>
+          <Text style={styles.heading}>---------------</Text>
+          <Text style={styles.heading}>Location: </Text>
+          <Text style={styles.content}>{props.details.location}</Text>
+          <Text style={styles.heading}>---------------</Text>
+          <Text style={styles.heading}>Status: </Text>
+          <Text style={styles.content}>{props.details.status}</Text>
+          <Text style={styles.heading}>----------------</Text>
+          <Text style={styles.heading}>Fire rating: </Text>
+          <Text style={styles.content}>{props.details.fR}</Text>
+          <Text style={styles.heading}>----------------</Text>
+          <Text style={styles.heading}>Scope of Work: </Text>
+          <Text style={styles.content}>{props.details.frameCondition}</Text>
+          <Text style={styles.heading}>----------------</Text>
+          <Text style={styles.heading}>Risk Category: </Text>
+          <Text style={styles.content}>{props.details.visionPanel} </Text>
+          <Text style={styles.heading}>---------------</Text>
+          <Text style={styles.heading}>Materials:</Text>
+          <Text style={styles.content}>{materialsStrings}</Text>
+          <Text style={styles.heading}>---------------</Text>
+          <Text style={styles.heading}>Services: </Text>
+          <Text style={styles.content}>{servicesString}</Text>
+          <Text style={styles.heading}>---------------</Text>
+     
+          <Text style={styles.heading}>Comment: </Text>
+          <Text style={styles.content}>{props.details.comment}</Text>
+          
 
-          {props.details.type === 'seal' && (
-            <View>
-              <Text style={styles.heading}>Materials:</Text>
-              <Text style={styles.content}>{materialsStrings}</Text>
-              <Text style={styles.heading}>Services: {props.details.service.join(', ')}</Text>
-            </View>
-          )}
-
-          {props.details.type === 'door' && (
-            <View>
-              <Text style={styles.heading}>Door configuration: {props.details.doorConfiguration}</Text>
-              <Text style={styles.heading}>Door condition: {props.details.doorCondition}</Text>
-              <Text style={styles.heading}>Frame condition: {props.details.frameCondition}</Text>
-              <Text style={styles.heading}>Vision panel: {props.details.visionPanel}</Text>
-              <Text style={styles.heading}>Handle: {props.details.handle}</Text>
-              <Text style={styles.heading}>Lock: {props.details.lock}</Text>
-              <Text style={styles.heading}>Door gap hinge: {props.details.doorGapHinge}</Text>
-              <Text style={styles.heading}>Door gap lock side: {props.details.doorGapLockSide}</Text>
-              <Text style={styles.heading}>Door gap head: {props.details.doorGapHead}</Text>
-              <Text style={styles.heading}>Door gap bottom: {props.details.doorGapBottom}</Text>
-              <Text style={styles.heading}>Opening height: {props.details.openingHeight}</Text>
-              <Text style={styles.heading}>Ironmongery: {props.details.ironmongery}</Text>
-              <Text style={styles.heading}>Finish: {props.details.doorFinish}</Text>
-            </View>
-          )}
-
-          <Text style={styles.heading}>Comment: {props.details.comment}</Text>
         </View>
       </Page>
+
       
-      {photos.map((photo, index) => (
-        <Page size="A4" key={index + 1}>
-          <Image src={photo} style={styles.image} />
+        <Page size="A4">
+          <View style={styles.imageGallery}>
+            {photos.map((photo, index) => (
+              <Image key={index} src={photo} style={styles.image} />
+            ))}
+          </View>
         </Page>
-      ))}
+ 
       
       <Page size="A4">
-        <Image src={props.map} style={styles.image} />
+        <Image src={props.map} style={styles.drawing} />
       </Page>
     </Document>
   );

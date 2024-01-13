@@ -1,5 +1,5 @@
-import { React, useState, useContext, useEffect } from "react";
-import { MapContainer, ImageOverlay, ZoomControl, Marker, useMap } from "react-leaflet";
+import { React, useState, useContext, useEffect, useCallback, useMemo } from "react";
+import { MapContainer, ImageOverlay, ZoomControl, Marker, useMap, TileLayer } from "react-leaflet";
 import { MarkersContext } from "../contexts/Markers.js";
 import { ProjectMarkersContext } from "../contexts/ProjectMarkers.js";
 import { postMarker } from "../utils/api.js";
@@ -17,26 +17,65 @@ const myCompletedMarker = new Icon({ iconUrl: marker2, iconSize: [45, 45], iconA
 
 const L = window["L"];
 
+// Map Control
+
+
+function MinimapControl({ position, zoom, image, icon }) {
+
+  const positionClass = 'leaflet-top leaflet-right'
+  const updatedPosition = [position[0]/20, position[1]/20]
+
+  return (
+    <div className={positionClass}>
+      <div className="leaflet-control leaflet-bar">
+      <MapContainer
+        style={{ height: 500, width: 500 }}
+        center={[0, 0]}
+        zoom={1}
+        dragging={false}
+        doubleClickZoom={false}
+        scrollWheelZoom={false}
+        attributionControl={false}
+        zoomControl={false}>
+        <ImageOverlay url={`${image}`} className="map-image" bounds={[
+       [-150, -150],
+         [150, 150],
+                     ]}/>
+        <Marker position={updatedPosition}
+         icon={icon}></Marker>
+      </MapContainer>
+      </div>
+    </div>
+  )
+}
+
 export default function Map(props) {
   const { markers, setMarkers } = useContext(MarkersContext);
   const { projectMarkers, setProjectMarkers } = useContext(
     ProjectMarkersContext
   );
+
+  const [initialLoad, setInitialLoad] = useState(true);
+  const [filter, setFilter] = useState('');
+  const [filterID, setFilterID] = useState('');
+  const [filteredMarkers, setFilteredMarkers] = useState(markers);
+
   const bounds = [
     [-3000, -3000],
     [3000, 3000],
   ];
-  const [creationMode, setCreationMode] = useState(false);
+
+  const [creationMode, setCreationMode] = useState('');
   const [latlng, setLatlng] = useState(null);
 
   //update map after marker creation
   useEffect(() => {
-    //console.log(projectMarkers)
+    setInitialLoad(true);
     const m = projectMarkers.filter(
       (item) => item.location === props.currentLocation
     );
-    setMarkers(m);
-  }, [projectMarkers]);
+    setFilteredMarkers(m);
+  }, [markers, projectMarkers]);
 
   // create marker function
 
@@ -46,6 +85,26 @@ export default function Map(props) {
       setCreationMode(false);
     }
   }, [latlng]);
+
+  useEffect(() => {
+    if(!initialLoad){
+      filterMarkers(filter, filterID);
+    } else {
+      setInitialLoad(false);
+    }
+  }, [filter, filterID])
+
+  const filterMarkers = (ref, id) => {
+      const m = markers.filter((item) => item.number.toUpperCase().includes(ref.toUpperCase()));
+      if(filterID !== ''){
+        const m2 = m.filter((item) => item.doorCondition.toUpperCase() === id.toUpperCase());
+        setFilteredMarkers(m2);
+      } else {
+        setFilteredMarkers(m);
+      }
+      
+      
+    }
 
   const MapFly = () => {
     const map = useMap();
@@ -94,7 +153,7 @@ export default function Map(props) {
           ironmongery: '',
           type: 'seal',
           handle: '',
-          lock: '',
+          lock: '', // estimated time
           doorCondition: '' // ID number 2
         
       };
@@ -116,10 +175,10 @@ export default function Map(props) {
       console.log(markers)
       console.log(toUpload)
 
-      markers.push(obj[Object.keys(obj)[0]]);
+      markers.push(obj);
       storage.projectMarkers = markers;
 
-      toUpload.push(obj[Object.keys(obj)[0]]);
+      toUpload.push(obj);
       storage.markersToUpload = toUpload;
 
       localStorage.setItem(`${struction.projectName}-markers`, JSON.stringify(storage));
@@ -130,7 +189,7 @@ export default function Map(props) {
   };
 
   return (
-    <div className="App">
+    <div>
       <MapContainer
         id={"map-container"}
         className="map"
@@ -147,7 +206,7 @@ export default function Map(props) {
           url={`${props.image}`}
           bounds={bounds}
         >
-          { !props.mapPdf ? markers.map((item) => {
+          { !props.mapPdf ? filteredMarkers.map((item) => {
             return (
               <DraggableMarker
                 key={item.id}
@@ -186,7 +245,7 @@ export default function Map(props) {
                 hingeAdjustment={item.hingeAdjustment}
                 ironmongery={item.ironmongery}
                 handle={item.handle}
-                lock={item.lock}
+                lock={item.lock} // estimated time
                 doorCondition={item.doorCondition} // ID number 2
                 doorCloser={item.doorCloser}
               
@@ -212,6 +271,35 @@ export default function Map(props) {
         <button className="create-btn" onClick={() => setCreationMode(true)}>
           {creationMode ? "Click on Map" : "Create new marker"}
         </button> ) : null}
+
+        { !props.mapPdf ? (
+        <p><input
+        className="filter"
+        placeholder="Reference number"
+        value={filter}
+        type="text"
+        onChange={(e) => {
+          setFilter(e.target.value);
+        }}
+        ></input></p>) : null}
+
+       { !props.mapPdf ? (
+        <p><input
+        className="filter2"
+        placeholder="ID"
+        value={filterID}
+        type="text"
+        onChange={(e) => {
+          setFilterID(e.target.value);
+        }}
+        ></input></p>) : null}
+
+        { props.mapPdf ? 
+        <MinimapControl 
+        position={props.mapPdf[2].locationOnDrawing}
+        icon={props.mapPdf[2].status === 'completed' ? myCompletedMarker : (props.mapPdf[2].status === 'issue' ? myIssueMarker : myMarker) }
+        image={props.image}/> : null}
+
       </MapContainer>
     </div>
   );

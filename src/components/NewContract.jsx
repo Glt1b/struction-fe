@@ -15,7 +15,8 @@ export default function NewContract(props){
         const data = {
             "materials": [],
             "services": [],
-            "locations": []
+            "locations": [],
+            
         }
         postProjectDetails(newContract, data);
 

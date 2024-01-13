@@ -3,31 +3,33 @@ import { getKeyValuePairsInArray, deleteIndexedDB } from "../utils/indexedDB";
 import { patchMarker, postImage } from "../utils/api";
 
 export default function Synch(props) {
-  const [markerCounter, setMarkerCounter] = useState(0);
+  
   const struction = JSON.parse(localStorage.getItem('Struction'));
   const storage = JSON.parse(localStorage.getItem(`${struction.projectName}-markers`));
   const markersToUpload = storage.markersToUpload;
+  const [markerCounter, setMarkerCounter] = useState(markersToUpload.length);
 
   useEffect(() => {
     console.log('Uploading markers...')
-    // Counter to keep track of successful marker uploads
-    let successfulMarkerUploads = 0;
 
     // Upload markers
     if(markersToUpload.length > 0){
       for (let i = 0; i < markersToUpload.length; i++) {
       const id = markersToUpload[i].id;
-      const obj = { [id]: markersToUpload[i] };
+      const obj = markersToUpload[i];
 
       patchMarker(struction.projectName, id, obj)
         .then((result) => {
           console.log(result);
-          successfulMarkerUploads++;
+          setMarkerCounter(markerCounter-1);
 
           // If all markers are uploaded, proceed to upload photos
-          if (successfulMarkerUploads === markersToUpload.length) {
-            uploadPhotos();
+          setTimeout(() => {
+            if (markerCounter === 0) {
+              uploadPhotos();
           }
+          }, 500)
+
         })
         .catch((err) => {
           console.log(err);
@@ -107,6 +109,9 @@ export default function Synch(props) {
   return (
     <div>
       <h2>Uploading to database...</h2>
+      {markerCounter > 0 ? (<p>Markers left: {markerCounter}</p>) : (
+        <p>Uploading photos...</p>
+      )}
     </div>
   );
 }
