@@ -23,7 +23,14 @@ const L = window["L"];
 function MinimapControl({ position, zoom, image, icon }) {
 
   const positionClass = 'leaflet-top leaflet-right'
-  const updatedPosition = [position[0]/20, position[1]/20]
+  let updatedPosition
+  if(position.lat){
+    updatedPosition = [position.lat/20, position.lng/20]
+  } else {
+    updatedPosition = [position[0]/20, position[1]/20]
+  }
+  
+  console.log(position)
 
   return (
     <div className={positionClass}>
@@ -283,6 +290,8 @@ export default function Map(props) {
         }}
         ></input></p>) : null}
 
+        {/*
+
        { !props.mapPdf ? (
         <p><input
         className="filter2"
@@ -292,7 +301,9 @@ export default function Map(props) {
         onChange={(e) => {
           setFilterID(e.target.value);
         }}
-        ></input></p>) : null}
+        ></input></p>) : null}*/}
+
+        
 
         { props.mapPdf ? 
         <MinimapControl 

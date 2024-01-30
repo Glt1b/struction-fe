@@ -167,8 +167,8 @@ h6 {
 
 .filter {
   position: absolute;
-  top: 5vh;
-  right: 6vh;
+  bottom: 5vh;
+  left: 6vh;
   width: 11em;
   z-index: 800;
   border-radius: 25px;

@@ -285,7 +285,7 @@ export default function DraggableMarker(props) {
       dragend() {
         const marker = markerRef.current;
         if (marker != null) {
-          setPosition(marker.getLatLng());
+          setPosition([marker.getLatLng().lat, marker.getLatLng().lng]);
           setUpdateNeeded(true);
         }
       },

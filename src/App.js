@@ -133,7 +133,7 @@ export default function App() {
         setProjectMarkers(markersData.projectMarkers)
 
       }
-  }, [mode]); // add user !!!
+  }, [mode, user]); // add user !!!
 
   // load locations from IDB
 
@@ -348,6 +348,8 @@ export default function App() {
         if(markers[n-1].photos.length === 0){
             console.log('No photos found')
             console.log('Settig details')
+            console.log(pdfName)
+            console.log(arr)
             setMapPdf([pdfName, arr, markers[n-1]]);
             downloadPDFs(n - 1);
         }
@@ -358,6 +360,9 @@ export default function App() {
             arr.push(result);
             if(arr.length === markers[n-1].photos.length){
               console.log('Settig details')
+              console.log(pdfName)
+              console.log(arr)
+              console.log(markers[n-1])
               setMapPdf([pdfName, arr, markers[n-1]]);
               downloadPDFs(n - 1);
             }
@@ -366,6 +371,9 @@ export default function App() {
             arr.push('error');
             if(arr.length === markers[n-1].photos.length){
               console.log('Settig details')
+              console.log(pdfName)
+              console.log(arr)
+              console.log(markers[n-1])
               setMapPdf([pdfName, arr, markers[n-1]]);
               downloadPDFs(n - 1);
             }

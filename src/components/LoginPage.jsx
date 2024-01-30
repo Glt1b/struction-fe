@@ -51,6 +51,8 @@ export default function LoginPage(props) {
             <FormInput description="Email" placeholder="Enter your email" type="text"  set={setMail}/>
             <FormInput description="Password" placeholder="Enter your password" type="text" set={setPassword}/>
             { mail !== '' && password !== '' ? (<FormButton title="Log in" login={logInFunction}/>) : null}
+            
+            {/* 
             { mail !== ''  ? (<FormButton title="Reset Password" login={sendCode}/>) :  null}
             { code !== ''  ? (
               <div>
@@ -58,7 +60,7 @@ export default function LoginPage(props) {
               <FormInput description="Password" placeholder="Enter new password" type="text" set={setNewPassword}/>
               <FormInput description="Password" placeholder="Repeat new password" type="text" set={setNewPassword2}/>
               <FormButton title="Reset Password" login={resetPassword}/>
-              </div>) : null}
+              </div>) : null}*/}
         </div>
       )
     }
