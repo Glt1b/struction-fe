@@ -118,7 +118,7 @@ const handleExportRows = async (rows) => {
     let d = [];
 
     Promise.all(
-      markers.map(async (m) => {
+      markers.map(async (m) => {     // markers / projectMarkers
         let photoBefore;
         let photoAfter;
 
