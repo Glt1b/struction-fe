@@ -1,38 +1,37 @@
 import { React, useEffect, useState } from "react";
-import { postUsersList, updateUserDetails, deleteUser, getUser } from "../utils/api";
+import { postUsersList, updateUserDetails, deleteUser, getUser, getProjectsList } from "../utils/api";
 
 export default function UsersForm(props) {
 
-    const mailID = props.email
-    const [email, setEmail] = useState(props.email);
-    const [name, setName] = useState(props.name);
-    const [role, setRole] = useState(props.role);
-    const [projects, setProjects] = useState(props.projects);
+    const [initialLoad, setInitialLoad] = useState(true);
 
-    const [edit, setEdit] = useState(false);
+    const [email, setEmail] = useState(props.user);
+    const [name, setName] = useState('');
+    const [role, setRole] = useState('');
+    const [projects, setProjects] = useState('');
+
 
     const availableRoles = ['Manager', 'Supervisor', 'Operative', 'Visitor'];
+    const availableProjects = props.projectsList;
   
 
-    const users = props.users;
-    const setUsers = props.setUsers;
-    const list = props.list;
-    const setList = props.setList;
+    useEffect (() => {
+      if(initialLoad){
+        setInitialLoad(false);
+        getUser(email).then((response) => {
+          console.log(response)
+          setName(response.props.name);
+          setRole(response.props.role);
+          setProjects(response.props.projects);
+        })
+      }
+
+    }, [initialLoad])
     
 
     const updateUser = (mail, name, role, projects) => {
       console.log('starting update')
-      console.log('list:' + list)
-
-      let updatedList = [];
       
-      for (let i = 0; i < list.length; i++){
-          if(list[i] !== mailID){
-              updatedList.push(list[i]);
-          };
-        }
-
-      updatedList.push(mail);
 
 
       const update = {
@@ -40,28 +39,15 @@ export default function UsersForm(props) {
           "role": role,
           "projects": projects
       }
-      //updatedUsers.push(update);
-
-      //props.setUsers(updatedUsers);
-
-      console.log(updatedList);
 
       updateUserDetails(mail, update).then((res) => {
           console.log(res)
       })
-
-      postUsersList(updatedList)
-      
       
   }
 
   const deleteUser = () => {
-    const updatedList = list.filter((item) => {
-      return item !== email
-    })
-    console.log("updated list" + updatedList)
-    setList(updatedList);
-    postUsersList(updatedList);
+   
 
   }
 
@@ -78,13 +64,11 @@ export default function UsersForm(props) {
 
     return(
         <div style={{background: 'white'}}>
-        {!edit ? (
-           <div style={{
+        <div style={{
             backgroundColor: 'white'
           }}>
-           <p>Name: {name}</p>
-           <p>e-mail: {email}</p>
-           </div>) : (
+          
+           </div>
              <div>
 
             <div>
@@ -153,7 +137,7 @@ export default function UsersForm(props) {
               <b>Projects</b>
             </div>
             <div className="list-container" id="status-container">
-              {props.projectsList.sort().map((item, index) => (
+              {availableProjects.sort().map((item, index) => (
                 <div className="checkbox" key={index}>
                   <input
                     id={item}
@@ -170,12 +154,11 @@ export default function UsersForm(props) {
           </div>
 
             
-
-           </div>)}
+           </div>
            
-           {!edit ? (<button onClick={() => {setEdit(true)}}>Edit</button>) :
-           (<button onClick={() => {setEdit(false)
-                                    updateUser(email, name, role, projects)}}>Save</button>)}
+           
+           <button onClick={() => {updateUser(email, name, role, projects)
+                                  props.setEdit(false)}}>Save</button>
            
            <button style={{color: 'red'}} onClick={() => {deleteUser()}}>Delete</button>
 

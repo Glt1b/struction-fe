@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getUsersList, getUser, updateUserDetails, getProjectsList } from "../utils/api";
+import { getUsersList, getUser, updateUserDetails, getProjectsList, postUsersList } from "../utils/api";
 import { MaterialReactTable } from 'material-react-table';
 import { Box, Button, TextField, Checkbox, FormControlLabel } from '@mui/material';
 import UsersForm from "./UsersForm";
@@ -74,8 +74,15 @@ export default function Users() {
 
   const handleAddUser = async () => {
     const { email, name, role } = form;
-    const update = { props: { name, role, projects: [] }};
+    const update = { name, role, projects: [] };
     await updateUserDetails(email, update);
+    const usersList = await getUsersList()
+    
+    if(!usersList.includes(email)){
+      usersList.push(email);
+      await postUsersList(usersList);
+    }
+    
     setNewUser(false); // Close the add user form
     setForm({ email: '', name: '', role: '' }); // Reset form
     setInitialLoad(true); // Trigger re-fetch of users
@@ -95,7 +102,8 @@ export default function Users() {
     {edit ? (<UsersForm
             user={edit}
             setInitialLoad={setInitialLoad}
-            setEdit={setEdit}/>) : null}
+            setEdit={setEdit}
+            projectsList={projectsList}/>) : null}
 
     {!edit ? (
     <Box sx={{ m: 2 }}>
@@ -136,7 +144,7 @@ export default function Users() {
               key={index}
             />
           ))}
-          <Button onClick={handleAddUser} variant="contained" sx={{ mt: 2 }}>
+          <Button onClick={() => handleAddUser()} variant="contained" sx={{ mt: 2 }}>
             Submit
           </Button>
         </Box>
