@@ -13,7 +13,8 @@ import Details from "./components/Details";
 import Synch from "./components/Synch";
 import Spreadsheet from "./components/Spreadsheet.jsx";
 import DropdownMenu from "./components/Dropdown.jsx";
-import ampaLogo from "./images/ampa.png";
+import ampaLogo from "./images/ampa-logo.svg";
+import background from "./images/background.jpeg"
 
 // imports for PDFs creating
 import PDF from './components/PDF';
@@ -417,7 +418,7 @@ export default function App() {
       <header className="App-header">
         {isProjectLoaded ? (
           <p>
-          {user.key}
+          {user.key}/
               {projectName}/{currentLocation}
             </p>
           
@@ -426,11 +427,7 @@ export default function App() {
         )}
 
         { mapPdf ? (<p>Exporting to PDFs...</p>) : null }
-        <img
-          className="struction-logo--header"
-          src={ampaLogo}
-          alt="struction logo"
-        />
+        
       </header>
 
       <DropdownMenu

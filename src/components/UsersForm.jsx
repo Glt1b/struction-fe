@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from "react";
-import { postUsersList, updateUserDetails, deleteUser } from "../utils/api";
+import { postUsersList, updateUserDetails, deleteUser, getUser } from "../utils/api";
 
 export default function UsersForm(props) {
 
@@ -153,7 +153,7 @@ export default function UsersForm(props) {
               <b>Projects</b>
             </div>
             <div className="list-container" id="status-container">
-              {props.projectsList.map((item, index) => (
+              {props.projectsList.sort().map((item, index) => (
                 <div className="checkbox" key={index}>
                   <input
                     id={item}

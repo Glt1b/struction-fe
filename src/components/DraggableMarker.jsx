@@ -560,7 +560,7 @@ export default function DraggableMarker(props) {
               type="text"
               onChange={(e) => {
                 setUpdateNeeded(true);
-                setNumber(e.target.value);
+                setNumber(e.target.value.toUpperCase());
               }}
             ></input></p>)}
           </div>

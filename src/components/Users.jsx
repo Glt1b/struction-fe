@@ -1,163 +1,152 @@
-import { React, useEffect, useState } from "react";
-import { getUsersList, postUsersList, getUser, updateUserDetails, getProjectsList } from "../utils/api";
+import React, { useEffect, useState } from "react";
+import { getUsersList, getUser, updateUserDetails, getProjectsList } from "../utils/api";
+import { MaterialReactTable } from 'material-react-table';
+import { Box, Button, TextField, Checkbox, FormControlLabel } from '@mui/material';
 import UsersForm from "./UsersForm";
 
-
 export default function Users() {
+  const [initialLoad, setInitialLoad] = useState(true);
+  const [edit, setEdit] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [processedUsers, setProcessedUsers] = useState([]);
+  const [projectsList, setProjectsList] = useState([]);
+  const [newUser, setNewUser] = useState(false);
+  const [form, setForm] = useState({ email: '', name: '', role: '' });
+  const availableRoles = ['Manager', 'Supervisor', 'Operative'];
 
-    const [list, setList] = useState(false);
-    const [users, setUsers] = useState(false);
+  const handleEditUser = (mail) => {
+    setEdit(mail);
+  };
 
-    const [newUser, setNewUser] = useState(false);
-    const [email, setEmail] = useState('');
-    const [name, setName] = useState('');
-    const [role, setRole] = useState('');
-    const [projectsList, setProjectsList] = useState(false);
+  // Fetch projects list
+  useEffect(() => {
+    const fetchProjectsList = async () => {
+      const result = await getProjectsList();
+      setProjectsList(result);
+    };
+    fetchProjectsList();
+  }, []);
 
-    const availableRoles = ['Manager', 'Supervisor', 'Operative'];
-
-    const addUser = (email, name, role) => {
-
-      const update = {
-        "name": name,
-        "role": role,
-        "projects": []}
-
-      updateUserDetails(email, update)
-
-      const updatedList = [...list, email]
-      console.log('updated list:' + updatedList)
-      postUsersList(updatedList);
-      setTimeout(() => {
-        setList(updatedList);
-      }, 2000)
-      
-      
+  // Fetch users list
+  useEffect(() => {
+    const fetchUsersList = async () => {
+      const userList = await getUsersList();
+      const usersData = await Promise.all(userList.map(user => getUser(user)));
+      setUsers(usersData);
+      setInitialLoad(false);
+    };
+    if (initialLoad) {
+      fetchUsersList();
     }
+  }, [initialLoad]);
 
-    useEffect(() => {
-      if(!projectsList){
-        getProjectsList().then((result) => {
-          setProjectsList(result)
-        })
-      }
+  // Process users data
+  useEffect(() => {
+    const processed = users.map(user => ({
+      email: user.key,
+      name: user.props?.name,
+      role: user.props?.role,
+      projects: user.props?.projects?.join(', ') || 'No projects assigned'
+    })).filter(user => user.name && user.role); // Ensure we only include users with defined name and role
+    setProcessedUsers(processed);
+  }, [users]);
 
-    }, [projectsList])
-
-    useEffect(() => {
-        if(!list){
-            getUsersList().then((result) => {
-                setList(result);
-            })
-        }
-    }, [list])
-
-    useEffect(() => {
-        if(list){
-            let usersData = [];
-            console.log(list)
-            list.forEach((user) => {
-                getUser(user).then((result) => {
-                    usersData.push(result)
-                    console.log(result)
-                    if(list.length === usersData.length){
-                       console.log(usersData)
-                       setUsers(usersData);
-                }
-                })
-                
-            })
-        }
-    }, [list])
-
-    return(
-      <div>
-            <h1>Users</h1>
-            {(users ? users.map((element, index) => {
-                return (<UsersForm 
-                key={index}
-                email={element.key}
-                name={element.props.name}
-                role={element.props.role}
-                projects={element.props.projects}
-                projectsList={projectsList}
-
-                list={list}
-                setList={setList}
-                users={users}
-                setUsers={setUsers}
-                
-                />)
-            }) : null)}
-
-            {!newUser ? (<button onClick={() => {setNewUser(true)}}>Create new user</button>) : null}
-
-            {newUser ? (
-                <div>
-                    <div>
-                <div className="text-input" id="comment-container">
-            <div className="title">
-              <label htmlFor="comment">
-                <b>Name</b>
-              </label>
-            </div>
-
-            <input
-              id="comment"
-              className="input"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-              }}
-            ></input>
-            </div>
-            </div>
-
-            <div>
-            <div className="text-input" id="comment-container">
-            <div className="title">
-            <label htmlFor="comment">
-            <b>email</b>
-            </label>
-            </div>
-
-            <input
-            id="comment"
-            className="input"
-            value={email}
-            onChange={(e) => {
-            setEmail(e.target.value);
-            }}
-            ></input>
-            </div>
-            </div>
-
-
-            <div >
-            <div className="title" id="status">
-              <b>Role</b>
-            </div>
-            <div className="list-container" id="status-container">
-              {availableRoles.map((item, index) => (
-                <div className="checkbox" key={index}>
-                  <input
-                    id={item}
-                    value={item}
-                    type="checkbox"
-                    checked={role === item ? true : false}
-                    onChange={() => setRole(item)}
-                  />
-
-                  <label htmlFor={item}>{item}</label>
-                </div>
-              ))}
-            </div>
-          </div>
-          <button onClick={() => {setNewUser(false)
-                                 addUser(email, name, role)}}>Submit</button>
-                </div>
-            ) : null}
+  const columns = React.useMemo(
+    () => [
+      { accessorKey: 'email', header: 'Email' },
+      { accessorKey: 'name', header: 'Name' },
+      { accessorKey: 'role', header: 'Role' },
+    // Add a new column for actions
+    {
+      id: 'actions', // It's a good practice to give a column an ID when it doesn't directly map to a data field
+      header: 'Actions',
+      Cell: ({ row }) => (
+        <div>
+          <Button onClick={() => handleEditUser(row.original.email)} color="primary">
+            Edit
+          </Button>
         </div>
-    )
+      ),
+    },
+    ],
+    [],
+  );
+
+  const handleAddUser = async () => {
+    const { email, name, role } = form;
+    const update = { props: { name, role, projects: [] }};
+    await updateUserDetails(email, update);
+    setNewUser(false); // Close the add user form
+    setForm({ email: '', name: '', role: '' }); // Reset form
+    setInitialLoad(true); // Trigger re-fetch of users
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleRoleChange = (role) => {
+    setForm(prev => ({ ...prev, role }));
+  };
+
+  return (
+    <div>
+    {edit ? (<UsersForm
+            user={edit}
+            setInitialLoad={setInitialLoad}
+            setEdit={setEdit}/>) : null}
+
+    {!edit ? (
+    <Box sx={{ m: 2 }}>
+      <h1>Users</h1>
+      <MaterialReactTable
+        columns={columns}
+        data={processedUsers}
+        muiTableBodyRowProps={{ hover: true }}
+      />
+      {newUser ? (
+        <Box component="form" noValidate autoComplete="off" sx={{ mt: 2 }}>
+          <TextField
+            label="Email"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Name"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+          />
+          {availableRoles.map((role, index) => (
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={form.role === role}
+                  onChange={() => handleRoleChange(role)}
+                  name="role"
+                />
+              }
+              label={role}
+              key={index}
+            />
+          ))}
+          <Button onClick={handleAddUser} variant="contained" sx={{ mt: 2 }}>
+            Submit
+          </Button>
+        </Box>
+      ) : (
+        <Button onClick={() => setNewUser(true)} variant="contained" sx={{ mt: 2 }}>
+          Create New User
+        </Button>
+      )}
+    </Box>) : null}
     
+    </div>
+  );
 }

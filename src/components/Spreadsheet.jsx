@@ -118,10 +118,12 @@ const handleExportRows = async (rows) => {
     let d = [];
 
     Promise.all(
-      markers.map(async (m) => {     // markers / projectMarkers
-        let photoBefore;
-        let photoAfter;
+      projectMarkers.map(async (m) => {     // markers / projectMarkers
+        let photoBefore = ''
+        let photoAfter = ''
 
+        
+/*
         // Use Promise.all to wait for both getImage promises to resolve
         await Promise.all([
           getImage(m.photos[0]).then((result) => {
@@ -137,7 +139,8 @@ const handleExportRows = async (rows) => {
             photoAfter = ''
           }),
         ]);
-
+         */
+        
 
         let materialsStrings = '';
         let servicesString = '';
@@ -275,14 +278,14 @@ const handleExportRows = async (rows) => {
         d.push(obj);
 
         // set data if extracting completed
-        if (d.length === markers.length) {
+        if (d.length === projectMarkers.length) {
           setData(d);
           setLoaded(true);
         }
       })
     );
   }
-}, [pagination.pageIndex, pagination.pageSize, markers, initialLoad]);
+}, [markers, initialLoad]);
 
 
   //should be memoized or stable

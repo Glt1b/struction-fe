@@ -88,6 +88,8 @@ h6 {
   height: 100vh;
 }
 
+
+
 .App-header {
   background-color: #d2deeb;
   min-height: 14vh;
@@ -113,14 +115,14 @@ h6 {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 10em;
+  height: 50%;
 }
 
 .struction-logo--header {
-  /* position: fixed;
-  top: 0.5em;
-  right: 1em; */
-  width: 7rem;
+  position: fixed;
+  top: -1cm;
+  right: 1em; 
+  height: 25vh;
 }
 
 
@@ -323,6 +325,7 @@ INPUT[type="checkbox"] {
   width: 100px;
 }
 
+
 .input {
   appearance: none;
   border-radius: 5px;
@@ -464,9 +467,7 @@ INPUT[type="checkbox"] {
 #loginform{
   max-width: 500px;
   min-width: 300px;
-  max-height: 700px;
   width: 30%;
-  height: 60%;
   margin: 100px auto;
   background-color: #FFFFFF;
   border-radius: 25px;

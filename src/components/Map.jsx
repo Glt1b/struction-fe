@@ -291,7 +291,6 @@ export default function Map(props) {
         ></input></p>) : null}
 
         {/*
-
        { !props.mapPdf ? (
         <p><input
         className="filter2"
@@ -302,6 +301,7 @@ export default function Map(props) {
           setFilterID(e.target.value);
         }}
         ></input></p>) : null}*/}
+
 
         
 

@@ -33,7 +33,12 @@ export const postProjectDetails = (name, body) => {
 
 // users
 
-// send code function
+export const generateCode = (user) => {
+  return beStructionApi.get("/code/" + user)
+  .then((res) => {
+    return res.data.code;
+  })
+}
 
 export const updateUserDetails = (user, body) => {
   return beStructionApi.post("/users/" + user, body)
